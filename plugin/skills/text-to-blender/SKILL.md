@@ -159,6 +159,8 @@ Example:
 | Render took too long | Reduce samples, enable adaptive sampling, lower resolution |
 | File not at expected path | Use absolute paths; verify with Bash `ls` |
 | Material looks wrong after export | You used non-Principled-BSDF nodes; rebuild material with Principled only |
+| `'Action' object has no attribute 'fcurves'` | Blender 5.x layered Actions; walk `action.layers[].strips[].channelbags[].fcurves` instead. See `blender-animation` Recipe 3 for the compat helper. |
+| `BLENDER_EEVEE_NEXT` rejected | Blender 5.x renamed it back to `BLENDER_EEVEE`. See `blender-rendering` Recipe 3 for the try/except fallback. |
 
 ## What this skill is NOT for
 

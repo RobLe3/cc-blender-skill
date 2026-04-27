@@ -1,0 +1,87 @@
+{
+  "name": "cc-blender-skill",
+  "version": "0.4.0",
+  "description": "Comprehensive Blender skill plugin for Claude Code — turns natural-language requests into Blender Python via the Blender MCP. 9 chain-loadable skills covering modeling, materials, lighting, cameras, rendering, animation, export, wireframe-to-3D, and pro-workflow orchestration.",
+  "author": "RobLe3 (with Claude)",
+  "license": "MIT",
+  "homepage": "https://github.com/RobLe3/cc-blender-skill",
+  "requires": {
+    "claude-code": ">=1.0.0",
+    "blender": ">=4.0",
+    "blender-mcp": "ahujasid/blender-mcp >=1.5.0"
+  },
+  "skills": [
+    {
+      "name": "text-to-blender",
+      "role": "orchestrator",
+      "description": "Top-level entry point. Routes natural-language Blender requests to the appropriate sub-skill(s) and sequences them.",
+      "path": "skills/text-to-blender/SKILL.md"
+    },
+    {
+      "name": "blender-pro-workflow",
+      "role": "guidance",
+      "description": "Multi-phase pipeline guidance — scene assembly order, critique protocols, recovery patterns.",
+      "path": "skills/blender-pro-workflow/SKILL.md"
+    },
+    {
+      "name": "blender-modeling",
+      "role": "domain",
+      "description": "Mesh creation, primitives, hard-surface modeling, modifier stacks, bmesh edits.",
+      "path": "skills/blender-modeling/SKILL.md"
+    },
+    {
+      "name": "blender-materials",
+      "role": "domain",
+      "description": "PBR materials via Principled BSDF — metals, glass, plastic, fabric, skin, procedural patterns.",
+      "path": "skills/blender-materials/SKILL.md"
+    },
+    {
+      "name": "blender-lighting",
+      "role": "domain",
+      "description": "Three-point, HDRI, studio, dramatic, outdoor lighting setups.",
+      "path": "skills/blender-lighting/SKILL.md"
+    },
+    {
+      "name": "blender-cameras",
+      "role": "domain",
+      "description": "Cameras, focal length, depth of field, composition, animated cameras (orbit, dolly, push-in).",
+      "path": "skills/blender-cameras/SKILL.md"
+    },
+    {
+      "name": "blender-rendering",
+      "role": "domain",
+      "description": "Cycles vs EEVEE, samples, denoising, color management, animation rendering.",
+      "path": "skills/blender-rendering/SKILL.md"
+    },
+    {
+      "name": "blender-animation",
+      "role": "domain",
+      "description": "Keyframes, F-curves, easing, shape keys (visemes), drivers, NLA actions.",
+      "path": "skills/blender-animation/SKILL.md"
+    },
+    {
+      "name": "blender-export",
+      "role": "domain",
+      "description": "Export to glTF/GLB, FBX, OBJ, USD, STL with target-platform settings.",
+      "path": "skills/blender-export/SKILL.md"
+    },
+    {
+      "name": "wireframe-to-3d",
+      "role": "specialty",
+      "description": "Convert 2D orthographic wireframe drawings to parametric 3D models via image processing → Bezier fitting → Blender curves → mesh → glTF.",
+      "path": "skills/wireframe-to-3d/SKILL.md"
+    }
+  ],
+  "complementary": [
+    {
+      "name": "ra100/blender-claude-plugin",
+      "url": "https://github.com/ra100/blender-claude-plugin",
+      "rationale": "8 generalist Blender reference skills (geometry-nodes, shader-nodes, compositor, etc.). Complementary — they teach Blender's API; we teach how to use it for tasks."
+    },
+    {
+      "name": "Dev-GOM/blender-toolkit",
+      "url": "https://mcpmarket.com/tools/skills/blender-toolkit",
+      "rationale": "Specializes in Mixamo retargeting via custom WebSocket addon. Coexists fine with this plugin — different port, different focus."
+    }
+  ]
+}

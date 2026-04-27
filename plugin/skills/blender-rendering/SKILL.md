@@ -78,9 +78,21 @@ print('render:cycles_draft')
 import bpy
 
 scene = bpy.context.scene
-scene.render.engine = 'BLENDER_EEVEE_NEXT'   # Blender 4.2+; older: 'BLENDER_EEVEE'
-scene.eevee.taa_render_samples = 64
-scene.eevee.taa_samples = 16
+
+# Engine name changed across versions:
+#   Blender ≤ 4.1:        'BLENDER_EEVEE'
+#   Blender 4.2 only:     'BLENDER_EEVEE_NEXT' (transitional; replaced)
+#   Blender ≥ 5.0:        'BLENDER_EEVEE' (the new EEVEE replaced the old)
+# Try the new name first; fall back if it doesn't exist on this Blender.
+try:
+    scene.render.engine = 'BLENDER_EEVEE_NEXT'
+except (TypeError, ValueError):
+    scene.render.engine = 'BLENDER_EEVEE'
+
+# EEVEE settings (eevee namespace exists in 4.x and 5.x)
+if hasattr(scene, 'eevee'):
+    scene.eevee.taa_render_samples = 64
+    scene.eevee.taa_samples = 16
 scene.eevee.use_gtao = True            # screen-space AO
 scene.eevee.gtao_distance = 0.2
 scene.eevee.use_bloom = True            # glow

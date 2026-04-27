@@ -101,13 +101,27 @@ For perfectly constant spin, set keyframes to Linear interpolation (Recipe 3).
 
 ### Recipe 3 — Set keyframes to Linear interpolation
 
+⚠ **Blender 5.x changed the Action API.** Legacy `action.fcurves` was removed in favour of layered Actions: `action.layers[].strips[].channelbags[].fcurves`. Use this compat helper.
+
 ```python
 import bpy
 
+def get_fcurves_compat(action):
+    """Return all fcurves on an Action — works on both legacy (≤4.x) and layered (5.x+) actions."""
+    if hasattr(action, 'fcurves'):
+        return list(action.fcurves)
+    fcurves = []
+    for layer in action.layers:
+        for strip in layer.strips:
+            if hasattr(strip, 'channelbags'):
+                for cb in strip.channelbags:
+                    fcurves.extend(cb.fcurves)
+    return fcurves
+
 obj = bpy.data.objects['GEO-target']
 if obj.animation_data and obj.animation_data.action:
-    for fcurve in obj.animation_data.action.fcurves:
-        for kp in fcurve.keyframe_points:
+    for fc in get_fcurves_compat(obj.animation_data.action):
+        for kp in fc.keyframe_points:
             kp.interpolation = 'LINEAR'
 print(f"interp:linear {obj.name}")
 ```
@@ -119,10 +133,27 @@ Other options: `'BEZIER'` (default), `'CONSTANT'` (step), `'SINE'`, `'QUAD'`, `'
 ```python
 import bpy
 
+# (Re-use get_fcurves_compat from Recipe 3.)
+def get_fcurves_compat(action):
+    if hasattr(action, 'fcurves'):
+        return list(action.fcurves)
+    fcurves = []
+    for layer in action.layers:
+        for strip in layer.strips:
+            if hasattr(strip, 'channelbags'):
+                for cb in strip.channelbags:
+                    fcurves.extend(cb.fcurves)
+    return fcurves
+
 obj = bpy.data.objects['GEO-target']
-fc = obj.animation_data.action.fcurves.find('location', index=2)   # Z axis
-if fc and len(fc.keyframe_points) >= 2:
-    last_kp = fc.keyframe_points[-1]
+target_fc = None
+for fc in get_fcurves_compat(obj.animation_data.action):
+    if fc.data_path == 'location' and fc.array_index == 2:   # Z axis
+        target_fc = fc
+        break
+
+if target_fc and len(target_fc.keyframe_points) >= 2:
+    last_kp = target_fc.keyframe_points[-1]
     last_kp.interpolation = 'BOUNCE'
     last_kp.easing = 'EASE_OUT'    # 'AUTO', 'EASE_IN', 'EASE_OUT', 'EASE_IN_OUT'
 print('animated:bouncy_landing')
@@ -227,8 +258,19 @@ obj.rotation_euler = (0, math.radians(-2), 0)
 obj.keyframe_insert('rotation_euler', frame=96)
 
 # Set extrapolation mode to cycle (loop)
+def get_fcurves_compat(action):
+    if hasattr(action, 'fcurves'):
+        return list(action.fcurves)
+    fcurves = []
+    for layer in action.layers:
+        for strip in layer.strips:
+            if hasattr(strip, 'channelbags'):
+                for cb in strip.channelbags:
+                    fcurves.extend(cb.fcurves)
+    return fcurves
+
 if obj.animation_data and obj.animation_data.action:
-    for fc in obj.animation_data.action.fcurves:
+    for fc in get_fcurves_compat(obj.animation_data.action):
         fc.modifiers.new('CYCLES')
 print('animated:idle_loop')
 ```

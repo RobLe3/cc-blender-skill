@@ -45,11 +45,14 @@ htmlcov/
 *.autosave
 
 # Generated files
-*.json
 *.glb
 *.gltf
 *.bin
 *.png
+
+# But DO track validation proof renders and skill manifests
+!plugin/manifest.json
+!plugin/skills/**/assets/**/*.png
 
 # Temporary
 tmp/

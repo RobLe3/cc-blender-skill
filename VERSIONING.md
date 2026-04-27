@@ -1,6 +1,6 @@
 # Versioning — Honest Quality Path to v1.0
 
-**Current version**: **0.3.0** — scaffolding complete; not yet validated  
+**Current version**: **0.4.0** — first end-to-end validation pass complete  
 **Date**: 2026-04-27
 
 ---
@@ -60,7 +60,18 @@ Until then, this is an honest **0.3.0** — production-ready scaffolding.
 
 ## What changed at each version
 
-(This section will be updated as work progresses.)
+### 0.4.0 — 2026-04-27 — First end-to-end validation pass complete
+- Connected to live Blender 5.1.1 via ahujasid/blender-mcp
+- Ran 6 validation tests (5 representative + 1 bonus glTF) end-to-end against the actual MCP
+- **Result: 5/5 tested prompts pass** after patches
+- **2 real Blender-5.x cross-version bugs surfaced and fixed**:
+  1. `BLENDER_EEVEE_NEXT` doesn't exist on 5.x — try/except fallback added in `blender-rendering/SKILL.md`
+  2. `action.fcurves` removed on 5.x layered Actions — `get_fcurves_compat()` helper added in `blender-animation/SKILL.md`
+- Updated `text-to-blender/SKILL.md` failure-modes table with both 5.x-specific errors
+- Test artefacts (PNG renders, FBX, GLB) saved to `/tmp/cc-blender-test*` for visual inspection
+- See `IMPLEMENTATION_LOG.md` for detailed test-by-test results
+
+Quality estimate updated: **7.5/10** (up from 6.5/10 at 0.3.0). The skill now demonstrably works end-to-end on common Blender 5.x tasks. Coverage breadth (long-tail recipes, advanced sims) still pending.
 
 ### 0.3.0 — 2026-04-27 — Scaffolding complete
 - Built `plugin/skills/` with 10 skills:
