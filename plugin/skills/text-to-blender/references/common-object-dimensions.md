@@ -6,6 +6,26 @@ This file is the lookup table. **Always check before sizing**.
 
 ---
 
+## Eyewear / sunglasses
+
+### Aviator sunglasses (Ray-Ban classic)
+- **Lens**: 58mm wide × 50mm tall, **teardrop shape** (rounder at top, lower at bottom — "droop")
+  - Build: 8-10 point Bezier curve outline, top arc rounder than bottom; bottom point pulled down ~10% extra
+  - For mirror lenses: filled disc inside the rim with `Metallic=1.0, Roughness=0.05, Base Color=tinted F0`
+- **Bridge gap**: 14mm between lens inner edges
+- **Double-bar bridge** (the classic Aviator detail): 
+  - Top bar: thin straight wire spanning across both lens tops, slightly above the rim
+  - Bottom/middle bar: shorter, with a slight saddle dip, between lens inner-tops
+- **Frame wire**: ~0.6-1.0mm diameter (very thin) — use bevel_depth=0.0006 on Bezier curves
+- **Nose pads**: 3mm sphere scaled to vertical pill (1.0, 1.5, 2.5); silicone material; one each side of bridge
+- **Temple arms**: 135mm long; start at outer-mid of lens; extend straight back along Y with slight downward droop at the ear-bend (last 5cm)
+- **Materials**:
+  - Frame: gunmetal (Metallic=1.0, Base Color=(0.18,0.18,0.20), Roughness=0.30) or polished gold/silver
+  - Mirror lens: solid metal with tinted base color (blue: (0.05, 0.10, 0.22); green: (0.08, 0.20, 0.10); brown: (0.20, 0.10, 0.05))
+  - Tinted (non-mirror): Metallic=0, Transmission=1, IOR=1.5, with surface tint or Volume Absorption
+
+**Critical for hero shots**: thin metal temple arms catch side lighting as specular streaks in narrow studio setups. Use SOFTBOX from above or front instead of strong side rim light, OR crop the temple arms out of the frame.
+
 ## Bladed weapons
 
 ### One-handed arming sword (medieval)

@@ -1,6 +1,6 @@
 # Versioning — Honest Quality Path to v1.0
 
-**Current version**: **0.9.1** — wireframe-to-3d scope boundary documented; aviator chained-upgrade demo
+**Current version**: **0.9.2** — aviator hand-crafted with proper Ray-Ban dimensions; eyewear added to dimension reference
 **Date**: 2026-04-27
 
 ---
@@ -59,6 +59,29 @@ Until then, this is an honest **0.3.0** — production-ready scaffolding.
 ---
 
 ## What changed at each version
+
+### 0.9.2 — 2026-04-27 — Aviator dimensions + hand-crafted hero render
+
+User pointed out: even the v0.9.1 chained aviator wasn't a "real Ray-Ban" — it had simple frame outlines and lens discs but lacked the classic details (double-bar bridge, proper teardrop lens shape, gunmetal frame, nose pads). This patch addresses the gap by using **wireframe-as-reference** rather than wireframe-as-source for complex objects.
+
+After inspecting the avatar-design-kit archive (found `aviator_glasses_hero.png` showing the target look + side/back wireframes I hadn't used), I hand-crafted an aviator using proper Ray-Ban dimensions and the hero render as visual reference:
+
+- **Lens**: 58mm × 50mm teardrop with bottom droop; built as Bezier-outline rim + filled inner disc with bottom pulled 10% lower for the classic asymmetric shape
+- **Double-bar bridge**: top horizontal wire spanning both lenses + middle saddle bar — the iconic Aviator detail
+- **Frame wire**: 0.6mm bevel depth (slim); gunmetal material (`Metallic=1.0, Base Color=(0.18,0.18,0.20), Roughness=0.30`)
+- **Mirror lenses**: solid metal with dark blue F0 tint (`Metallic=1.0, Base Color=(0.05,0.10,0.22), Roughness=0.05`)
+- **Nose pads**: silicone pills at bridge underside (`Metallic=0, Roughness=0.5, IOR=1.4`)
+- **Temple arms**: 135mm Bezier curves with hinge → straight-back → ear-bend → curl-down-tip
+
+**New reference**: added "Eyewear / sunglasses" section to `references/common-object-dimensions.md` with the full aviator construction recipe and the gunmetal/mirror/tinted material variants.
+
+**Honest known limitation noted in the reference**: thin metal temple arms catch side lighting as specular streaks in narrow studio setups. Recommended workaround: top-down softbox lighting OR crop temple arms out of the frame.
+
+**Methodological lesson committed**: wireframe-to-3d auto-extraction is good for *foundation outlines* of simple objects (the v0.9.0 frame); for complex objects with classic-design details (Ray-Ban Aviator's double-bar bridge, teardrop lens shape), **wireframes work better as VISUAL REFERENCE alongside hand-crafted geometry with real-world dimensions**. The orchestrator should:
+- Use wireframe-to-3d when simple outlines suffice (icons, logos, technical drawings)
+- Use real-world dimensions + hand-crafted Bezier curves when the subject has named-design details that aren't trivially extractable from line art
+
+Quality estimate: **8.5/10** unchanged. The v0.9.2 aviator is a real improvement over v0.9.1 but the temple-arm flare and the hard line between "foundation extraction" vs "design knowledge" remain explicit limits.
 
 ### 0.9.1 — 2026-04-27 — Wireframe-to-3d scope boundary + chained-upgrade demo
 
