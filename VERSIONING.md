@@ -1,6 +1,6 @@
 # Versioning — Honest Quality Path to v1.0
 
-**Current version**: **0.8.0** — chair scene; structural details added to dining-chair reference; honest limitation: design quality ≠ build correctness
+**Current version**: **0.9.0** — coverage expansion: subject-class lighting, wireframe-to-3d e2e closure, more dimensions, version compat doc
 **Date**: 2026-04-27
 
 ---
@@ -59,6 +59,23 @@ Until then, this is an honest **0.3.0** — production-ready scaffolding.
 ---
 
 ## What changed at each version
+
+### 0.9.0 — 2026-04-27 — Coverage expansion (4 items toward v1.0)
+
+Four targeted improvements driven by the v0.x → v1.0 plan:
+
+1. **Subject-class lighting hints** (`blender-lighting/SKILL.md` Recipe 0a). Generic 3-point lighting (Recipe 0b — the v0.6.0 baseline) uses a fixed 4:1:2 key:fill:rim ratio that washes out coloured-glass volume tint and is too cool for wood. New Recipe 0a takes a `subject_class` hint (`'metal'`, `'glass'`, `'wood'`, `'fabric'`, `'skin'`, `'product'`) and tunes ratios + colour temperatures + rim-light type accordingly. Resolves the v0.7.0 known limitation. Validated by re-rendering the bottle with `subject_class='glass'` — green tint now visible without strong rim wash.
+
+2. **Wireframe-to-3d full end-to-end validation** — closes the original use case the repo started with (the wireframe-to-3d skill has existed since v0.3.0 but never run end-to-end). Two real bugs surfaced and patched in `wireframe_analyzer.py`:
+   - **Contour filter used `cv2.contourArea`** which returns ~0 for thin Canny edges → all contours filtered out. Fixed by using `max(area, arcLength)` so thin edges are scored by their length.
+   - **Morphological closing with 5×5 ellipse kernel destroyed wireframe lines** because dilation eats into ~3-pixel-wide black lines. Added `line_art=True` mode (default) that skips Gaussian blur + Canny entirely and traces contours directly on the binary mask — using closing kernel of 3×3 only when `gaussian_kernel > 0`.
+   - Result: aviator wireframe → 21 extracted contours → Blender curves with 0.8mm bevel → metallic frame material → recognizable aviator-sunglasses render. Proof in `assets/v0.9.0-validation/03_aviator_wireframe_to_3d.png`.
+
+3. **Bottle volume density correction** — the new glass-class lighting was so soft that the v0.7.0 default Density=30 read as "obsidian glass" (user's term). Updated the Recipe 6b density table: wine bottle Density=80 (was 30), with deeper saturated colours. Re-validated bottle now reads as proper wine green with depth-based variation.
+
+4. **Reference dimensions expanded**: added entries for **dining table** (with apron details), **desk lamp** (articulated arm + base + shade), **floor lamp** (drum shade), and refined **coffee mug** (Boolean Difference for interior, ceramic material guidance). Also added **Blender Version Compatibility Matrix** (`references/blender-version-compat.md`) documenting all cross-version patches and providing a smoke-test snippet users can run on their install.
+
+Quality estimate: **8.5/10** (unchanged) — these are coverage-and-correctness improvements rather than capability jumps. The headline win is the wireframe-to-3d closure: a skill that has existed since v0.3.0 finally producing 3D output from real input.
 
 ### 0.8.0 — 2026-04-27 — Chair scene; design-quality limitation made explicit
 - Built a Mission/Shaker dining chair end-to-end. Tests multi-part assembly (seat + 4 legs + back + 4 stretchers + 5 slats + top rail = 15 parts) and procedural wood — different stress profile from sword and bottle.

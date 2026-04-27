@@ -49,7 +49,8 @@ class WireframeAnalyzer:
                 canny_threshold1: int = 50,
                 canny_threshold2: int = 150,
                 rdp_epsilon: float = 2.0,
-                min_contour_area: float = 100.0) -> Dict:
+                min_contour_area: float = 100.0,
+                line_art: bool = True) -> Dict:
         """
         Run full pipeline: preprocess → edge detect → extract → simplify → fit.
 
@@ -65,13 +66,24 @@ class WireframeAnalyzer:
               - 'contours': list of simplified contours (each a list of [x, y])
               - 'bezier_curves': list of Bezier curve control point sets
               - 'debug_images': dict of intermediate images (if verbose)
+
+        Args:
+            line_art: If True (default), assumes the input is a clean line drawing
+                      (wireframe / technical drawing) — skips Gaussian blur + Canny and
+                      traces contours directly on the binarised image. If False, runs the
+                      photographic-edge pipeline (Gaussian → Canny → contours).
         """
 
-        # Stage 1: Preprocess
-        gray = self._preprocess(gaussian_kernel)
+        # Stage 1: Preprocess (grayscale + Otsu + morphology; blur only for photo mode)
+        binary = self._preprocess(gaussian_kernel if not line_art else 0)
 
-        # Stage 2: Edge detect
-        edges = self._edge_detect_canny(gray, canny_threshold1, canny_threshold2)
+        # Stage 2: Edge detection (or skip for line art)
+        if line_art:
+            # Wireframe / line drawings already have crisp edges; trace the binary directly.
+            # Invert so lines are white-on-black (cv2.findContours expects foreground = white).
+            edges = cv2.bitwise_not(binary)
+        else:
+            edges = self._edge_detect_canny(binary, canny_threshold1, canny_threshold2)
 
         # Stage 3: Contour extraction
         contours = self._extract_contours(edges, min_contour_area)
@@ -100,7 +112,7 @@ class WireframeAnalyzer:
 
         if self.verbose:
             result['debug_images'] = {
-                'gray': gray,
+                'binary': binary,
                 'edges': edges,
             }
 
@@ -121,15 +133,17 @@ class WireframeAnalyzer:
         _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU)
         self._log("Applied Otsu threshold")
 
-        # Morphological closing (dilate → erode) to close gaps
-        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-        binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel, iterations=1)
-        self._log("Applied morphological closing")
+        # Morphological cleanup — only when explicitly requested via gaussian_kernel.
+        # Line-art mode (gaussian_kernel=0) skips this entirely because the closing kernel
+        # dilates the white background by 2-3 pixels and eats thin black wireframe lines.
+        if gaussian_kernel > 0:
+            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+            binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel, iterations=1)
+            self._log("Applied morphological closing (3x3)")
 
-        # Gaussian blur for edge detection stability
-        if gaussian_kernel > 0 and gaussian_kernel % 2 == 1:
-            binary = cv2.GaussianBlur(binary, (gaussian_kernel, gaussian_kernel), 1.0)
-            self._log(f"Applied Gaussian blur ({gaussian_kernel}×{gaussian_kernel})")
+            if gaussian_kernel % 2 == 1:
+                binary = cv2.GaussianBlur(binary, (gaussian_kernel, gaussian_kernel), 1.0)
+                self._log(f"Applied Gaussian blur ({gaussian_kernel}×{gaussian_kernel})")
 
         return binary
 
@@ -156,16 +170,20 @@ class WireframeAnalyzer:
         """
         contours, _ = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 
-        # Filter by area
+        # Filter by both area (catches solid blobs) AND arc length (catches thin lines).
+        # Canny edges are 1-pixel-wide lines whose contours enclose ~0 area; filtering by
+        # area alone discards everything. Use whichever metric is larger as the score.
         filtered = []
         for contour in contours:
             area = cv2.contourArea(contour)
-            if area >= min_area:
-                # Reshape from Nx1x2 to Nx2
+            length = cv2.arcLength(contour, closed=False)
+            # Use length when area is small (thin edge); use area when contour encloses a region
+            score = max(area, length)
+            if score >= min_area:
                 contour_2d = contour.reshape(-1, 2).astype(np.float32)
                 filtered.append(contour_2d)
 
-        self._log(f"Extracted {len(filtered)} contours (filtered from {len(contours)}, min_area={min_area})")
+        self._log(f"Extracted {len(filtered)} contours (filtered from {len(contours)}, min_score={min_area})")
         return filtered
 
     def _simplify_contour(self, contour: np.ndarray, epsilon: float = 2.0) -> List[Tuple[float, float]]:

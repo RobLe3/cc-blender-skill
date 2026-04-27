@@ -200,15 +200,24 @@ print('material:glass_wine_volume_absorption')
 
 **Tuning Color**: invert intuition — the volume Color is what gets *removed* from passing light, so for "wine green" use saturated green; for "amber" use saturated yellow-orange.
 
-**Other coloured-glass examples**:
+**Other coloured-glass examples** (density values updated v0.9.0 after subject-class lighting fix):
 
 | Name | Volume Color | Density | Surface tint |
 |------|-------------|---------|---------------|
-| Wine green | (0.10, 0.45, 0.18) | 30 | near-white |
-| Champagne / pale gold | (0.85, 0.65, 0.30) | 8 | near-white |
-| Cobalt blue | (0.20, 0.30, 0.85) | 50 | near-white |
-| Amber / brown | (0.80, 0.45, 0.15) | 40 | near-white |
-| Ruby red | (0.85, 0.10, 0.15) | 60 | near-white |
+| Wine bottle (deep green) | (0.05, 0.32, 0.10) | 80 | near-white |
+| Pale tinted (clear vial) | (0.10, 0.45, 0.18) | 15 | near-white |
+| Champagne / pale gold | (0.85, 0.65, 0.30) | 25 | near-white |
+| Cobalt blue (medicine bottle) | (0.10, 0.20, 0.85) | 80 | near-white |
+| Amber / brown beer bottle | (0.80, 0.40, 0.10) | 70 | near-white |
+| Ruby red | (0.85, 0.10, 0.15) | 100 | near-white |
+
+**Density tuning rule of thumb under neutral/glass-class lighting**:
+- Density 5–15 = subtle hint of colour (clear + tinted)
+- Density 30–50 = medium tint visible at thin sections
+- **Density 60–100 = proper wine/beer/cobalt bottle look** (recommended for hero shots)
+- Density 100+ = nearly opaque (artistic / decorative)
+
+If under standard 4:1:2 metal-class lighting the volume tint washes out (v0.7.0 issue), don't crank density to compensate — switch to `subject_class='glass'` lighting in `blender-lighting` Recipe 0a, which uses softer rim that preserves the volume colour.
 
 **Critical**: Cycles `transmission_bounces` must be ≥ 16 (default 12) for thick or layered colour glass; otherwise rays terminate and the glass renders black on the inside.
 

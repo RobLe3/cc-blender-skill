@@ -75,9 +75,105 @@ def compute_scene_bbox_center(meshes):
     return center, extent
 ```
 
-### Recipe 0 — Three-point lighting **aimed at a subject** (preferred for orchestrator chains)
+### Recipe 0a — Subject-CLASS-aware three-point lighting (use this for orchestrator E2E)
 
-Use this instead of Recipe 1 when you have a specific subject. Lights are placed proportionally to the subject's largest dimension.
+Generic three-point lighting (Recipe 0b below) places lights at fixed energy ratios. That works for opaque subjects (chair, sword) but breaks for **glass** (rim washes out volume tint) and is too cool for **wood** (loses warmth).
+
+Pass a `subject_class` hint to tune the setup:
+
+| Class | Key:Fill:Rim ratio | Key color temp | Reason |
+|-------|--------------------|----------------|--------|
+| `'metal'` | 4:1:2 (default) | warm 3200K | Standard 3-point reads metallic well |
+| `'glass'` | 3:1:1.2 | neutral 5500K | Soft rim — strong rim WASHES OUT volume tint; brighter fill so transmission shows colour |
+| `'wood'` | 4:1:1.5 | warm 3000K | Warmer key brings out wood tones; less rim (wood doesn't need silhouette boost) |
+| `'fabric'` | 3:1:0.5 | neutral 5500K | Soft and balanced; sheen reads in fill light |
+| `'skin'` | 4:1:1 | warm 3500K | Warm key for healthy tone; subtle rim (avoids harsh edges on faces) |
+| `'product'` | 5:1:1.5 | neutral 5000K | Higher contrast; commercial/clean look |
+| (unspecified) | falls back to Recipe 0b (default) | warm 3200K | |
+
+```python
+import bpy, math
+from mathutils import Vector
+
+def aim_at(light_obj, target):
+    target_pos = Vector(target.location) if hasattr(target, 'location') else Vector(target)
+    direction = (target_pos - light_obj.location).normalized()
+    light_obj.rotation_euler = direction.to_track_quat('-Z', 'Y').to_euler()
+
+def apply_three_point(subject_class='metal'):
+    """Configure 3-point lighting with subject-class-aware ratios.
+
+    subject_class: 'metal' | 'glass' | 'wood' | 'fabric' | 'skin' | 'product' | 'metal' (default)
+    """
+    profiles = {
+        'metal':   dict(ratio=(4.0, 1.0, 2.0), key_color=(1.0, 0.95, 0.85), fill_color=(0.85, 0.9, 1.0), rim_color=(0.7, 0.85, 1.0)),
+        'glass':   dict(ratio=(3.0, 1.0, 1.2), key_color=(1.0, 0.98, 0.95), fill_color=(0.95, 0.95, 1.0), rim_color=(0.95, 0.95, 1.0)),
+        'wood':    dict(ratio=(4.0, 1.0, 1.5), key_color=(1.0, 0.92, 0.78), fill_color=(0.95, 0.95, 1.0), rim_color=(0.85, 0.92, 1.0)),
+        'fabric':  dict(ratio=(3.0, 1.0, 0.5), key_color=(1.0, 0.97, 0.92), fill_color=(0.92, 0.95, 1.0), rim_color=(0.95, 0.95, 1.0)),
+        'skin':    dict(ratio=(4.0, 1.0, 1.0), key_color=(1.0, 0.93, 0.82), fill_color=(0.95, 0.96, 1.0), rim_color=(0.92, 0.92, 1.0)),
+        'product': dict(ratio=(5.0, 1.0, 1.5), key_color=(1.0, 0.98, 0.95), fill_color=(0.98, 0.98, 1.0), rim_color=(0.98, 0.98, 1.0)),
+    }
+    p = profiles.get(subject_class, profiles['metal'])
+
+    # Compute scene bbox
+    subject_meshes = [o for o in bpy.data.objects if o.type == 'MESH' and o.name.startswith('GEO-')]
+    deps = bpy.context.evaluated_depsgraph_get()
+    all_verts = []
+    for o in subject_meshes:
+        eo = o.evaluated_get(deps); em = eo.to_mesh()
+        for v in em.vertices: all_verts.append(o.matrix_world @ v.co)
+        eo.to_mesh_clear()
+    xs = [v.x for v in all_verts]; ys = [v.y for v in all_verts]; zs = [v.z for v in all_verts]
+    center = Vector(((min(xs)+max(xs))/2, (min(ys)+max(ys))/2, (min(zs)+max(zs))/2))
+    biggest = max(max(zs)-min(zs), max(xs)-min(xs))
+    light_dist = max(biggest * 1.5, 1.0)
+
+    # Energy scales with distance²
+    base_energy = 100 * (light_dist / 1.5) ** 2
+    key_e, fill_e, rim_e = (base_energy * r for r in p['ratio'])
+
+    # Remove existing lights
+    for o in list(bpy.data.objects):
+        if o.type == 'LIGHT' and (o.name.startswith('LGT-key') or o.name.startswith('LGT-fill') or o.name.startswith('LGT-rim')):
+            bpy.data.objects.remove(o, do_unlink=True)
+
+    # KEY (warm, front-right above)
+    key = bpy.data.objects.new('LGT-key', bpy.data.lights.new('LGT-key', type='AREA'))
+    key.data.energy = key_e; key.data.size = 0.5; key.data.color = p['key_color']
+    bpy.context.collection.objects.link(key)
+    key.location = (center.x + light_dist*0.7, center.y - light_dist*0.7, center.z + light_dist*0.5)
+    aim_at(key, center)
+
+    # FILL (cool, opposite, weaker)
+    fill = bpy.data.objects.new('LGT-fill', bpy.data.lights.new('LGT-fill', type='AREA'))
+    fill.data.energy = fill_e; fill.data.size = 1.0; fill.data.color = p['fill_color']
+    bpy.context.collection.objects.link(fill)
+    fill.location = (center.x - light_dist*0.7, center.y - light_dist*0.5, center.z + light_dist*0.3)
+    aim_at(fill, center)
+
+    # RIM
+    rim_type = 'AREA' if subject_class == 'glass' else 'SPOT'
+    rim = bpy.data.objects.new('LGT-rim', bpy.data.lights.new('LGT-rim', type=rim_type))
+    rim.data.energy = rim_e; rim.data.color = p['rim_color']
+    if rim_type == 'AREA':
+        rim.data.size = 1.5   # larger soft-source for glass
+    else:
+        rim.data.spot_size = math.radians(50)
+    bpy.context.collection.objects.link(rim)
+    rim.location = (center.x, center.y + light_dist, center.z + light_dist*0.5)
+    aim_at(rim, center)
+
+    print(f"lighting:{subject_class} key:fill:rim={p['ratio']} dist={light_dist:.2f}m")
+
+# Usage:
+# apply_three_point('glass')   # for the wine bottle
+# apply_three_point('wood')    # for the chair
+# apply_three_point('metal')   # for the sword (or omit; 'metal' is default)
+```
+
+### Recipe 0b — Three-point lighting **aimed at a subject** (generic, no class hint)
+
+Use this instead of Recipe 1 when you have a specific subject but the class doesn't matter. Lights are placed proportionally to the subject's largest dimension.
 
 ```python
 import bpy, math

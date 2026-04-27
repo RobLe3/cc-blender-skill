@@ -64,6 +64,29 @@ This produces a recognisable Mission-style chair. For other chair styles (modern
 - Top: 120cm × 60cm × 4cm
 - Height: 45cm
 - Legs: 5cm × 5cm × 41cm
+- Optional: lower shelf at 15cm above floor (add 4cm-thick board between legs)
+- Edge bevel: ~5mm
+
+### Dining table (4-person)
+- Top: 150cm × 90cm × 3.5cm thick
+- Height: 75cm
+- Legs: 7cm × 7cm × 71.5cm; inset 8-12cm from corners
+- Optional: aprons (horizontal supports under top, between legs) — 2cm thick × 8cm tall, mortised flush with leg tops
+- Edge bevel: ~4mm
+
+### Desk lamp (classic articulated arm style)
+- Base: ø14cm × 3cm tall cylinder (heavy weighted base)
+- Lower arm: 30cm × 2cm × 2cm rectangular bar, pivots on base
+- Upper arm: 25cm × 2cm × 2cm rectangular bar, pivots at elbow
+- Lampshade: cone, ø10cm at opening, ø6cm at top, 12cm tall
+- Materials: matte metal arm + base; lampshade interior glossy white (reflects bulb)
+- Joints have visible pivot screws (small cylinders perpendicular to arms)
+
+### Floor lamp
+- Base: ø35cm × 2cm tall
+- Pole: 150cm tall × 3cm dia cylinder
+- Lampshade: ø45cm × 35cm tall truncated cone (drum shade), centered at pole top
+- Pole-to-shade fitting: small ring or harp at top
 
 ---
 
@@ -81,10 +104,12 @@ This produces a recognisable Mission-style chair. For other chair styles (modern
 - Body ø: 6 cm
 
 ### Coffee mug
-- Diameter: 8 cm
-- Height: 9 cm
-- Wall thickness: 5 mm
-- Handle: 8 cm tall × 2 cm wide × 1 cm thick
+- Body: cylinder, ø8 cm × 9 cm tall (outer); wall thickness 5 mm; inner ø7 cm × 8.5 cm depth
+- **Bottom**: solid (don't model interior all the way to base)
+- Handle: D-shaped loop, 8 cm tall × 2 cm wide × 1 cm thick; attached at body side, 1 cm from top and 1 cm from bottom
+- Use Boolean Difference of inner cylinder from outer to create the cup interior, OR Solidify modifier on a hollowed shell
+- Base bevel: ~3mm rounded
+- Material: typically ceramic — Principled BSDF with Roughness 0.4, Metallic 0, IOR 1.5; subtle subsurface for white ceramic glow
 
 ---
 
