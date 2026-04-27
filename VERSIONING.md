@@ -1,6 +1,6 @@
 # Versioning — Honest Quality Path to v1.0
 
-**Current version**: **0.6.0** — user-driven scene-quality iteration; 7 patches across 4 skill files
+**Current version**: **0.7.0** — bottle scene generalises v0.6.0 patches; volume-absorption recipe added for coloured glass
 **Date**: 2026-04-27
 
 ---
@@ -59,6 +59,20 @@ Until then, this is an honest **0.3.0** — production-ready scaffolding.
 ---
 
 ## What changed at each version
+
+### 0.7.0 — 2026-04-27 — Bottle scene; v0.6.0 patches generalise + glass-class refinement
+- Built a wine bottle scene end-to-end via the orchestrator using Surface Revolution (Screw modifier) and transmissive glass — entirely different modeling pattern and material class than the sword
+- **All v0.6.0 patches applied without modification**: world reset, real-world dimensions, subject-aware lighting, bbox-aware camera, mandatory visual checkpoint. First-try render produced a recognizable bottle.
+- One real recipe gap surfaced: **glass with `Base Color` tint only renders flat or metallic**, not "glass-like". Real coloured glass needs **Volume Absorption** for depth-based tint.
+- Patches:
+  1. **Added Recipe 6b (Coloured glass with Volume Absorption)** to `blender-materials/SKILL.md` — surface near-white + slight roughness + Volume Absorption shader on Material Output Volume input. Includes density tuning guide and 5-row colour table (wine green, champagne, cobalt, amber, ruby).
+  2. Added two failure-mode rows to `text-to-blender/SKILL.md`: "coloured glass renders flat/metallic" → use Recipe 6b; "glass renders black inside" → bump `transmission_bounces` to 24.
+- Validation proof committed to `plugin/skills/text-to-blender/assets/v0.7.0-bottle-validation/` (first-try with surface tint vs final with volume absorption).
+- Quality estimate: **8.5/10** (unchanged from v0.6.0 — patches were targeted; no degradation, but no jump either)
+
+**Known limitation deferred to next round**: strong rim light washes out volume tint on glass. Future lighting-optimization round should add HDRI options and subject-class hints (`"glass" → softer rim, more fill`).
+
+**Key signal**: this was a clean win — patches generalised first try. Compared to round 2's sword (5+ user-driven iterations of the same basic build), the v0.6.0 patches did real work.
 
 ### 0.6.0 — 2026-04-27 — Real scene-build iteration; user as visual-validation oracle
 - Tester (Haiku) attempted a full sword scene-build via the orchestrator; numerical checks all passed but the user inspected the actual Blender viewport and surfaced 6 distinct quality issues

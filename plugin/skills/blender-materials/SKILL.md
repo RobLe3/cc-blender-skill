@@ -155,6 +155,69 @@ bpy.data.objects['GEO-target'].data.materials.append(mat)
 print('material:glass_frosted')
 ```
 
+### Recipe 6b — Coloured glass (wine bottle, tinted vials, decorative glass)
+
+Using only `Base Color` to tint Principled BSDF makes coloured glass look **flat or metallic**. Real coloured glass has *volume absorption*: light passing through gets tinted by the distance it travels, so thick parts look darker and thin parts look lighter. This is the depth-based richness that makes glass read as glass.
+
+Pattern: keep the surface near-white with slight roughness, attach a `Volume Absorption` shader to the Material Output's `Volume` input.
+
+```python
+import bpy
+
+def set_input(node, name, value):
+    for inp in node.inputs:
+        if inp.name == name:
+            inp.default_value = value
+            return True
+    return False
+
+mat = bpy.data.materials.new('MAT-glass_wine')
+mat.use_nodes = True
+nodes = mat.node_tree.nodes
+links = mat.node_tree.links
+bsdf = nodes['Principled BSDF']
+output = nodes['Material Output']
+
+# Surface: near-white with tiny roughness (breaks mirror-finish look)
+set_input(bsdf, 'Base Color', (0.85, 0.95, 0.85, 1.0))   # near-white
+set_input(bsdf, 'Metallic', 0.0)
+set_input(bsdf, 'Roughness', 0.025)                       # critical: not 0.0; that looks metallic
+set_input(bsdf, 'Transmission Weight', 1.0)
+set_input(bsdf, 'IOR', 1.52)                              # bottle glass
+
+# Volume Absorption — depth-based tint
+volume = nodes.new('ShaderNodeVolumeAbsorption')
+set_input(volume, 'Color', (0.10, 0.45, 0.18, 1.0))       # saturated wine-bottle green
+set_input(volume, 'Density', 30.0)                         # higher = more colour over short distance
+
+links.new(volume.outputs['Volume'], output.inputs['Volume'])
+
+bpy.data.objects['GEO-target'].data.materials.append(mat)
+print('material:glass_wine_volume_absorption')
+```
+
+**Tuning Density**: 0–10 = very subtle tint (clear bottle); 20–40 = clear bottle-green or amber; 60–100+ = nearly opaque (cobalt-blue medicine bottle).
+
+**Tuning Color**: invert intuition — the volume Color is what gets *removed* from passing light, so for "wine green" use saturated green; for "amber" use saturated yellow-orange.
+
+**Other coloured-glass examples**:
+
+| Name | Volume Color | Density | Surface tint |
+|------|-------------|---------|---------------|
+| Wine green | (0.10, 0.45, 0.18) | 30 | near-white |
+| Champagne / pale gold | (0.85, 0.65, 0.30) | 8 | near-white |
+| Cobalt blue | (0.20, 0.30, 0.85) | 50 | near-white |
+| Amber / brown | (0.80, 0.45, 0.15) | 40 | near-white |
+| Ruby red | (0.85, 0.10, 0.15) | 60 | near-white |
+
+**Critical**: Cycles `transmission_bounces` must be ≥ 16 (default 12) for thick or layered colour glass; otherwise rays terminate and the glass renders black on the inside.
+
+```python
+scene.cycles.transmission_bounces = 24
+```
+
+**Pitfall**: don't set `Base Color` to the tint colour AND attach a Volume — you get double-tinting that looks wrong. Surface near-white, volume does the colour work.
+
 ### Recipe 7 — Matte plastic (red)
 ```python
 import bpy

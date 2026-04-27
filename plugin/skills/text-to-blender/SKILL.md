@@ -235,6 +235,8 @@ Example:
 | Subject looks wrongly proportioned (e.g. blade too short, chair too narrow) | The orchestrator skipped the dimension lookup. Always read `references/common-object-dimensions.md` BEFORE generating modeling code. Don't guess. |
 | Elongated subject renders as a thin pole instead of a recognisable shape | Camera viewing the **thin axis** of an elongated object. Rotate the object so its broad axis faces the camera. See `blender-modeling` "Critical: axis orientation for elongated objects". |
 | Blade/spike has a "chiseled flat" tip instead of a point | Top vertices were scaled toward zero but not merged. Use the proper tapering recipe in `blender-modeling` ("Critical: tapering to a point") — collapse top verts to centerline AND `remove_doubles`. |
+| Coloured glass renders flat/metallic instead of "glass-like" | Tint set on `Base Color` of Principled BSDF only. Real coloured glass needs **Volume Absorption** for depth-based tint. See `blender-materials` Recipe 6b. Also: `Roughness=0.0` produces mirror-flat highlights that look metallic — use 0.02–0.05 instead. |
+| Glass renders black on the inside | `transmission_bounces` too low. Default 12 is insufficient for thick or layered glass. Set `scene.cycles.transmission_bounces = 24`. |
 
 ## What this skill is NOT for
 
