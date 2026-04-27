@@ -2,6 +2,20 @@
 
 All notable changes to **cc-blender-skill** since first commit. Detailed rationale per version is in [`VERSIONING.md`](./VERSIONING.md). Patch-by-patch root-cause notes are in [`IMPLEMENTATION_LOG.md`](./IMPLEMENTATION_LOG.md). Test results are in [`test.md`](./test.md), [`test_round2.md`](./test_round2.md), and [`test_round3.md`](./test_round3.md).
 
+## [1.2.2] — 2026-04-28
+
+### Repo housekeeping — LICENSE, GitHub metadata, formal releases
+
+Used `gh` CLI to set up the repo's discoverability and legal context:
+
+- **`LICENSE`** added (MIT) — the README has claimed MIT since v0.3.0, but the actual file was missing
+- **Repo description** set: "Claude Code skill plugin: drive Blender 5.x like a senior 3D artist via natural language. 10 chain-loadable skills..."
+- **Repo topics** added: `claude-code`, `claude-skill`, `blender`, `blender-mcp`, `blender-python`, `3d-modeling`, `mcp`, `ai-3d`, `procedural-modeling`, `gltf`
+- **Homepage URL** set to the README
+- **Formal GitHub Releases** created for v1.0.0, v1.1.0, v1.2.0, v1.2.1 — each with curated release notes, not just auto-generated tag pages
+
+This is housekeeping, not feature work — making the repo properly discoverable and legally clear. Users finding the repo via GitHub topics can now see what it does at a glance, and the formal releases give them clean version-by-version notes instead of having to read commit logs.
+
 ## [1.2.1] — 2026-04-28
 
 ### Hard limit on "human face from primitives" — three escape paths documented
