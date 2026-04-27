@@ -336,3 +336,71 @@ When Opus picks this up:
 4. Verify by re-running the failed test case via `mcp__blender__execute_blender_code`.
 5. Append `## Patches applied` section here listing changes.
 6. Commit, tag v0.5.0, push.
+
+---
+
+## Patches applied — 2026-04-27 (v0.4.0 → v0.5.0)
+
+Patcher: Opus role (executed in this session).
+
+### Pre-patch root-cause investigation
+
+**B3 — Why `bsdf.inputs['Subsurface IOR']` raises KeyError**:
+
+Diagnostic on Blender 5.1.1 Principled BSDF v2 revealed **two inputs are flagged `enabled=False`**:
+- idx 6: `Weight` (the optional weight socket)
+- idx 11: `Subsurface IOR`
+
+For these inputs, `bpy_prop_collection`'s string-key lookup (`bsdf.inputs[name]`) raises `KeyError`, but iteration (`for inp in bsdf.inputs`) and indexed access (`bsdf.inputs[idx]`) both work. Setting `Subsurface Weight = 1.0` **does not** flip `Subsurface IOR.enabled` to True. The disabled flag is permanent in the data API for these inputs in 5.x; values written via index/iteration are still respected at render time.
+
+Conclusion: the fix isn't a workflow change (e.g. "enable subsurface first"), it's an access pattern change. A small `set_input(node, name, value)` helper that iterates instead of string-keys is forward-compatible with whatever future inputs become disabled.
+
+**E3 — Why render fails without `scene.camera`**:
+
+Plain reading of Blender's render API: `bpy.ops.render.render()` requires `scene.camera` to be a Camera-type object. The recipe didn't include this prerequisite check. Cameras existing in the scene aren't enough — one must be the *active* camera.
+
+### Patches
+
+1. **`plugin/skills/blender-materials/SKILL.md`**
+   - Added a `### `set_input` helper` section just above Recipe 1, explaining the Blender 5.x quirk and the helper's intent.
+   - Rewrote **Recipe 9 (Skin)** to use `set_input(bsdf, name, value)` for all input setting (defensive consistency; the helper works on enabled inputs too).
+   - Added a new row to the "Common pitfalls" table for `KeyError: 'Subsurface IOR'`.
+
+2. **`plugin/skills/blender-rendering/SKILL.md`**
+   - Added an `ensure_camera(scene)` guard to **Recipe 5 (single-frame render)** and **Recipe 6 (animation render)**. The guard auto-assigns the first CAMERA object if `scene.camera is None`, or raises `RuntimeError` if no cameras exist at all.
+   - Added a new row to the "Common pitfalls" table for `Error: Cannot render, no camera`.
+
+3. **`plugin/skills/text-to-blender/SKILL.md`**
+   - Added two new rows to the "Failure modes" table — one for the Subsurface IOR / disabled-input KeyError, one for the missing-camera render error — so the orchestrator can recognize both errors and redirect to the relevant sub-skill recipes.
+
+### Verification (post-patch)
+
+Re-ran the originally failing tests against live Blender 5.1.1 via `mcp__blender__execute_blender_code`:
+
+| Test | Before | After patch | Notes |
+|------|--------|-------------|-------|
+| B3 (Subsurface IOR via `set_input`) | KeyError | **PASS** — `sss_ior_value=1.4` set successfully; material assigned to sphere | All 6 `set_input` calls returned True |
+| E3 (render with `ensure_camera`) | "Cannot render, no camera" | **PASS** — guard auto-assigned `CAM-I1`; render saved 58 KB | Force-set `scene.camera = None` before invoking the patched Recipe 5 to confirm the guard activates |
+| E3 negative case (zero cameras) | (not previously tested) | **PASS** — guard raises `RuntimeError("No camera in scene — add one before rendering")` cleanly | Required to confirm the error path is helpful, not a cryptic crash |
+
+### Updated score after patches
+
+- **B3**: FAIL → **PASS** ✓
+- **E3**: PARTIAL → **PASS** ✓
+- A4 caveat: unchanged (TESTING_PLAN.md issue, not skill issue — separate cleanup)
+- H1: unchanged (env-only `cv2` install — separate)
+
+**Adjusted total: 28 PASS / 0 FAIL / 1 SKIP / 1 caveat out of 30**
+
+### Quality estimate
+
+- v0.3.0 — 6.5/10 (scaffolding, zero validation)
+- v0.4.0 — 7.5/10 (5/5 smoke tests pass)
+- **v0.5.0 — 8/10** (28/30 with patches verified; coverage now spans every domain skill; orchestrator E2E passing; two real Blender 5.x quirks documented + patched)
+
+What's still pending v1.0:
+- Cross-test on Blender 4.x (confirm both `BLENDER_EEVEE_NEXT` and legacy `action.fcurves` branches work)
+- Wireframe-to-3d full e2e (needs `pip install opencv-python numpy scipy Pillow`)
+- Trigger-eval JSON files per skill (~20 trigger / 20 no-trigger queries each)
+- More worked example scenes in `assets/`
+- 1+ week of external-user feedback

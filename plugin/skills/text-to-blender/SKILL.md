@@ -161,6 +161,8 @@ Example:
 | Material looks wrong after export | You used non-Principled-BSDF nodes; rebuild material with Principled only |
 | `'Action' object has no attribute 'fcurves'` | Blender 5.x layered Actions; walk `action.layers[].strips[].channelbags[].fcurves` instead. See `blender-animation` Recipe 3 for the compat helper. |
 | `BLENDER_EEVEE_NEXT` rejected | Blender 5.x renamed it back to `BLENDER_EEVEE`. See `blender-rendering` Recipe 3 for the try/except fallback. |
+| `KeyError: 'Subsurface IOR'` (or other input names) | Blender 5.x marks some BSDF inputs `enabled=False` (currently `Weight`, `Subsurface IOR`); they're reachable by iteration but not string-key lookup. See `blender-materials` Recipe 9 for the `set_input` helper. |
+| `Error: Cannot render, no camera` | `scene.camera is None`. Always run the `ensure_camera()` guard before any render — see `blender-rendering` Recipes 5 / 6. The orchestrator must check this before chaining to render even if the user's prompt didn't ask for a camera explicitly. |
 
 ## What this skill is NOT for
 

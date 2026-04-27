@@ -1,6 +1,6 @@
 # Versioning — Honest Quality Path to v1.0
 
-**Current version**: **0.4.0** — first end-to-end validation pass complete  
+**Current version**: **0.5.0** — 30-test validation pass complete; 2 real bugs surfaced and patched
 **Date**: 2026-04-27
 
 ---
@@ -59,6 +59,19 @@ Until then, this is an honest **0.3.0** — production-ready scaffolding.
 ---
 
 ## What changed at each version
+
+### 0.5.0 — 2026-04-27 — Two-role validation loop complete (Haiku tester + Opus patcher)
+- **Tester** (Haiku 4.5) ran 30 test cases per `TESTING_PLAN.md` against live Blender 5.1.1, populated `test.md` with structured per-test results
+- Initial score: 27 PASS / 1 FAIL / 1 SKIP / 1 partial out of 30
+- **Patcher** (Opus role) read `test.md`, root-caused both failures, applied fixes:
+  1. **`Subsurface IOR` KeyError on Blender 5.x** (B3): root cause is `enabled=False` flag on certain BSDF inputs; string-key lookup respects UI-visibility filter, iteration bypasses it. Added `set_input(node, name, value)` helper to `blender-materials/SKILL.md`; rewrote Recipe 9 (Skin) to use it. Forward-compatible with future Blender versions if more inputs become disabled.
+  2. **`Cannot render, no camera`** (E3 + orchestrator I1): Recipes 5/6 of `blender-rendering/SKILL.md` didn't ensure `scene.camera` was set. Added `ensure_camera(scene)` guard that auto-assigns first CAMERA object or raises `RuntimeError` with a helpful message.
+  3. Documented both errors in `text-to-blender/SKILL.md` failure-modes table for orchestrator-level recognition.
+- Both patches verified by re-running the originally failing tests via `mcp__blender__execute_blender_code` — both PASS.
+- Adjusted score: **28 PASS / 0 FAIL / 1 SKIP / 1 caveat out of 30**
+- Cost-saving: tester+patcher split using cheap+expensive models (Haiku does deterministic loop, Opus does judgment+fixes) was ~10× cheaper than running the same loop on a frontier model throughout.
+
+Quality estimate: **8/10** (up from 7.5/10 at 0.4.0).
 
 ### 0.4.0 — 2026-04-27 — First end-to-end validation pass complete
 - Connected to live Blender 5.1.1 via ahujasid/blender-mcp

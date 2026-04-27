@@ -132,10 +132,26 @@ print('render:colormanagement_AgX')
 
 ### Recipe 5 — Render a single frame to PNG
 
+⚠ **`bpy.ops.render.render()` fails with `Error: Cannot render, no camera` if `scene.camera` is None.** Always run the camera guard first. The guard auto-assigns the first CAMERA-type object if the scene has any, and raises a clear error otherwise.
+
 ```python
 import bpy
 
 scene = bpy.context.scene
+
+# Camera guard — required before every render
+def ensure_camera(scene):
+    if scene.camera is not None:
+        return scene.camera.name
+    cams = [o for o in bpy.data.objects if o.type == 'CAMERA']
+    if not cams:
+        raise RuntimeError("No camera in scene — add one before rendering")
+    scene.camera = cams[0]
+    return cams[0].name
+
+cam_name = ensure_camera(scene)
+print(f"camera:{cam_name}")
+
 scene.render.image_settings.file_format = 'PNG'
 scene.render.image_settings.color_mode = 'RGBA'
 scene.render.image_settings.color_depth = '16'    # 16-bit for compositing later
@@ -153,6 +169,20 @@ After this, verify with Bash: `ls -la /tmp/output_hero.png` — confirm file exi
 import bpy
 
 scene = bpy.context.scene
+
+# Camera guard — same pattern as Recipe 5
+def ensure_camera(scene):
+    if scene.camera is not None:
+        return scene.camera.name
+    cams = [o for o in bpy.data.objects if o.type == 'CAMERA']
+    if not cams:
+        raise RuntimeError("No camera in scene — add one before rendering")
+    scene.camera = cams[0]
+    return cams[0].name
+
+cam_name = ensure_camera(scene)
+print(f"camera:{cam_name}")
+
 scene.frame_start = 1
 scene.frame_end = 240
 scene.render.fps = 24
@@ -228,6 +258,7 @@ Always pair with denoising. 256 samples + denoise ≈ 4096 raw samples in visual
 
 | Symptom | Fix |
 |---------|-----|
+| `Error: Cannot render, no camera` | `scene.camera is None`. Use the `ensure_camera()` guard at the top of Recipes 5/6 — it auto-assigns the first CAMERA object or raises a clear error if none exists |
 | Render takes hours | Reduce samples; enable adaptive; lower bounces |
 | Cycles GPU not used | Configure compute device in preferences (Recipe 8) |
 | Render direct to MP4 lost on crash | Render PNG sequence, encode after |

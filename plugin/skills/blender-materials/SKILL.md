@@ -48,6 +48,26 @@ What is it made of?
 
 Each recipe creates the material and assigns it to a target object. Replace `'GEO-target'` with your actual object name.
 
+### `set_input` helper — required for some Blender 5.x BSDF inputs
+
+In Blender 5.x's Principled BSDF v2, **two inputs are flagged `enabled=False`** in the data API: `Weight` and `Subsurface IOR`. These are reachable by **iteration or index** but **not by string-key lookup** — `bsdf.inputs['Subsurface IOR']` raises `KeyError` even though the input exists and its value is respected at render time. This is a Blender 5.x quirk surfaced during v0.4.0 → v0.5.0 validation.
+
+Use this helper whenever a recipe sets an input that might be in the disabled-but-functional state. It works on every input (enabled or not) and is forward-compatible if more inputs become disabled in future Blender versions:
+
+```python
+def set_input(node, name, value):
+    """Set a node input by name. Works on inputs with enabled=False
+    that fail string-key lookup (e.g. 'Subsurface IOR' on Blender 5.x).
+    """
+    for inp in node.inputs:
+        if inp.name == name:
+            inp.default_value = value
+            return True
+    return False
+```
+
+For inputs that are reliably enabled (Base Color, Metallic, Roughness, IOR, Transmission Weight, Sheen Weight, etc.), direct string-key assignment still works fine — the helper is only required where an input is conditionally disabled. **Recipe 9 (Skin) uses it** because `Subsurface IOR` is one of the affected inputs.
+
 ### Recipe 1 — Brushed steel
 ```python
 import bpy
@@ -166,17 +186,30 @@ print('material:plastic_lacquered')
 ```
 
 ### Recipe 9 — Skin (light tone)
+
+Uses the `set_input` helper because `Subsurface IOR` has `enabled=False` on Blender 5.x and isn't reachable by string-key lookup. The other inputs work fine either way; using the helper consistently keeps the recipe safe across versions.
+
 ```python
 import bpy
+
+def set_input(node, name, value):
+    for inp in node.inputs:
+        if inp.name == name:
+            inp.default_value = value
+            return True
+    return False
+
 mat = bpy.data.materials.new('MAT-skin_light')
 mat.use_nodes = True
 bsdf = mat.node_tree.nodes['Principled BSDF']
-bsdf.inputs['Base Color'].default_value = (0.85, 0.65, 0.55, 1.0)
-bsdf.inputs['Metallic'].default_value = 0.0
-bsdf.inputs['Roughness'].default_value = 0.4
-bsdf.inputs['Subsurface Weight'].default_value = 1.0
-bsdf.inputs['Subsurface Radius'].default_value = (1.0, 0.2, 0.1)
-bsdf.inputs['Subsurface IOR'].default_value = 1.4
+
+set_input(bsdf, 'Base Color', (0.85, 0.65, 0.55, 1.0))
+set_input(bsdf, 'Metallic', 0.0)
+set_input(bsdf, 'Roughness', 0.4)
+set_input(bsdf, 'Subsurface Weight', 1.0)
+set_input(bsdf, 'Subsurface Radius', (1.0, 0.2, 0.1))
+set_input(bsdf, 'Subsurface IOR', 1.4)   # ← string-key fails on Blender 5.x; helper bypasses it
+
 bpy.data.objects['GEO-target'].data.materials.append(mat)
 print('material:skin_light')
 ```
@@ -297,6 +330,7 @@ Avoid `Material.001`, `Material.027`. Always rename.
 | Material not visible in glTF | Procedural shader; bake to image first |
 | Normal map looks wrong | Set image texture to "Non-Color" color space |
 | sRGB on roughness map | Set image texture to "Non-Color" |
+| `KeyError: 'Subsurface IOR'` (or any other input) | Blender 5.x quirk: input has `enabled=False`; use the `set_input` helper at the top of this file instead of `bsdf.inputs['Name']` |
 
 ## When to load `references/overview.md`
 
