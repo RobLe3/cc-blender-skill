@@ -2,6 +2,26 @@
 
 All notable changes to **cc-blender-skill** since first commit. Detailed rationale per version is in [`VERSIONING.md`](./VERSIONING.md). Patch-by-patch root-cause notes are in [`IMPLEMENTATION_LOG.md`](./IMPLEMENTATION_LOG.md). Test results are in [`test.md`](./test.md), [`test_round2.md`](./test_round2.md), and [`test_round3.md`](./test_round3.md).
 
+## [1.2.1] — 2026-04-28
+
+### Hard limit on "human face from primitives" — three escape paths documented
+
+User feedback on v1.2.0 broadcaster: "does not even close resemble a human." Accurate. Tried adding facial features (cube nose, sphere ears, line mouth, bar brows) to test whether more primitives could cross from "abstract avatar" to "human face." Result: validation iteration `assets/v1.2.0-validation/04_broadcaster_with_features_still_not_human.png` shows the limit — added features cross from "ball" to "abstract avatar" but NOT to "human."
+
+The hard limit: real human faces require **subtractive sculpting** (eye sockets recessed into the head, cheekbones pulled out, lip curvature, jaw line, chin shape) — features that can't be added as floating primitives, only carved into a base mesh.
+
+Documented in `references/common-object-dimensions.md` as **three realistic paths past the limit** (all out of pure-recipe scope):
+
+1. **Import existing human base mesh** via Blender MCP's asset tools (`download_polyhaven_asset` / `download_sketchfab_model` / `generate_hyper3d_model_via_text`) — cheapest automated route, then chain skin/lighting/rendering
+2. **Sculpt mode** — gestural, not driven well from natural language; recipe can prepare base mesh, user sculpts manually
+3. **Commission a Blender character artist** per `prompts/04-blender-workflow.md` (6-10 hours)
+
+Added a corresponding row to the orchestrator's failure-modes table (`text-to-blender/SKILL.md`): "User asks for a 'human' / 'character' / 'face'" → suggest one of the three paths; do NOT pretend a sphere-with-features looks human.
+
+This is the same kind of honesty as v0.8.0's chair-design boundary and v1.2.0's character-scope statement, but with a concrete failure-mode entry pointing the orchestrator at MCP tools (`generate_hyper3d_model_via_text` etc.) that ARE available even though they're outside pure-recipe scope. Real automated humans require AI 3D generation; the skill plugin is the orchestration layer on top.
+
+Quality estimate: 8.5/10 unchanged. The honest documentation of limits IS the contribution.
+
 ## [1.2.0] — 2026-04-28
 
 ### Stylized broadcaster avatar — character-work scope boundary documented
