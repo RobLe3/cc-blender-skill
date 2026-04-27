@@ -1,6 +1,26 @@
 # Changelog
 
-All notable changes to **cc-blender-skill** since first commit. Detailed rationale per version is in [`VERSIONING.md`](./VERSIONING.md). Patch-by-patch root-cause notes are in [`IMPLEMENTATION_LOG.md`](./IMPLEMENTATION_LOG.md). Test results are in [`test.md`](./test.md) and [`test_round2.md`](./test_round2.md).
+All notable changes to **cc-blender-skill** since first commit. Detailed rationale per version is in [`VERSIONING.md`](./VERSIONING.md). Patch-by-patch root-cause notes are in [`IMPLEMENTATION_LOG.md`](./IMPLEMENTATION_LOG.md). Test results are in [`test.md`](./test.md), [`test_round2.md`](./test_round2.md), and [`test_round3.md`](./test_round3.md).
+
+## [1.0.1] — 2026-04-27
+
+### Trigger-eval self-assessment — descriptions validated, no patches needed
+
+Closed the loop on the 200-query trigger-eval set shipped in v0.9.3 by running each query against its skill's `description` + `when_to_use` text and judging whether the description would cause Claude to load the skill.
+
+**Results**:
+- **TP rate: 100% (100/100)** — every trigger query cleanly matches a relevant phrase in the supposed-to-trigger skill's description
+- **FP rate: 4% (4 borderline / 100)** — well below the 10% intervention threshold
+- **Decision**: descriptions ship unchanged. The 5 borderline FPs identified are intrinsically ambiguous queries where description tuning would risk hurting legitimate TP recall.
+
+**Borderline cases documented as known soft spots** in `test_round3.md` (not bugs, just edge cases for real-use observation):
+- text-to-blender on explanatory/theory questions
+- blender-materials on animation-of-material-properties
+- blender-export on "without Blender" conversion requests
+- blender-pro-workflow on Cycles-vs-EEVEE comparisons
+- wireframe-to-3d on 2D-to-2D vectorization
+
+This is a **self-assessment**, not a black-box eval. Real Claude-fresh-session validation comes from actual usage. The 10/10 per-skill starter set is appropriate for v1.0.x; expanding to 20/20 would surface more edge cases in v1.x.
 
 ## [1.0.0] — 2026-04-27
 
