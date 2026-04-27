@@ -1,6 +1,6 @@
 # Versioning — Honest Quality Path to v1.0
 
-**Current version**: **0.9.2** — aviator hand-crafted with proper Ray-Ban dimensions; eyewear added to dimension reference
+**Current version**: **0.9.3** — trigger-eval scaffolding shipped (200 queries across 10 skills)
 **Date**: 2026-04-27
 
 ---
@@ -59,6 +59,22 @@ Until then, this is an honest **0.3.0** — production-ready scaffolding.
 ---
 
 ## What changed at each version
+
+### 0.9.3 — 2026-04-27 — Trigger-eval scaffolding for description tuning
+
+Per the Anthropic Skills best-practices doc — skill descriptions are the primary triggering mechanism, and they should be tuned via a trigger-eval loop. Each skill now has a starter `evals/evals.json` with **10 trigger queries** (should activate the skill) + **10 no-trigger queries** (should NOT activate).
+
+**200 queries total across 10 skills.** The trigger queries verify Claude loads the right skill on natural-language prompts; the no-trigger queries verify it doesn't over-activate on adjacent or unrelated requests.
+
+**Key design decisions in the eval queries:**
+- Adjacent-skill no-trigger cases test internal routing (e.g., for `blender-modeling`, "apply gold material" should NOT trigger modeling — should route to `blender-materials`)
+- Knowledge/explanatory queries are no-trigger (e.g., "explain how subdivision surface works" doesn't need to *do* anything in Blender)
+- External-pipeline queries are no-trigger (e.g., "convert FBX to glTF without Blender" → out of scope)
+- Borderline cases include rationale notes (e.g., "vectorize this raster to SVG" for `wireframe-to-3d` — could go either way)
+
+**Companion doc**: `plugin/skills/EVALS_README.md` documents the schema, the manual run-loop, the optional Claude `--print` automation sketch, and honest caveats (starter set sized 10/10 not the recommended 20/20).
+
+These are the **last item before v1.0**. The trigger-eval files don't change skill behaviour but they enable the description-tuning loop that v1.0 stability depends on.
 
 ### 0.9.2 — 2026-04-27 — Aviator dimensions + hand-crafted hero render
 
