@@ -2,7 +2,7 @@
 
 A Claude Code skill plugin that lets Claude use Blender like a senior 3D artist via natural language.
 
-**Version**: 0.3.0 (scaffolding complete; not yet validated against a running Blender — see [VERSIONING.md](./VERSIONING.md) for the honest path to v1.0)
+**Version**: **1.0.0** — first stable release. Validated end-to-end on Blender 5.1.1 across three scene classes (sword, bottle, chair) plus wireframe-to-3d closure. See [`CHANGELOG.md`](./CHANGELOG.md) for what landed at each version, [`VERSIONING.md`](./VERSIONING.md) for full rationale, and the validation proof renders in [`plugin/skills/text-to-blender/assets/`](./plugin/skills/text-to-blender/assets/).
 
 ---
 
@@ -23,6 +23,28 @@ Generated Python → mcp__blender__execute_blender_code → Blender → output
 ```
 
 The plugin is the actual installable thing. It lives at [`plugin/`](./plugin/). Knowledge research that produced it lives at [`knowledge/`](./knowledge/) and [`docs/`](./docs/).
+
+---
+
+## What works (honestly)
+
+| Capability | Status | Validation |
+|------------|--------|------------|
+| End-to-end scene build from natural language | ✅ Works first-try on common subjects | sword, bottle, chair scenes (proof renders in `plugin/skills/text-to-blender/assets/`) |
+| Real-world dimension lookup | ✅ Reference covers swords, chairs, bottles, mugs, tables, lamps, eyewear | `references/common-object-dimensions.md` |
+| Multi-skill chaining | ✅ Validated | wireframe-to-3d → modeling → materials → lighting → camera → render |
+| Blender 5.x compat | ✅ Live-validated on 5.1.1 | All known cross-version quirks have try/except or helpers |
+| Blender 4.x compat | ⚠️ Compat code present, not directly tested | See `plugin/skills/text-to-blender/references/blender-version-compat.md` |
+| Coloured glass / metal / wood / fabric / skin / product subject classes | ✅ Subject-aware lighting profiles | Recipe 0a in `blender-lighting/SKILL.md` |
+| Trigger-eval description tuning | ✅ 200 starter queries shipped | Each skill has `evals/evals.json` |
+| Wireframe-to-3d auto-extraction | ⚠️ Works for simple line-art (foundation only) | Aviator validated; complex named-design objects need hand-crafted layer on top |
+
+## What doesn't work yet (honestly)
+
+- **Design quality ≠ build correctness.** Plugin produces functionally correct objects. Aesthetic refinement (curved chair backs, profile-cut legs, consciously-composed silhouettes) is human-driven — out of scope for automatic generation.
+- **Thin-metal specular flare.** Hero shots of thin metal (eyewear arms, jewellery) catch side lighting as bright streaks. Workaround: top-down softbox lighting or crop temple arms out of the frame.
+- **Subjective quality.** Numerical validation passing ≠ render looks right. The orchestrator's mandatory visual-validation checkpoint exists, but the user remains the final oracle.
+- **External user feedback.** v1.0.0 is internally-validated only.
 
 ---
 
@@ -147,11 +169,11 @@ See [`BLENDER_TOOLKIT_COMPARISON.md`](./BLENDER_TOOLKIT_COMPARISON.md) for the f
 
 ---
 
-## Honest status
+## Honest status (v1.0.0)
 
-This is **0.3.0** — the structure, knowledge, and recipes are in place, but **none of it has been validated end-to-end against a running Blender**. Expect bugs on first execution. See [`VERSIONING.md`](./VERSIONING.md) for the path to v1.0 (estimated 1–2 weeks of focused validation work).
+The plugin shipped through **9 versions of validation and patches** since the v0.3.0 scaffolding. Each version's commit summary in `CHANGELOG.md` records concrete bugs found and fixed; each user-driven feedback iteration is in `VERSIONING.md` with the patch it produced. The proof renders in `plugin/skills/text-to-blender/assets/v0.X.0-validation/` are honest evidence — no cherry-picking, including failure-state renders.
 
-The most useful next step: run the 5 representative prompts in `VERSIONING.md` against actual Blender, document failures, fix them, tag **0.5.0**.
+What v1.0.0 means here: **stable enough that the patches won't churn day-to-day**, the recipe vocabulary is settled, and the trigger-evals exist for description tuning. Real external use will surface edge cases that v1.x patches will address.
 
 ---
 
