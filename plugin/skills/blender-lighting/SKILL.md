@@ -228,6 +228,53 @@ aim_at(rim, center)
 print(f'lighting:three_point_aimed center={tuple(round(v,2) for v in center)} extent={extent:.2f}m dist={light_dist:.2f}m')
 ```
 
+### Recipe 0c — Practical lighting (scene contains its own emissive light source)
+
+When the subject IS or CONTAINS a light source — desk lamp with bulb, candle with flame, monitor with glowing screen, neon sign — the scene needs a different setup:
+
+1. **Make the world background dark** (Strength 0.10–0.20). Otherwise the bulb's contribution is drowned out by ambient.
+2. **Reduce or remove the standard 3-point fill/rim**. The practical light should dominate.
+3. **Keep a subtle ambient fill** (8-15W Area light from camera direction) so the lamp body itself is visible — pure practical-only renders make the lamp shape silhouette into shadow.
+4. **Tune emission strength HIGH** for small mesh emitters (see `blender-materials` Recipe 11b — bulb spheres need Strength 800-3000 to read like real bulbs).
+5. **Cycles `max_bounces` ≥ 16** for proper interior-shade lighting — the bulb's light needs to bounce inside the shade and out through the opening.
+
+```python
+import bpy
+from mathutils import Vector
+
+def aim_at(light_obj, target):
+    target_pos = Vector(target.location) if hasattr(target, 'location') else Vector(target)
+    direction = (target_pos - light_obj.location).normalized()
+    light_obj.rotation_euler = direction.to_track_quat('-Z', 'Y').to_euler()
+
+# Dim world (let the practical dominate)
+world = bpy.context.scene.world
+world.use_nodes = True
+nodes = world.node_tree.nodes
+for n in list(nodes): nodes.remove(n)
+output = nodes.new('ShaderNodeOutputWorld')
+bg = nodes.new('ShaderNodeBackground')
+bg.inputs['Color'].default_value = (0.02, 0.02, 0.03, 1.0)
+bg.inputs['Strength'].default_value = 0.15
+world.node_tree.links.new(bg.outputs['Background'], output.inputs['Surface'])
+
+# Single subtle ambient fill from camera direction
+fill = bpy.data.objects.new('LGT-ambient_fill', bpy.data.lights.new('LGT-ambient_fill', type='AREA'))
+fill.data.energy = 8; fill.data.size = 1.0; fill.data.color = (0.85, 0.9, 1.0)
+bpy.context.collection.objects.link(fill)
+fill.location = (0.5, -0.8, 0.5)
+aim_at(fill, Vector((0, 0, 0.3)))
+
+# Cycles bounces
+scene = bpy.context.scene
+scene.cycles.max_bounces = 16
+print('lighting:practical_setup')
+```
+
+The practical light's emission shader (mesh-emissive bulb / candle flame / etc.) handles the rest. Scene appears like real photography of an illuminated subject — dark surroundings, warm pool of light from the practical, subject silhouette gently filled.
+
+**Validation proof**: see `text-to-blender/assets/v1.1.0-validation/desk_lamp_emission.png` for what this setup produces (desk lamp with visible bulb glow, warm light pool on desk surface, lamp body visible against the dark scene).
+
 ### Recipe 1 — Three-point lighting (the canonical setup)
 
 ```python

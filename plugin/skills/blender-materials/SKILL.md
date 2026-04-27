@@ -315,6 +315,88 @@ bpy.data.objects['GEO-target'].data.materials.append(mat)
 print('material:silicone')
 ```
 
+### Recipe 11b — Emission (light-emitting mesh, e.g. lamp bulb, neon sign, screen glow)
+
+Emission is a **separate shader from Principled BSDF** — replace the BSDF entirely with a `ShaderNodeEmission` and connect to Material Output's Surface input. The mesh becomes a light source itself (contributes to scene illumination in Cycles).
+
+```python
+import bpy
+
+mat = bpy.data.materials.new('MAT-bulb_emission')
+mat.use_nodes = True
+nodes = mat.node_tree.nodes
+links = mat.node_tree.links
+
+# Remove the default Principled BSDF
+for n in list(nodes):
+    if n.type == 'BSDF_PRINCIPLED':
+        nodes.remove(n)
+
+emission = nodes.new('ShaderNodeEmission')
+emission.inputs['Color'].default_value = (1.0, 0.92, 0.78, 1.0)   # warm tungsten
+emission.inputs['Strength'].default_value = 1500.0                 # see strength guide below
+
+output = nodes['Material Output']
+links.new(emission.outputs['Emission'], output.inputs['Surface'])
+
+bpy.data.objects['GEO-bulb'].data.materials.append(mat)
+print('material:bulb_emission')
+```
+
+#### Strength tuning — critical for mesh emitters
+
+Mesh emission's effective brightness scales with **mesh surface area**, not just the Strength value. A small sphere at Strength=50 is barely visible; the same sphere at Strength=1500 lights a desk like a real bulb. Use this table for ballpark values:
+
+| Mesh size | Bulb-equivalent | Strength |
+|-----------|-----------------|----------|
+| 1-2 cm sphere (Edison bulb) | 40W warm bulb | 800-1500 |
+| 3-5 cm sphere (LED globe) | 60-100W bulb | 1500-3000 |
+| 10×10 cm flat panel (LED panel) | Indoor light panel | 100-300 |
+| 100×30 cm strip (neon tube) | Neon sign | 50-150 |
+| Large window plane (sky simulation) | Daylight | 5-20 |
+
+**Rule of thumb**: smaller surface area → higher Strength. Doubling sphere radius reduces required Strength by ~4× (inverse surface-area scaling).
+
+Use `(R, G, B)` to set colour temperature:
+- Tungsten (3200K) — `(1.0, 0.85, 0.6)`
+- LED warm (3000K) — `(1.0, 0.8, 0.6)`
+- Daylight (5500K) — `(1.0, 1.0, 1.0)`
+- Cool fluorescent (4500K) — `(0.95, 0.95, 1.0)`
+
+#### Lamp shade — separate flipped-normal interior
+
+If the bulb sits inside a shade, the shade's INSIDE surface needs to be bright matte (white) so it reflects bulb light realistically. Single-mesh shades only show the OUTSIDE material. Solution: duplicate the shade mesh, flip normals, scale 97% smaller, apply bright-white material. This gives proper interior-glow when the bulb illuminates the shade.
+
+```python
+import bpy
+
+# Assuming `shade` is the outer cone with the dark exterior material already applied
+shade = bpy.data.objects['GEO-lamp_shade']
+bpy.ops.object.select_all(action='DESELECT')
+shade.select_set(True); bpy.context.view_layer.objects.active = shade
+bpy.ops.object.duplicate()
+shade_in = bpy.context.active_object
+shade_in.name = shade.name + '_interior'
+
+# Flip normals so the inside surface faces inward
+bpy.ops.object.mode_set(mode='EDIT')
+bpy.ops.mesh.select_all(action='SELECT')
+bpy.ops.mesh.flip_normals()
+bpy.ops.object.mode_set(mode='OBJECT')
+
+# Bright white interior
+mat_in = bpy.data.materials.new('MAT-shade_interior')
+mat_in.use_nodes = True
+b = mat_in.node_tree.nodes['Principled BSDF']
+b.inputs['Base Color'].default_value = (0.95, 0.93, 0.88, 1.0)
+b.inputs['Roughness'].default_value = 0.5
+
+shade_in.data.materials.clear()
+shade_in.data.materials.append(mat_in)
+shade_in.scale = (0.97, 0.97, 0.97)
+print('material:shade_interior_white')
+```
+
 ### Recipe 12 — Procedural wood (10 nodes)
 ```python
 import bpy

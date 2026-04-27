@@ -2,6 +2,25 @@
 
 All notable changes to **cc-blender-skill** since first commit. Detailed rationale per version is in [`VERSIONING.md`](./VERSIONING.md). Patch-by-patch root-cause notes are in [`IMPLEMENTATION_LOG.md`](./IMPLEMENTATION_LOG.md). Test results are in [`test.md`](./test.md), [`test_round2.md`](./test_round2.md), and [`test_round3.md`](./test_round3.md).
 
+## [1.1.0] — 2026-04-27
+
+### New scene class — desk lamp; emission material + practical lighting recipes
+
+Built a desk lamp scene end-to-end (base + articulated arms + shade + emissive bulb + desk surface) — fourth scene class after sword/bottle/chair, testing the missing primary material class (**emission**) and a new lighting paradigm (**practical lighting**: subject contains its own light source).
+
+**New recipes**:
+
+1. **`blender-materials/SKILL.md` Recipe 11b — Emission**: replaces Principled BSDF with `ShaderNodeEmission` for light-emitting meshes (bulbs, neon, screens). Includes a strength-tuning table because mesh emission scales with surface area (small bulb sphere needs Strength 800-3000; large window plane needs Strength 5-20). Companion sub-recipe for **lamp-shade interior** using flipped-normal duplicate with bright-white material so the bulb illuminates the shade interior realistically.
+
+2. **`blender-lighting/SKILL.md` Recipe 0c — Practical lighting**: 5-step setup for scenes whose subject contains an emissive source (desk lamp, candle, monitor). Dim world background, drop standard 3-point, single subtle ambient fill, high emission strength, Cycles `max_bounces ≥ 16` for proper interior-shade bouncing.
+
+**Validation proof**: `text-to-blender/assets/v1.1.0-validation/desk_lamp_emission.png` shows the result: recognisable articulated desk lamp with visible bulb glow inside the shade, warm pool of practical light on the desk, lamp body silhouetted correctly against dark scene.
+
+**Findings worth documenting**:
+- Mesh emission strength is **NOT comparable** to light-object energy — strength scales with surface area, so small mesh emitters need values 100x+ higher than intuition suggests
+- Single-mesh shades only show one material side; a flipped-normal interior duplicate is needed for realistic shade-illumination effect
+- Practical lighting requires dropping standard 3-point — fight the temptation to add fill or rim, the emissive subject should dominate
+
 ## [1.0.1] — 2026-04-27
 
 ### Trigger-eval self-assessment — descriptions validated, no patches needed
