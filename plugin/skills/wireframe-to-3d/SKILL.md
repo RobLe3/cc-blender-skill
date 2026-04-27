@@ -260,3 +260,28 @@ The body above covers the 80% case. For the long tail, load these on demand:
 ## Tip
 
 If the user just says "convert this wireframe", default to: `view_type=auto-detect`, `detail_level=production`, `geometry_type=hybrid`, `world_width_mm=auto`. Only ask for clarification if multiple interpretations are plausible.
+
+## Scope boundary — what wireframe-to-3d does and doesn't produce
+
+This skill produces **2D outline tracing extruded to thin curves** — a flat-in-Y wireframe representation of the input drawing. It does **not** produce:
+
+- Filled surfaces (e.g. lens glass between rim outlines)
+- True 3D depth from a single view (output is flat in Y)
+- Multi-view 3D reconstruction (front + side views combined volumetrically)
+- Sub-features not in the input lines (nose pads, articulated hinges, etc.)
+- Production-quality materials (placeholder only — real materials come from `blender-materials`)
+
+For a "complete rendered and textured X" (e.g. Ray-Ban Aviator from a wireframe), **chain this skill with others**:
+
+| Step | Skill | What it adds |
+|------|-------|--------------|
+| 1 | `wireframe-to-3d` | Frame outline as 3D curves — **the foundation, not the deliverable** |
+| 2 | `blender-modeling` | Filled lens discs (UV spheres scaled to lens dimensions); temple arms (Bezier curves extending backward in Y); any 3D detail not in the wireframe |
+| 3 | `blender-materials` | Gold/silver metal frame; mirror lens material with `Metallic=0.9, Roughness=0.04`; etc. |
+| 4 | `blender-lighting` | `subject_class='metal'` for product-shot lighting |
+| 5 | `blender-cameras` | 85-100mm focal length, shallow DoF for hero product shot |
+| 6 | `blender-rendering` | Cycles 256+ samples, denoise, AgX view transform |
+
+See `text-to-blender/assets/v0.9.0-validation/03_aviator_wireframe_to_3d.png` for what wireframe-to-3d produces alone (flat outline tracing) vs `04_aviator_chained_upgrade.png` for what the chained orchestration produces (a Ray-Ban-style hero render).
+
+**The orchestrator (`text-to-blender`) should always plan for the chain** when the user asks for a "model of X" from a wireframe.

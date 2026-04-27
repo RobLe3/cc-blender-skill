@@ -1,6 +1,6 @@
 # Versioning — Honest Quality Path to v1.0
 
-**Current version**: **0.9.0** — coverage expansion: subject-class lighting, wireframe-to-3d e2e closure, more dimensions, version compat doc
+**Current version**: **0.9.1** — wireframe-to-3d scope boundary documented; aviator chained-upgrade demo
 **Date**: 2026-04-27
 
 ---
@@ -59,6 +59,17 @@ Until then, this is an honest **0.3.0** — production-ready scaffolding.
 ---
 
 ## What changed at each version
+
+### 0.9.1 — 2026-04-27 — Wireframe-to-3d scope boundary + chained-upgrade demo
+
+User pointed out: the v0.9.0 wireframe-to-3d output is recognizable as aviator sunglasses but not a "complete rendered and textured Ray-Ban". Accurate — the skill produces **2D outline tracing extruded to thin curves**, not a full 3D model with depth, lenses, or production materials. That's its honest scope.
+
+This patch:
+1. **Documents the scope boundary explicitly** in `wireframe-to-3d/SKILL.md` — added a "Scope boundary" section listing what wireframe-to-3d does NOT produce, and pointing the orchestrator at the multi-skill chain that does.
+2. **Demonstrates chained upgrade** — re-rendered the aviator using wireframe-to-3d as the foundation + blender-modeling (filled lens discs as scaled UV spheres + temple arms as Bezier curves) + blender-materials (gold metal frame `Metallic=1.0/Roughness=0.18`, blue mirror lens `Metallic=0.9/Roughness=0.04`) + subject-class metal lighting + 100mm product-shot camera + Cycles render.
+3. **Proof committed**: `assets/v0.9.0-validation/04_aviator_chained_upgrade.png` shows what the chained orchestration produces (recognizable Ray-Ban-style hero) vs `03_aviator_wireframe_to_3d.png` (raw wireframe-to-3d output, flat outline tracing).
+
+The orchestrator (`text-to-blender/SKILL.md`) is updated to explicitly plan for chaining when the user asks for "a model of X from this wireframe" — wireframe-to-3d is the foundation, never the deliverable on its own.
 
 ### 0.9.0 — 2026-04-27 — Coverage expansion (4 items toward v1.0)
 
