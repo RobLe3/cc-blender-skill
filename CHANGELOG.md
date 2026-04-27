@@ -2,6 +2,34 @@
 
 All notable changes to **cc-blender-skill** since first commit. Detailed rationale per version is in [`VERSIONING.md`](./VERSIONING.md). Patch-by-patch root-cause notes are in [`IMPLEMENTATION_LOG.md`](./IMPLEMENTATION_LOG.md). Test results are in [`test.md`](./test.md), [`test_round2.md`](./test_round2.md), and [`test_round3.md`](./test_round3.md).
 
+## [1.2.0] — 2026-04-28
+
+### Stylized broadcaster avatar — character-work scope boundary documented
+
+Tested the skill against `docs/avatar-design-kit/prompts/01-concept-sheet.md` — a Max-Headroom-flavour digital broadcaster character (head + suit + hair + glasses + cyan/magenta synthwave lighting). Built a primitives-only version using existing recipes; documented what works and what doesn't.
+
+**What works** (committed to `references/common-object-dimensions.md` under "Characters / avatars"):
+- Sphere-head broadcaster silhouette with subsurface skin + sheen suit + flat hair shape + aviator glasses + dramatic cyan/magenta lighting
+- Final synthwave-lit render shows recognizable retro-CGI broadcaster look
+- Subsurface skin recipe (Subsurface Weight 1.0, Radius (1.0, 0.25, 0.10)) validates the v0.5.0 `set_input` helper for the disabled `Subsurface IOR` input
+
+**What doesn't work** (honest scope boundary added):
+- Realistic facial features (eyes, nose, mouth, ears) — primitives can't carve these
+- 15-viseme animation blendshapes per TECH-SPEC.md
+- Hand-textured skin / believable hair / proper anatomy
+- Posing / rigging / production character animation
+
+The orchestrator should warn users when they request character work that automated generation produces a **recognizable silhouette only**, and recommend a human Blender character artist for production output (per `prompts/04-blender-workflow.md`'s 6-10 hour estimate).
+
+**New recipe finding**: strong colored lighting (cyan/magenta synthwave) overpowers subtle PBR materials. To keep both visible: reduce dramatic light energy 10x compared to standard 3-point intuition (cyan key 250W not 800W; magenta rim 200W not 600W; warm fill 15W max). World Strength 0.15 for proper contrast.
+
+**Three render iterations** committed for honesty:
+- `01_broadcaster_too_bright.png` — first attempt, lights at 800W washed everything out
+- `02_broadcaster_neutral_dominates.png` — added neutral key, materials still washed
+- `03_broadcaster_synthwave_FINAL.png` — final synthwave-mood result with proper light energy ratios
+
+Quality estimate stays at **8.5/10** — character work is honestly out of scope; the limit is documented.
+
 ## [1.1.0] — 2026-04-27
 
 ### New scene class — desk lamp; emission material + practical lighting recipes

@@ -1,6 +1,6 @@
 {
   "name": "cc-blender-skill",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Comprehensive Blender skill plugin for Claude Code — turns natural-language requests into Blender Python via the Blender MCP. 9 chain-loadable skills covering modeling, materials, lighting, cameras, rendering, animation, export, wireframe-to-3D, and pro-workflow orchestration.",
   "author": "RobLe3 (with Claude)",
   "license": "MIT",
