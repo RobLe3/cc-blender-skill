@@ -47,6 +47,105 @@ What kind of geometry?
 
 ## Recipes
 
+### Critical: axis orientation for elongated objects
+
+For any **elongated/asymmetric** subject (sword blade, knife, bottle, plank, bone, screwdriver tip, etc.), three axes have **different meaning**:
+
+- **Long axis** — the length of the object (78cm for a sword blade)
+- **Broad axis** — the wider face axis, what's visible from the "useful" viewing angle (4.5cm for a blade — the flat side you'd lay on a table)
+- **Thin axis** — the narrower cross-section axis (0.8cm for a blade — the cutting edge)
+
+**Always orient elongated objects so the broad axis faces the camera in hero shots.** A sword viewed edge-on (camera looking down the thin axis) renders as a thin pole and looks nothing like a sword. The recipes below use this convention:
+
+| Convention | X (left-right of object's local space) | Y (front-back of object's local space) | Z (up-down) |
+|------------|---------------------------------------|---------------------------------------|-------------|
+| Sword blade | thin (0.8cm) | broad (4.5cm) | long (78cm) — vertical |
+| Knife blade | thin | broad | long — horizontal |
+| Plank | thin | broad | long |
+| Bottle | symmetric (radius) | symmetric (radius) | long (height) |
+
+After building, **rotate the object** so the broad axis points roughly toward the camera. For a sword standing upright with camera in front (camera in -Y direction): rotate the blade 90° around Z so its local Y (broad) → world X, then the broad face is visible from the camera's perspective.
+
+### Critical: connecting parts smoothly (no visible seams)
+
+When assembling a multi-part subject (sword = blade + guard + grip + pommel; chair = seat + back + 4 legs), separate primitives **abutting at exactly-aligned face boundaries leave visible seams** even though the math says they touch. Worse — different shape primitives (cylinder grip into cube guard) produce obvious "cylinder-on-rectangle" boundaries.
+
+Two fixes, used together:
+
+**1. Overlap parts deeply at joins.** Make adjacent primitives interpenetrate by 5–15mm at every connection. The hidden volume disappears inside the larger part, leaving no visible seam.
+
+```python
+# Sword example: grip extends 1.5cm INTO the guard above and 1cm INTO the pommel below
+GRIP_OVERLAP_INTO_GUARD = 0.015
+GRIP_OVERLAP_INTO_POMMEL = 0.010
+grip_total_len = GRIP_VISIBLE_LEN + GRIP_OVERLAP_INTO_GUARD + GRIP_OVERLAP_INTO_POMMEL
+```
+
+The cylinder grip's top 1.5cm is *inside* the guard cube — not visible from outside, so the transition you see is just gold-guard surface, no cylinder-meeting-rectangle artifact.
+
+**2. Apply `shade_smooth()` to rounded parts** (cylinders, spheres, organic shapes). Shaded-flat cylinders show every facet boundary; smooth-shaded ones look continuous. Cubes and beveled hard-surface parts can stay shaded flat (or be partially smoothed via Auto Smooth on Blender 4.x; Blender 5.x removed `Mesh.use_auto_smooth` so use modifier-based smoothing or per-face flags).
+
+```python
+# After creating each rounded primitive
+bpy.ops.object.shade_smooth()
+```
+
+**Anti-pattern** (visible seams):
+```python
+# ❌ Pieces abut exactly — visible seam where surfaces meet
+pommel_z = -GRIP_LEN/2 - POMMEL_R     # pommel top exactly at grip bottom
+guard_z = GRIP_LEN/2 + GUARD_H/2      # guard bottom exactly at grip top
+# Result: clear line where each pair of surfaces meets
+```
+
+**Correct** (hidden seams via overlap):
+```python
+# ✓ Pieces overlap by ~5-15mm; junction lines are inside other geometry
+pommel_z = -GRIP_LEN/2 - POMMEL_R + 0.010   # pommel pushed up 1cm into grip
+guard_z = GRIP_LEN/2 + GUARD_H/2 - 0.015    # guard pushed down to envelope grip top
+```
+
+For a **truly seamless** join (high-quality renders), Boolean Union the same-material parts: e.g. Boolean Union pommel + grip into a single mesh would eliminate the seam entirely. But this only works when both parts use the same material.
+
+### Critical: tapering to a point (for blade tips)
+
+Don't just scale the top vertices toward zero — that produces a "chiseled flat" tip. **Pinch all top vertices to a single point** and merge them:
+
+```python
+import bpy
+import bmesh
+
+obj = bpy.data.objects['GEO-blade']
+bpy.context.view_layer.objects.active = obj
+bpy.ops.object.mode_set(mode='EDIT')
+
+bm = bmesh.from_edit_mesh(obj.data)
+bm.verts.ensure_lookup_table()
+
+# Find vertices at the top (highest local Z)
+max_z = max(v.co.z for v in bm.verts)
+top_verts = [v for v in bm.verts if abs(v.co.z - max_z) < 0.001]
+
+# Collapse them to centerline
+for v in top_verts:
+    v.co.x = 0.0
+    v.co.y = 0.0
+
+bmesh.update_edit_mesh(obj.data)
+
+# Merge the now-coincident vertices into a true single point
+bpy.ops.mesh.select_all(action='DESELECT')
+for v in top_verts:
+    v.select = True
+bmesh.update_edit_mesh(obj.data)
+bpy.ops.mesh.remove_doubles(threshold=0.001)
+bpy.ops.object.mode_set(mode='OBJECT')
+
+print(f"tapered:{obj.name}")
+```
+
+This produces a true geometric point. Without `remove_doubles`, the four collapsed verts stay as four distinct points at the same coordinate — the tip looks visually pointed but is degenerate topology.
+
 ### Recipe 1 — Add a primitive with a clean name
 
 ```python

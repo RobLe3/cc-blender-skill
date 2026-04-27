@@ -34,6 +34,74 @@ Set up cameras with the same decisions a real cinematographer makes: focal lengt
 
 ## Recipes
 
+### Recipe 0 — Bbox-aware hero camera (preferred for orchestrator chains)
+
+Use this when you have a specific subject. Computes the subject's bounding box, places camera at a distance that fits the subject in ~80% of the frame vertically, and aims via Track-To.
+
+```python
+import bpy, math
+from mathutils import Vector
+
+# Choose subject — all meshes named GEO-* by default, or pass a specific list
+subject_meshes = [o for o in bpy.data.objects if o.type == 'MESH' and o.name.startswith('GEO-')]
+if not subject_meshes:
+    raise RuntimeError("No subject meshes found (looking for GEO- prefix)")
+
+# World-space bbox
+deps = bpy.context.evaluated_depsgraph_get()
+all_verts = []
+for o in subject_meshes:
+    eo = o.evaluated_get(deps); em = eo.to_mesh()
+    for v in em.vertices:
+        all_verts.append(o.matrix_world @ v.co)
+    eo.to_mesh_clear()
+xs = [v.x for v in all_verts]; ys = [v.y for v in all_verts]; zs = [v.z for v in all_verts]
+center = Vector(((min(xs)+max(xs))/2, (min(ys)+max(ys))/2, (min(zs)+max(zs))/2))
+height = max(zs) - min(zs)
+width = max(xs) - min(xs)
+biggest = max(height, width)
+
+# Frame fit: at distance D, vertical frame = D × (sensor_h / focal). Solve for D.
+focal_mm = 60        # 60mm gives a flattering not-too-wide hero shot
+sensor_h_mm = 24     # full-frame
+frame_per_meter = sensor_h_mm / focal_mm   # 0.4 m vertical frame per metre of distance
+target_fill = 0.80
+camera_distance = biggest / (frame_per_meter * target_fill)
+
+# Camera positioned in front (negative Y) with slight X offset for a 3/4 angle
+cam_pos = Vector((center.x + camera_distance * 0.3, center.y - camera_distance, center.z))
+
+# Empty for tracking
+empty_name = 'Empty-camera_target'
+empty = bpy.data.objects.get(empty_name) or bpy.data.objects.new(empty_name, None)
+if empty.name not in [o.name for o in bpy.context.collection.objects]:
+    bpy.context.collection.objects.link(empty)
+empty.location = center
+
+# Camera
+cam_data = bpy.data.cameras.new('CAM-hero')
+cam_data.lens = focal_mm
+cam_data.dof.use_dof = True
+cam_data.dof.aperture_fstop = 4.0
+cam_data.dof.focus_object = subject_meshes[0]   # focus on first/main subject
+
+cam = bpy.data.objects.new('CAM-hero', cam_data)
+bpy.context.collection.objects.link(cam)
+cam.location = cam_pos
+
+track = cam.constraints.new('TRACK_TO')
+track.target = empty
+track.track_axis = 'TRACK_NEGATIVE_Z'
+track.up_axis = 'UP_Y'
+
+bpy.context.scene.camera = cam
+print(f"camera:bbox_aware center={tuple(round(v,2) for v in center)} dist={camera_distance:.2f}m focal={focal_mm}mm")
+```
+
+For elongated vertical subjects (sword, flag, candle): biggest dimension is height; the framing math fits height to 80% of vertical frame, which is what you want.
+
+For wide horizontal subjects (car, table): biggest is width; it fits width to 80% of vertical frame too which over-zooms — for those, swap to `frame_per_meter_h = (sensor_h_mm * aspect_ratio) / focal_mm` or adjust target_fill down.
+
 ### Recipe 1 — Hero portrait camera (85mm + shallow DoF)
 
 ```python

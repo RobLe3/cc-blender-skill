@@ -35,6 +35,103 @@ What's the mood?
 
 ## Recipes
 
+### Helper: `aim_at(light, target)` — required for subject-aware lighting
+
+Recipe 1 below positions lights at fixed world coords with hardcoded rotations. That's fine for a generic 1m subject at the world origin. For ANY other subject (small jewellery, tall sword, sprawling building), you need lights aimed at the subject. Use this helper:
+
+```python
+from mathutils import Vector
+
+def aim_at(light_obj, target):
+    """Aim a light at a world-space target.
+    target may be a Vector or a tuple/list (x, y, z) or a Blender object.
+    """
+    target_pos = Vector(target.location) if hasattr(target, 'location') else Vector(target)
+    direction = (target_pos - light_obj.location).normalized()
+    light_obj.rotation_euler = direction.to_track_quat('-Z', 'Y').to_euler()
+```
+
+### Helper: scene-aware light positioning
+
+```python
+from mathutils import Vector
+
+def compute_scene_bbox_center(meshes):
+    """Average bbox center over a list of mesh objects (world space)."""
+    import bpy
+    deps = bpy.context.evaluated_depsgraph_get()
+    all_verts = []
+    for o in meshes:
+        eval_obj = o.evaluated_get(deps)
+        em = eval_obj.to_mesh()
+        for v in em.vertices:
+            all_verts.append(o.matrix_world @ v.co)
+        eval_obj.to_mesh_clear()
+    xs = [v.x for v in all_verts]
+    ys = [v.y for v in all_verts]
+    zs = [v.z for v in all_verts]
+    center = Vector(((min(xs)+max(xs))/2, (min(ys)+max(ys))/2, (min(zs)+max(zs))/2))
+    extent = max(max(xs)-min(xs), max(ys)-min(ys), max(zs)-min(zs))
+    return center, extent
+```
+
+### Recipe 0 — Three-point lighting **aimed at a subject** (preferred for orchestrator chains)
+
+Use this instead of Recipe 1 when you have a specific subject. Lights are placed proportionally to the subject's largest dimension.
+
+```python
+import bpy, math
+from mathutils import Vector
+
+def aim_at(light_obj, target):
+    target_pos = Vector(target.location) if hasattr(target, 'location') else Vector(target)
+    direction = (target_pos - light_obj.location).normalized()
+    light_obj.rotation_euler = direction.to_track_quat('-Z', 'Y').to_euler()
+
+# Determine subject and its scale
+subject_meshes = [o for o in bpy.data.objects if o.type == 'MESH' and o.name.startswith('GEO-')]
+deps = bpy.context.evaluated_depsgraph_get()
+all_verts = []
+for o in subject_meshes:
+    eo = o.evaluated_get(deps); em = eo.to_mesh()
+    for v in em.vertices:
+        all_verts.append(o.matrix_world @ v.co)
+    eo.to_mesh_clear()
+xs = [v.x for v in all_verts]; ys = [v.y for v in all_verts]; zs = [v.z for v in all_verts]
+center = Vector(((min(xs)+max(xs))/2, (min(ys)+max(ys))/2, (min(zs)+max(zs))/2))
+extent = max(max(xs)-min(xs), max(ys)-min(ys), max(zs)-min(zs))
+light_dist = max(extent * 1.5, 1.0)
+
+# Energy values scale roughly inversely with squared distance from subject — recipe targets
+# physically reasonable values for a ~1m subject at ~1.5m light distance.
+key_energy = 100 * (light_dist / 1.5) ** 2
+fill_energy = key_energy * 0.3
+rim_energy = key_energy * 0.8
+
+# KEY (warm, front-right above)
+key = bpy.data.objects.new('LGT-key', bpy.data.lights.new('LGT-key', type='AREA'))
+key.data.energy = key_energy; key.data.size = 0.5; key.data.color = (1.0, 0.95, 0.85)
+bpy.context.collection.objects.link(key)
+key.location = (center.x + light_dist * 0.7, center.y - light_dist * 0.7, center.z + light_dist * 0.5)
+aim_at(key, center)
+
+# FILL (cool, opposite, weaker)
+fill = bpy.data.objects.new('LGT-fill', bpy.data.lights.new('LGT-fill', type='AREA'))
+fill.data.energy = fill_energy; fill.data.size = 1.0; fill.data.color = (0.85, 0.9, 1.0)
+bpy.context.collection.objects.link(fill)
+fill.location = (center.x - light_dist * 0.7, center.y - light_dist * 0.5, center.z + light_dist * 0.3)
+aim_at(fill, center)
+
+# RIM (cool, behind, separates subject from BG)
+rim = bpy.data.objects.new('LGT-rim', bpy.data.lights.new('LGT-rim', type='SPOT'))
+rim.data.energy = rim_energy; rim.data.color = (0.7, 0.85, 1.0); rim.data.spot_size = math.radians(50)
+bpy.context.collection.objects.link(rim)
+rim.location = (center.x, center.y + light_dist, center.z + light_dist * 0.5)
+aim_at(rim, center)
+
+print(f'lighting:three_point_aimed center={tuple(round(v,2) for v in center)} extent={extent:.2f}m dist={light_dist:.2f}m')
+```
+
 ### Recipe 1 — Three-point lighting (the canonical setup)
 
 ```python

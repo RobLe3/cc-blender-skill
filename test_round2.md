@@ -228,3 +228,73 @@ Opus follow-up:
 4. Verify by re-running the M sword scene with the patched recipes — render attempt should succeed first try without the manual fixes I had to make
 5. Append `## Patches applied` section here listing changes
 6. Commit, tag v0.6.0, push
+
+---
+
+## Patches applied — 2026-04-27 (v0.5.0 → v0.6.0)
+
+User-driven iteration: the user repeatedly inspected the actual Blender viewport (not just the rendered file) and called out errors that the orchestrator's numerical checks didn't catch. Each round of feedback drove a concrete patch.
+
+### User's observations that drove patches
+
+| User said | Diagnosis | Patch |
+|-----------|----------|-------|
+| "There is factually no sword, just a working pommel and grip" | Blade was 50×50cm flat panel (`scale=(0.04, 0.5, 0.5)` on a `size=1` cube) — wrongly sized; broad faces exposed instead of edge | Real-world reference dimensions added to `references/common-object-dimensions.md`; orchestrator must consult it before sizing |
+| "Looks like a giant screwdriver" | Camera viewed thin axis (8mm) instead of broad face (4.5cm) | Axis-orientation guidance added to `blender-modeling`; explicit Z-rotation in the build code |
+| "These mistakes should not happen in the future" | No visual validation between API-success and "done" | Mandatory `get_viewport_screenshot` + visual check in orchestrator workflow |
+| "No sharp end now the sword" | Top vertices were scaled toward 0 but not merged → chiseled flat tip | Proper tapering recipe added to `blender-modeling` (collapse to centerline AND `remove_doubles`) |
+| "The sword is grey and has no textures" | Blender viewport defaults to Solid shading mode (ignores materials); also the materials were flat colours | Viewport→Material Preview switch in orchestrator; procedural texture variation added (brushed-noise on steel, hammered-noise on gold, voronoi+bump on leather) |
+| "The objects do not connect smooth to each other" | Adjacent primitives abutting exactly at boundaries left visible seams; cylinder-on-rectangle artifacts | Connection-overlap pattern added to `blender-modeling`: parts interpenetrate by 5-15mm; smooth shading on rounded parts |
+| "Grip looks like a cylinder sitting on a rectangle" | Grip top abutting flat guard bottom showed obvious cylinder→rectangle transition | Same overlap pattern: grip extends 1.5cm INTO the guard volume, hiding the cylinder→rectangle transition |
+
+### Concrete file changes
+
+1. **`plugin/skills/text-to-blender/SKILL.md`**:
+   - Workflow restructured: now 10 steps (was 7). New steps: world reset, dimension lookup, visual validation checkpoint, viewport-shading switch.
+   - Added `reset_world()` helper section.
+   - Added "Visual validation checkpoint" section requiring `get_viewport_screenshot` between rendering and reporting success.
+   - Added "Set viewport to Material Preview mode" section as last step before reporting.
+   - Added "Real-world dimension lookup" section pointing at the new reference file.
+   - Added 6 new rows to the failure-modes table: viewport-grey, flat-materials, wrong-proportions, thin-pole-orientation, blunt-tip, axis-orientation.
+
+2. **NEW `plugin/skills/text-to-blender/references/common-object-dimensions.md`** (~120 lines):
+   - Reference dimensions for swords (multiple types), furniture, containers, vehicles, architecture, human-scale anchor.
+   - Used as a lookup table BEFORE generating any modeling code.
+
+3. **`plugin/skills/blender-modeling/SKILL.md`**:
+   - Added "Critical: axis orientation for elongated objects" section (broad face vs thin axis convention).
+   - Added "Critical: tapering to a point" section (collapse + `remove_doubles` for proper geometric points).
+   - Added "Critical: connecting parts smoothly" section (deep overlaps + smooth shading + Boolean Union for seamless joins).
+
+4. **`plugin/skills/blender-lighting/SKILL.md`**:
+   - Added `aim_at(light, target)` helper.
+   - Added `compute_scene_bbox_center()` helper.
+   - Added Recipe 0 (subject-aware three-point lighting; positions + energies scale to subject extent).
+
+5. **`plugin/skills/blender-cameras/SKILL.md`**:
+   - Added Recipe 0 (bbox-aware hero camera; computes scene bbox, fits subject to ~80% vertical frame at chosen focal length, Track-To via Empty).
+
+### Verification (post-patch)
+
+The user-observed sword scene was rebuilt fresh using the patched recipes (referencing `common-object-dimensions.md` for sizing, applying the orientation/tapering/overlap rules from `blender-modeling`, the subject-aware lighting from `blender-lighting`, the bbox camera from `blender-cameras`, the world-reset and viewport-mode steps from the orchestrator).
+
+Final result: `plugin/skills/text-to-blender/assets/v0.6.0-round2-validation/M_sword_FINAL_v0.6.0.png` — a recognizable sword with proper proportions, sharp pointed tip, gold guard with hammered finish, leather grip with voronoi grain, gold pommel, all parts integrated without visible seams.
+
+### Quality estimate
+
+- v0.5.0 — 8/10 (28/30 unit tests pass)
+- **v0.6.0 — 8.5/10** — orchestrator now produces credible scene-builds on first try when given a real-world subject (was: produced broken renders that required 5+ iterations of user-driven correction)
+
+### What v1.0 still needs (from VERSIONING.md)
+
+Even with v0.6.0's improvements, several items remain:
+- [ ] Cross-test on Blender 4.x (compat branches)
+- [ ] Wireframe-to-3d full e2e (with `pip install` of cv2/numpy/scipy)
+- [ ] Add 5-10 more sample objects to `common-object-dimensions.md` (table, mug, lamp, helmet, etc.)
+- [ ] Worked example scenes for chair, bottle, character — not just sword
+- [ ] Trigger-eval JSON files per skill (~20 trigger / 20 no-trigger queries each)
+- [ ] External user feedback (1+ week of real use)
+
+### Key lesson from this round
+
+**The user is the visual-validation oracle that the orchestrator cannot replace.** Every patch in this round came from the user looking at the *actual* Blender viewport and the *actual* render and saying "this is wrong" — when the API calls reported success and the numerical checks all passed. The orchestrator now has a mandatory visual-validation checkpoint, but the LESSON is that subjective quality checks remain part of the pipeline; we made them explicit rather than skipping them.

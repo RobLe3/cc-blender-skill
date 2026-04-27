@@ -1,6 +1,6 @@
 # Versioning — Honest Quality Path to v1.0
 
-**Current version**: **0.5.0** — 30-test validation pass complete; 2 real bugs surfaced and patched
+**Current version**: **0.6.0** — user-driven scene-quality iteration; 7 patches across 4 skill files
 **Date**: 2026-04-27
 
 ---
@@ -59,6 +59,22 @@ Until then, this is an honest **0.3.0** — production-ready scaffolding.
 ---
 
 ## What changed at each version
+
+### 0.6.0 — 2026-04-27 — Real scene-build iteration; user as visual-validation oracle
+- Tester (Haiku) attempted a full sword scene-build via the orchestrator; numerical checks all passed but the user inspected the actual Blender viewport and surfaced 6 distinct quality issues
+- Each user observation drove a concrete patch:
+  1. **Wrong proportions** ("no sword, just pommel + grip"): added `references/common-object-dimensions.md` with real-world dimensions; orchestrator must consult it before sizing
+  2. **Wrong orientation** ("looks like a giant screwdriver"): added axis-orientation guidance to `blender-modeling` (broad-face-toward-camera convention)
+  3. **No mandatory visual validation** ("these mistakes shouldn't happen"): added mandatory `get_viewport_screenshot` step in orchestrator workflow
+  4. **Blunt blade tip** ("no sharp end"): added proper tapering recipe (collapse + `remove_doubles`)
+  5. **Grey viewport / flat materials** ("sword is grey, no textures"): added viewport-shading switch + procedural texture variation patterns
+  6. **Visible seams between parts** ("objects don't connect smoothly"): added connection-overlap pattern (parts interpenetrate by 5-15mm, hiding cylinder→cube transitions)
+- Also added: `aim_at(light, target)` helper + Recipe 0 (subject-aware lighting) to `blender-lighting`; Recipe 0 (bbox-aware hero camera) to `blender-cameras`; Blender 5.x `Mesh.use_auto_smooth` removal noted
+- Final sword render committed to `plugin/skills/text-to-blender/assets/v0.6.0-round2-validation/M_sword_FINAL_v0.6.0.png` — recognizable sword on first try with patched recipes
+- Quality estimate: **8.5/10** (was 8/10 at v0.5.0)
+- See `test_round2.md` for the full investigation arc with 7 user-feedback iterations and the patches each one drove
+
+**Key lesson**: numerical validation alone is insufficient. The user looking at the actual viewport is the oracle that catches "API succeeded but result is broken" failures. The orchestrator now treats visual validation as a mandatory step, not a nice-to-have.
 
 ### 0.5.0 — 2026-04-27 — Two-role validation loop complete (Haiku tester + Opus patcher)
 - **Tester** (Haiku 4.5) ran 30 test cases per `TESTING_PLAN.md` against live Blender 5.1.1, populated `test.md` with structured per-test results

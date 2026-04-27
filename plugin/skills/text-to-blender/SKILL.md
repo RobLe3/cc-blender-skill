@@ -15,11 +15,78 @@ The user speaks in tasks ("render a hero shot of a sword on a stone"); you:
 
 1. **Identify intent** → which capabilities are needed (modeling? materials? lighting? rendering? export?).
 2. **Check prerequisites** → MCP server reachable, scene state.
-3. **Route to sub-skills** → load the relevant ones via `Read` and follow their instructions.
-4. **Sequence** the work in the order pros use (see `references/assembly-order.md`).
-5. **Execute** generated Python via `mcp__blender__execute_blender_code`.
-6. **Validate** with `mcp__blender__get_scene_info` and `get_object_info`.
-7. **Report** results to the user with concrete numbers (object names, polycounts, file paths, render time).
+3. **Reset world** to a known-good baseline (see *World reset* below) — prevents leftover broken HDRI / Environment Texture nodes from previous runs corrupting the render.
+4. **Look up real-world dimensions** for the subject (`references/common-object-dimensions.md`) BEFORE generating Python. A "sword" has specific proportions; a "chair" has specific proportions; do not guess.
+5. **Route to sub-skills** → load the relevant ones via `Read` and follow their instructions.
+6. **Sequence** the work in the order pros use (see `references/assembly-order.md`).
+7. **Execute** generated Python via `mcp__blender__execute_blender_code`.
+8. **Validate** with `mcp__blender__get_scene_info`, `get_object_info`, AND **`get_viewport_screenshot`** — see *Visual validation checkpoint* below. Numerical validation alone is not enough: the API can report success while geometry is grossly wrong.
+9. **Iterate** — if the visual check shows an obvious problem (subject barely visible, wrong proportions, wrong orientation), fix and re-render BEFORE reporting success.
+10. **Report** to the user with concrete numbers AND a path to the proof render they can inspect.
+
+### World reset (always step 3, before any composition)
+
+Previous tests can leave the scene's world in a broken state — particularly an `Environment Texture` node with `image=None` cascading into Background, which produces a magenta-flooded render. Reset world to a neutral baseline at the start of every scene-build:
+
+```python
+def reset_world(scene, color=(0.04, 0.04, 0.05, 1.0), strength=0.4):
+    world = scene.world
+    world.use_nodes = True
+    nodes = world.node_tree.nodes
+    for n in list(nodes):
+        nodes.remove(n)
+    output = nodes.new('ShaderNodeOutputWorld')
+    bg = nodes.new('ShaderNodeBackground')
+    bg.inputs['Color'].default_value = color
+    bg.inputs['Strength'].default_value = strength
+    world.node_tree.links.new(bg.outputs['Background'], output.inputs['Surface'])
+```
+
+If the user wants HDRI lighting, override this AFTER it runs (load the actual `.hdr` file and verify `env.image is not None`).
+
+### Visual validation checkpoint (always between steps 8 and 10)
+
+After rendering, **always**:
+
+1. Call `mcp__blender__get_viewport_screenshot` (or read the rendered file with `Read`).
+2. Visually verify against the user's request. Specifically:
+   - Subject is visible and recognisable (not a thin streak, not magenta-flooded, not entirely in shadow)
+   - Proportions match the real-world reference dimensions for that subject
+   - Composition is reasonable (subject in frame, not clipped at edges, not microscopic in one corner)
+   - Materials have visible variation (not perfectly flat plastic-looking surfaces) — for production-quality scenes, add procedural texture nodes
+3. **If the render is obviously wrong**, do NOT report success. Iterate: identify the specific problem, fix it, re-render, re-check.
+
+A render passing every numerical check (object count, vertex count, file size, no error messages) can still look completely wrong. The user only sees the picture. Make sure the picture matches the request before declaring done.
+
+### Set viewport to Material Preview mode (last step before reporting)
+
+The user is often looking at Blender's viewport, not the rendered file. Blender defaults the viewport to **Solid** shading mode which ignores all materials and shows everything as flat grey. After scene assembly, switch the viewport to Material Preview so the user actually sees the materials they got:
+
+```python
+import bpy
+
+for area in bpy.context.screen.areas:
+    if area.type == 'VIEW_3D':
+        for space in area.spaces:
+            if space.type == 'VIEW_3D':
+                space.shading.type = 'MATERIAL'           # or 'RENDERED' for full quality
+                space.shading.use_scene_lights = True
+                space.shading.use_scene_world = True
+```
+
+Skip this only when the user has explicitly asked you to leave the viewport alone.
+
+### Real-world dimension lookup
+
+Before sizing any subject from natural language, consult `references/common-object-dimensions.md`. It lists realistic proportions for common requests:
+
+| Subject | Total | Notes |
+|---------|-------|-------|
+| One-handed sword | ~95-100 cm long | Blade 78cm × 4.5cm × 0.8cm; guard 20cm × 2.5cm; grip 13cm; pommel 5.6cm |
+| Chair | seat ~45cm × 45cm × 4cm | Seat height 45cm; back ~45cm tall |
+| Bottle | 25-30cm tall | Body ø8-10cm; neck ø2-3cm |
+
+The full reference list lives in `references/common-object-dimensions.md`. Do not guess.
 
 ## Prerequisites — always check first
 
@@ -163,6 +230,11 @@ Example:
 | `BLENDER_EEVEE_NEXT` rejected | Blender 5.x renamed it back to `BLENDER_EEVEE`. See `blender-rendering` Recipe 3 for the try/except fallback. |
 | `KeyError: 'Subsurface IOR'` (or other input names) | Blender 5.x marks some BSDF inputs `enabled=False` (currently `Weight`, `Subsurface IOR`); they're reachable by iteration but not string-key lookup. See `blender-materials` Recipe 9 for the `set_input` helper. |
 | `Error: Cannot render, no camera` | `scene.camera is None`. Always run the `ensure_camera()` guard before any render — see `blender-rendering` Recipes 5 / 6. The orchestrator must check this before chaining to render even if the user's prompt didn't ask for a camera explicitly. |
+| User reports "scene is grey / no materials visible" while looking at Blender's viewport | Blender viewport defaults to **Solid** shading mode which ignores materials. The render is correct; only the viewport looks grey. After every scene assembly, set viewport to Material Preview: `space.shading.type = 'MATERIAL'; space.shading.use_scene_lights = True; space.shading.use_scene_world = True` |
+| User reports "materials look flat / no texture" | Flat PBR colors lack surface variation. Add procedural textures (Noise/Voronoi → ColorRamp → Roughness or Bump) for steel scratches, hammered metal, leather grain, etc. See `blender-materials` Recipe 12 (procedural wood) for the pattern. |
+| Subject looks wrongly proportioned (e.g. blade too short, chair too narrow) | The orchestrator skipped the dimension lookup. Always read `references/common-object-dimensions.md` BEFORE generating modeling code. Don't guess. |
+| Elongated subject renders as a thin pole instead of a recognisable shape | Camera viewing the **thin axis** of an elongated object. Rotate the object so its broad axis faces the camera. See `blender-modeling` "Critical: axis orientation for elongated objects". |
+| Blade/spike has a "chiseled flat" tip instead of a point | Top vertices were scaled toward zero but not merged. Use the proper tapering recipe in `blender-modeling` ("Critical: tapering to a point") — collapse top verts to centerline AND `remove_doubles`. |
 
 ## What this skill is NOT for
 
