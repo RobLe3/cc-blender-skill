@@ -37,11 +37,24 @@ This file is the lookup table. **Always check before sizing**.
 
 ## Furniture
 
-### Dining chair
-- Seat: 45cm × 45cm × 4cm thick
-- Seat height from floor: 45cm (knee level)
-- Back: 45cm tall above seat, 40cm wide
-- Legs: 4cm × 4cm × 45cm
+### Dining chair (Mission / Shaker style — recommended baseline)
+
+A "chair" rendered as 6 plain rectangles (seat + 4 legs + back panel) reads as "simple plastic wrap on rectangles" — see v0.8.0 validation. To produce a credible chair, include these standard details:
+
+**Core parts:**
+- Seat: 45cm × 45cm × 4cm thick; seat top at 45cm above floor
+- Legs: 4cm × 4cm × 45cm; legs inset ~2.5cm from seat edges; **taper bottom 70%** (chair legs narrow toward the floor)
+
+**Required structural details (don't skip these):**
+- **Stretchers** — 4 horizontal bars connecting the legs at ~10cm above floor. Front and back stretchers along X axis; left and right along Y axis. Cross-axis stretchers should sit ~4cm higher than parallel-axis ones to avoid intersecting. Each: 1.8cm × 2.5cm cross-section.
+- **Slatted back** — instead of a solid panel, use 4-6 vertical slats (each 2.5cm × 2cm × 41cm) with even spacing across a 40cm-wide region centred on the seat back edge.
+- **Top rail** — horizontal bar across the top of the slats: 40cm wide × 2.5cm × 4cm tall, slightly overlapping the slat tops.
+
+**Shape refinements:**
+- Seat: bevel modifier with width 0.005m, segments 3 (rounded edges, no sharp corners)
+- Slight curve at top of back rail (pull top corners inward 8% in X for a soft rounded silhouette)
+
+This produces a recognisable Mission-style chair. For other chair styles (modern minimalist, Windsor, office), document explicitly and build differently.
 
 ### Office chair (basic, no wheels)
 - Seat: 50cm × 50cm

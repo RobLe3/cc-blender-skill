@@ -1,6 +1,6 @@
 # Versioning — Honest Quality Path to v1.0
 
-**Current version**: **0.7.0** — bottle scene generalises v0.6.0 patches; volume-absorption recipe added for coloured glass
+**Current version**: **0.8.0** — chair scene; structural details added to dining-chair reference; honest limitation: design quality ≠ build correctness
 **Date**: 2026-04-27
 
 ---
@@ -59,6 +59,17 @@ Until then, this is an honest **0.3.0** — production-ready scaffolding.
 ---
 
 ## What changed at each version
+
+### 0.8.0 — 2026-04-27 — Chair scene; design-quality limitation made explicit
+- Built a Mission/Shaker dining chair end-to-end. Tests multi-part assembly (seat + 4 legs + back + 4 stretchers + 5 slats + top rail = 15 parts) and procedural wood — different stress profile from sword and bottle.
+- All v0.6.0+v0.7.0 patches applied first try. Iteration was driven by user feedback at each step (texture too subtle → texture too busy → balanced wood → still simple shape → added structural details).
+- Final result: recognisable Mission chair with stretchers, slatted back, top rail, tapered legs, wood grain.
+- **Updated `references/common-object-dimensions.md`** for chair entry: the previous version listed only bare dimensions ("seat 45×45×4cm, 4 legs"). New version documents the structural details (stretchers, slatted back, top rail) and shape refinements (leg taper, edge bevels) needed to produce a recognisable chair instead of a stack of rectangles.
+- **Wood material tuning** documented in `assets/v0.8.0-chair-validation/README.md`: bump strength 0.20 (not 0.6 or 0.15), ColorRamp 3 stops with smooth gradient, Voronoi influence ≤ 0.10, Wave Scale 12 with Distortion 3.
+- **Honest limitation surfaced and documented**: build correctness ≠ design quality. The user said "looks better, but is still an ugly designed chair" — accurate. We can produce functionally correct objects (recognisable, anatomically right, properly textured) but not *well-designed* ones (curved slats, profile-cut legs, contoured seat). Aesthetic refinement is a human-driven step beyond the orchestrator's automatic capability.
+- Quality estimate: **8.5/10** unchanged. The chair-detail patterns are a real win for "build a chair" → "build a *real* chair", but design-quality limitation remains.
+
+**Three scene classes now validated**: sword (primitive assembly + metallic), bottle (revolution + glass), chair (multi-part + wood). The pipeline patches generalise across all three.
 
 ### 0.7.0 — 2026-04-27 — Bottle scene; v0.6.0 patches generalise + glass-class refinement
 - Built a wine bottle scene end-to-end via the orchestrator using Surface Revolution (Screw modifier) and transmissive glass — entirely different modeling pattern and material class than the sword
