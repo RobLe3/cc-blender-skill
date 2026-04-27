@@ -1,263 +1,175 @@
-# CC Blender Skill — Wireframe-to-3D Conversion
+# cc-blender-skill
 
-Convert 2D orthographic wireframe images (technical drawings) to parametric 3D models in Blender, optimized for glTF/GLB export.
+A Claude Code skill plugin that lets Claude use Blender like a senior 3D artist via natural language.
 
-**Status**: Research & Foundation Complete. Ready for Phase 1 Implementation.
+**Version**: 0.3.0 (scaffolding complete; not yet validated against a running Blender — see [VERSIONING.md](./VERSIONING.md) for the honest path to v1.0)
 
 ---
 
-## Quick Start
+## What this is
+
+Ten chain-loadable Claude Code skills that turn requests like *"model a sword and render a hero shot with three-point lighting"* into Blender Python executed via the [Blender MCP](https://github.com/ahujasid/blender-mcp).
+
+```
+User prompt
+    ↓
+Claude detects intent → loads text-to-blender (orchestrator)
+    ↓
+Orchestrator chain-loads relevant sub-skills
+    ↓ ↓ ↓
+modeling, materials, lighting, cameras, rendering, animation, export, wireframe-to-3d, pro-workflow
+    ↓
+Generated Python → mcp__blender__execute_blender_code → Blender → output
+```
+
+The plugin is the actual installable thing. It lives at [`plugin/`](./plugin/). Knowledge research that produced it lives at [`knowledge/`](./knowledge/) and [`docs/`](./docs/).
+
+---
+
+## Quick install
+
+Prerequisites: Blender ≥ 4.0 with [BlenderMCP addon](https://github.com/ahujasid/blender-mcp) running on port 9876, Claude Code, Python 3.9+ with `opencv-python numpy scipy Pillow`.
 
 ```bash
-# Install dependencies
-pip install -r requirements.txt
+git clone git@github.com:RobLe3/cc-blender-skill.git
+cd cc-blender-skill
 
-# Test image analyzer
-python wireframe_analyzer.py wireframe_front.png
+# Symlink all 10 skills into ~/.claude/skills/
+for skill in plugin/skills/*/; do
+    name=$(basename "$skill")
+    ln -sfn "$(pwd)/$skill" "$HOME/.claude/skills/$name"
+done
 
-# This generates: wireframe_front_analyzed.json with Bezier control points
+# Restart Claude Code to pick up the new top-level skills directory entries.
 ```
 
-## What This Skill Does
+Then ask Claude something like:
 
 ```
-Wireframe PNG (front + side views)
-        ↓
-Image Processing (Canny edge detection, contour tracing, RDP simplification)
-        ↓
-Bezier Curve Fitting (least-squares optimization)
-        ↓
-Blender Curve Creation (via MCP execute_blender_code)
-        ↓
-Mesh Conversion & Materials (PBR setup)
-        ↓
-glTF 2.0 Export (GLB binary format, ≤15 MB)
-        ↓
-Optimized 3D Model (.glb file)
+Make a 3D model of a teapot and render it with three-point lighting.
 ```
 
-## Example Use Case
+Or invoke a specific skill:
 
-Converting aviator sunglasses wireframes to a 3D model for a singing avatar:
-
-```python
-from wireframe_analyzer import WireframeAnalyzer
-
-# Step 1: Analyze wireframe
-analyzer = WireframeAnalyzer('glasses_front.png')
-result = analyzer.process(rdp_epsilon=2.0)
-
-# Step 2: Export for Blender
-analyzer.export_json(result, 'glasses.json')
-
-# Step 3: (Via Claude skill) Create Blender scene, export GLB
-# Returns: glasses.glb (277 KB, 5200 verts, ready for three.js)
 ```
+/wireframe-to-3d ./glasses_front.png
+```
+
+Full install + verification: [`plugin/README.md`](./plugin/README.md).
 
 ---
 
-## Documentation Structure
-
-### For Users
-- **[WIREFRAME_SKILL.md](./WIREFRAME_SKILL.md)** — Skill specification, parameters, error handling
-
-### For Developers
-- **[SKILL_RESEARCH_SUMMARY.md](./SKILL_RESEARCH_SUMMARY.md)** — Overview of all research + next steps
-- **[SKILL_FOUNDATION.md](./SKILL_FOUNDATION.md)** — Technical encyclopedia (algorithms, standards, theory)
-- **[BLENDER_BEST_PRACTICES.md](./BLENDER_BEST_PRACTICES.md)** — Expert patterns from Blender Studio + community
-- **[BLENDER_INTEGRATION_GUIDE.md](./BLENDER_INTEGRATION_GUIDE.md)** — Blender Python API reference & examples
-- **[BLENDER_MCP_ALIGNMENT.md](./BLENDER_MCP_ALIGNMENT.md)** — MCP integration strategy, no reimplementation
-
-### Implementation
-- **[wireframe_analyzer.py](./wireframe_analyzer.py)** — Production-ready image processing pipeline
-- **[src/](./src/)** — Skill implementation (BlenderMCP wrapper, code generators, orchestrator)
-- **[tests/](./tests/)** — Test suite
-- **[examples/](./examples/)** — Example usage and workflows
-
----
-
-## Key Features
-
-✅ **Image Processing Pipeline**
-- Otsu automatic binarization (zero tuning)
-- Canny edge detection (robust to noise)
-- Suzuki-Abe contour tracing
-- RDP polyline simplification (10–20 control points per contour)
-- Least-squares Bezier fitting (< 3 px error)
-
-✅ **Blender Integration (Via MCP)**
-- Parametric curve creation (ALIGNED handles for smooth continuity)
-- Intelligent mesh conversion with topology cleanup
-- PBR material presets (brushed metal, mirror glass, matte plastic)
-- glTF 2.0 export with file size optimization
-- Automatic decimation if oversized
-
-✅ **Quality Assurance**
-- Symmetry validation (for paired parts like lenses)
-- Aspect ratio checking (±5% tolerance)
-- Mesh topology validation (no isolated vertices, degenerate faces)
-- File size enforcement (≤ 15 MB hard cap)
-
-✅ **Expert Best Practices**
-- Blender Studio naming conventions (PREFIX-BASE_NAME.SUFFIX)
-- Non-destructive workflow (isolated collections, easy undo)
-- Performance optimization (foreach_set, context caching, batch ops)
-- Proper modifier stack order (Bevel → Subdivision Surface)
-
----
-
-## Technical Specifications
-
-### Input
-- **Format**: PNG (wireframe drawing)
-- **Dimensions**: ≥ 400×400 px (typical 800×600)
-- **Content**: Technical drawing with black lines on white background (or inverted)
-
-### Output
-- **Format**: glTF 2.0 binary (.glb)
-- **Compression**: Single embedded file, PNG textures only
-- **Size**: Ideal ≤ 8 MB, hard cap ≤ 15 MB
-- **Polycount**: ≤ 30,000 triangles (mobile-safe)
-- **Materials**: PBR (Principled BSDF), no procedural shaders
-
-### Processing Time
-- Image analysis: < 1 second
-- Blender operations: < 10 seconds
-- Export & optimization: < 5 seconds
-- **Total**: < 15 seconds typical
-
----
-
-## Architecture
+## Repository structure
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│ Claude Code (Skill Interface)                               │
-└────────────────────┬────────────────────────────────────────┘
-                     │
-        ┌────────────┴────────────┐
-        ↓                         ↓
-┌───────────────────┐   ┌─────────────────────────────────┐
-│ wireframe_analyzer│   │ Skill Orchestrator              │
-│  (Local Python)   │   │ - Input validation              │
-│                   │   │ - Decision logic                │
-│ - Image process   │   │ - Code generation               │
-│ - Edge detect     │   │ - Error handling                │
-│ - Contour extract │   └────────────┬────────────────────┘
-│ - RDP simplify    │                │
-│ - Bezier fit      │        ┌───────┴──────────┐
-│                   │        ↓                  ↓
-└─────────┬─────────┘   ┌────────────┐   ┌─────────────────┐
-          │             │BlenderMCP  │   │Code Generators  │
-          │             │Wrapper     │   │ - Curves        │
-          │             │(Thin MCP   │   │ - Meshes        │
-          └─────────────┤ client)    │   │ - Materials     │
-         JSON           │            │   │ - Export        │
-         (control       └────┬───────┘   │ - Validation    │
-          points)            │           └────┬────────────┘
-                             │                │
-                      ┌──────┴────────────────┘
-                      ↓
-          ┌───────────────────────────┐
-          │ Blender MCP Server        │
-          │ (localhost:9876)          │
-          │                           │
-          │ execute_blender_code()    │
-          │ get_scene_info()          │
-          │ get_object_info()         │
-          └────────────┬──────────────┘
-                       ↓
-              ┌─────────────────┐
-              │ Blender Instance│
-              │ (Python API)    │
-              │                 │
-              │ - Create curves │
-              │ - Convert mesh  │
-              │ - Materials     │
-              │ - Export GLB    │
-              └────────┬────────┘
-                       ↓
-                  model.glb
+cc-blender-skill/
+├── README.md                         # this file
+├── VERSIONING.md                     # honest version status + path to v1.0
+├── PLAN.md                           # original scope expansion
+├── DEVELOPMENT.md                    # phase-based dev guide
+├── VERIFICATION_REPORT.md            # what we got right/wrong vs official skills spec
+├── MCP_COVERAGE_ASSESSMENT.md        # is ahujasid/blender-mcp enough? (yes)
+├── BLENDER_TOOLKIT_COMPARISON.md     # comparison to Dev-GOM/blender-toolkit
+├── requirements.txt
+│
+├── plugin/                           # ← the installable skill plugin
+│   ├── README.md
+│   ├── manifest.json
+│   └── skills/
+│       ├── text-to-blender/          # orchestrator
+│       ├── blender-pro-workflow/     # multi-phase guidance
+│       ├── blender-modeling/         # geometry creation
+│       ├── blender-materials/        # PBR via Principled BSDF
+│       ├── blender-lighting/         # 3-point, HDRI, studio
+│       ├── blender-cameras/          # framing, DoF, animated cameras
+│       ├── blender-rendering/        # Cycles/EEVEE
+│       ├── blender-animation/        # keyframes, F-curves, shape keys
+│       ├── blender-export/           # glTF/FBX/OBJ/USD/STL
+│       └── wireframe-to-3d/          # specialty: 2D wireframe → 3D
+│
+├── knowledge/                        # raw research aggregation (16 domains)
+│   ├── README.md
+│   ├── 01-modeling/00-overview.md
+│   ├── 02-curves-surfaces/00-overview.md
+│   ├── 03-sculpting-retopo/00-overview.md
+│   ├── 04-geometry-nodes/00-overview.md
+│   ├── 05-materials-shading/00-overview.md
+│   ├── 06-uv-texturing/00-overview.md
+│   ├── 07-lighting/00-overview.md
+│   ├── 08-cameras-composition/00-overview.md
+│   ├── 09-animation/00-overview.md
+│   ├── 10-rigging/00-overview.md
+│   ├── 11-rendering/00-overview.md
+│   ├── 12-compositing/00-overview.md
+│   ├── 13-physics-particles/00-overview.md
+│   ├── 14-import-export/00-overview.md
+│   ├── 15-cross-cutting/00-overview.md
+│   └── 16-pro-workflows/00-overview.md
+│
+├── docs/                             # original research (kept for archive)
+│   ├── SKILL_FOUNDATION.md
+│   ├── BLENDER_BEST_PRACTICES.md
+│   ├── BLENDER_INTEGRATION_GUIDE.md
+│   ├── BLENDER_MCP_ALIGNMENT.md
+│   ├── WIREFRAME_SKILL.md
+│   └── SKILL_RESEARCH_SUMMARY.md
+│
+├── src/                              # original wireframe analyzer (still used by skill)
+│   └── wireframe_analyzer.py
+│
+└── skill/                            # initial single-skill prototype (now superseded by plugin/)
+    └── wireframe-to-3d/
 ```
 
 ---
 
-## Implementation Roadmap
+## Architecture in one paragraph
 
-### Phase 1: Core Infrastructure (1–2 days)
-- [ ] BlenderMCP wrapper class
-- [ ] Code generators for: curves, meshes, materials, export
-- [ ] Basic error handling & retry logic
-- [ ] Unit tests for generators
-
-### Phase 2: Validation & Optimization (1–2 days)
-- [ ] Topology validation (symmetry, aspect ratio)
-- [ ] File size checking + Decimate strategy
-- [ ] Blender error message parsing
-- [ ] Integration tests with sample wireframes
-
-### Phase 3: Skill Integration (1 day)
-- [ ] Package as Claude Skill
-- [ ] Skill prompt & decision flows
-- [ ] End-to-end testing
-- [ ] Documentation & examples
-
-**Estimated Total**: 3–5 days of focused development
+Pure-skill design — no Python wrapper class, no custom MCP. Claude itself orchestrates: reads the user's intent, loads sub-skills via `Read`, generates Blender Python, calls `mcp__blender__execute_blender_code` (the synchronous socket on port 9876), parses stdout, and reports results. State lives in `bpy.data` (Blender's global state, persists between calls); Python variables don't (each `execute_blender_code` is a fresh namespace, so we identify objects by stable name like `bpy.data.objects['GEO-sword']`). Naming follows Blender Studio conventions (`GEO-`, `MAT-`, `LGT-` prefixes). Each sub-skill stays under 500 lines (the Anthropic skills cap) and points to a deeper `references/overview.md` for the long tail.
 
 ---
 
-## Testing
+## Why this exists
 
-```bash
-# Run image analyzer tests
-python -m pytest tests/test_wireframe_analyzer.py
+There are already two Claude+Blender skills:
 
-# Run integration tests (requires Blender MCP)
-python -m pytest tests/test_blender_integration.py
+- **[ra100/blender-claude-plugin](https://github.com/ra100/blender-claude-plugin)** — 8 generalist Blender API reference skills (geometry nodes, shader nodes, compositor, etc.). Teaches Claude *how* Blender works.
+- **[Dev-GOM/blender-toolkit](https://mcpmarket.com/tools/skills/blender-toolkit)** — Mixamo retargeting via custom WebSocket addon.
 
-# Test full workflow
-python examples/workflow_glasses.py
-```
+Neither tackles the **task-level orchestration**: "given a natural-language request, produce a finished 3D output." That's what this plugin does. It depends on `ahujasid/blender-mcp` (the same MCP both other skills can also work with) and adds:
 
----
+- Pro-workflow sequencing (block-out → camera → lighting → forms → materials → detail → render → composite → export)
+- Recipe libraries per domain with copy-paste-ready Python
+- Decision trees mapped to natural-language intent
+- Naming and validation conventions throughout
 
-## Dependencies
-
-- **Python 3.9+**
-- **OpenCV** (cv2) — image processing
-- **NumPy** — numerical computations
-- **SciPy** — curve fitting (lstsq)
-- **Pillow** — image I/O
-- **Blender 4.0+** — via MCP (separate)
-
-See [requirements.txt](./requirements.txt) for exact versions.
+See [`BLENDER_TOOLKIT_COMPARISON.md`](./BLENDER_TOOLKIT_COMPARISON.md) for the full landscape comparison.
 
 ---
 
-## References
+## Honest status
 
-### Technical Foundation
-- [SKILL_FOUNDATION.md](./SKILL_FOUNDATION.md) — 11 sections, 2000+ lines covering all algorithmic dimensions
-- [Blender Best Practices](./BLENDER_BEST_PRACTICES.md) — Expert patterns from Blender Studio + community
-- [Blender Integration Guide](./BLENDER_INTEGRATION_GUIDE.md) — API reference & code examples
+This is **0.3.0** — the structure, knowledge, and recipes are in place, but **none of it has been validated end-to-end against a running Blender**. Expect bugs on first execution. See [`VERSIONING.md`](./VERSIONING.md) for the path to v1.0 (estimated 1–2 weeks of focused validation work).
 
-### Standards & Documentation
-- [Blender Python API Best Practices](https://docs.blender.org/api/current/info_best_practice.html)
-- [Blender Studio Naming Conventions](https://studio.blender.org/tools/naming-conventions/introduction)
-- [ISO 128 Technical Drawing Standards](https://www.iso.org/standard/64973.html)
-- [Khronos glTF 2.0 Specification](https://github.com/KhronosGroup/glTF/tree/master/specification/2.0)
+The most useful next step: run the 5 representative prompts in `VERSIONING.md` against actual Blender, document failures, fix them, tag **0.5.0**.
+
+---
+
+## Contributing
+
+Open issues / PRs at https://github.com/RobLe3/cc-blender-skill — especially welcome:
+
+- Validation runs ("I tried prompt X, got error Y")
+- Recipe contributions for the long tail (specific materials, lighting setups, camera moves)
+- Trigger-eval JSON files for any sub-skill (helps tune description triggering)
+- Worked example scenes with proof-renders
 
 ---
 
 ## License
 
-MIT (To be confirmed)
+MIT.
 
 ## Author
 
-Claude Code (Skill Development Initiative)  
-Based on roblemumin.com avatar design kit research
-
----
-
-**Status**: 2026-04-27 — Foundation Complete, Ready for Implementation
+[RobLe3](https://github.com/RobLe3) with extensive collaboration with Claude (Sonnet 4.6, Opus 4.7, Haiku 4.5).
