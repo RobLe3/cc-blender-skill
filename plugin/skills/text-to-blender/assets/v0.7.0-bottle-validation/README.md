@@ -6,8 +6,8 @@ The bottle uses an entirely different modeling pattern (Surface Revolution via S
 
 | File | What it shows | Notable |
 |------|---------------|---------|
-| `bottle_first_try.png` | Recipes verbatim, glass with surface tint only | Recognizable bottle shape but glass looks **metallic** — surface-tint approach produces flat colour |
-| `bottle_FINAL_v0.7.0.png` | After Volume Absorption patch | Proper depth-based tint; thick parts darker, thin parts lighter — reads as wine-bottle glass |
+| `bottle_first_try.webp` | Recipes verbatim, glass with surface tint only | Recognizable bottle shape but glass looks **metallic** — surface-tint approach produces flat colour |
+| `bottle_FINAL_v0.7.0.webp` | After Volume Absorption patch | Proper depth-based tint; thick parts darker, thin parts lighter — reads as wine-bottle glass |
 
 ## What this round contributed to the skill
 

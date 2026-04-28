@@ -45,7 +45,7 @@ What the skill CAN produce: a stylized primitives-based broadcaster silhouette, 
 
 ### Why primitive-based "head with face features" still doesn't look human
 
-Adding nose / ears / mouth / brows as separate small primitives to a sphere head crosses from "ball" to "abstract avatar" but **does not cross to "human"**. See validation iteration `assets/v1.2.0-validation/04_broadcaster_with_features_still_not_human.png` — a sphere head with cube-nose, sphere-ears, line-mouth, bar-brows reads as a slightly less abstract placeholder, not a face.
+Adding nose / ears / mouth / brows as separate small primitives to a sphere head crosses from "ball" to "abstract avatar" but **does not cross to "human"**. See validation iteration `assets/v1.2.0-validation/04_broadcaster_with_features_still_not_human.webp` — a sphere head with cube-nose, sphere-ears, line-mouth, bar-brows reads as a slightly less abstract placeholder, not a face.
 
 The hard limit: a real human face requires **subtractive sculpting** (eye sockets recessed into the head, cheekbones pulled out, lip curvature, jaw line, chin shape) — features that can't be added as separate floating primitives, only carved into a base mesh.
 

@@ -2,6 +2,28 @@
 
 All notable changes to **cc-blender-skill** since first commit. Detailed rationale per version is in [`VERSIONING.md`](./VERSIONING.md). Patch-by-patch root-cause notes are in [`docs/process/IMPLEMENTATION_LOG.md`](./docs/process/IMPLEMENTATION_LOG.md). Test results are in [`docs/test-results/`](./docs/test-results/).
 
+## [1.2.4] — 2026-04-28
+
+### PNG → WebP conversion (99% size reduction) + README polish
+
+**Asset compression**: converted all 28 validation proof renders from PNG to WebP at quality 85.
+- **Before**: 21.58 MB across 28 PNGs
+- **After**: 0.25 MB across 28 WebPs
+- **Reduction**: ~99% — visually identical at q=85, verified across multiple test renders
+
+Updated all markdown asset references (`*_attempt*.png`, `*_FINAL_*.png`, etc.) to `.webp`. References that should stay as `.png` (example user invocations, ffmpeg output patterns, file format spec text, `.gitignore` patterns in knowledge docs) deliberately untouched.
+
+`.gitignore` updated: added `*.webp` to the generated-files block plus the corresponding `!plugin/skills/**/assets/**/*.webp` exception so the validation proofs continue to track.
+
+**README polish**:
+- Version line bumped from stale "1.0.0" → "1.2.4"
+- "What works (honestly)" table updated to reflect 6 validated scene classes (was 3), 7 dimension reference categories, emission + practical lighting recipes, volume-absorption colour glass, trigger-eval results (100% TP / 4% FP)
+- "What doesn't work yet" added: human-faces-from-primitives entry pointing at the v1.2.1 escape paths (Hyper3D / Sketchfab / Polyhaven asset import; sculpt; artist commission)
+- "Honest status" section: bumped patch count from "9 versions" to "15+ versions"; added pointer to the cheap-tester / expensive-patcher loop documented in `docs/process/TESTING_PLAN.md`
+- Added a "Quick links" line up top so readers can jump to install / works / doesn't-work / contributing / releases
+
+This is housekeeping. No skill code changed.
+
 ## [1.2.3] — 2026-04-28
 
 ### Repo hygiene reorg + .github scaffolding
@@ -46,7 +68,7 @@ This is housekeeping, not feature work — making the repo properly discoverable
 
 ### Hard limit on "human face from primitives" — three escape paths documented
 
-User feedback on v1.2.0 broadcaster: "does not even close resemble a human." Accurate. Tried adding facial features (cube nose, sphere ears, line mouth, bar brows) to test whether more primitives could cross from "abstract avatar" to "human face." Result: validation iteration `assets/v1.2.0-validation/04_broadcaster_with_features_still_not_human.png` shows the limit — added features cross from "ball" to "abstract avatar" but NOT to "human."
+User feedback on v1.2.0 broadcaster: "does not even close resemble a human." Accurate. Tried adding facial features (cube nose, sphere ears, line mouth, bar brows) to test whether more primitives could cross from "abstract avatar" to "human face." Result: validation iteration `assets/v1.2.0-validation/04_broadcaster_with_features_still_not_human.webp` shows the limit — added features cross from "ball" to "abstract avatar" but NOT to "human."
 
 The hard limit: real human faces require **subtractive sculpting** (eye sockets recessed into the head, cheekbones pulled out, lip curvature, jaw line, chin shape) — features that can't be added as floating primitives, only carved into a base mesh.
 
@@ -84,9 +106,9 @@ The orchestrator should warn users when they request character work that automat
 **New recipe finding**: strong colored lighting (cyan/magenta synthwave) overpowers subtle PBR materials. To keep both visible: reduce dramatic light energy 10x compared to standard 3-point intuition (cyan key 250W not 800W; magenta rim 200W not 600W; warm fill 15W max). World Strength 0.15 for proper contrast.
 
 **Three render iterations** committed for honesty:
-- `01_broadcaster_too_bright.png` — first attempt, lights at 800W washed everything out
-- `02_broadcaster_neutral_dominates.png` — added neutral key, materials still washed
-- `03_broadcaster_synthwave_FINAL.png` — final synthwave-mood result with proper light energy ratios
+- `01_broadcaster_too_bright.webp` — first attempt, lights at 800W washed everything out
+- `02_broadcaster_neutral_dominates.webp` — added neutral key, materials still washed
+- `03_broadcaster_synthwave_FINAL.webp` — final synthwave-mood result with proper light energy ratios
 
 Quality estimate stays at **8.5/10** — character work is honestly out of scope; the limit is documented.
 
@@ -102,7 +124,7 @@ Built a desk lamp scene end-to-end (base + articulated arms + shade + emissive b
 
 2. **`blender-lighting/SKILL.md` Recipe 0c — Practical lighting**: 5-step setup for scenes whose subject contains an emissive source (desk lamp, candle, monitor). Dim world background, drop standard 3-point, single subtle ambient fill, high emission strength, Cycles `max_bounces ≥ 16` for proper interior-shade bouncing.
 
-**Validation proof**: `text-to-blender/assets/v1.1.0-validation/desk_lamp_emission.png` shows the result: recognisable articulated desk lamp with visible bulb glow inside the shade, warm pool of practical light on the desk, lamp body silhouetted correctly against dark scene.
+**Validation proof**: `text-to-blender/assets/v1.1.0-validation/desk_lamp_emission.webp` shows the result: recognisable articulated desk lamp with visible bulb glow inside the shade, warm pool of practical light on the desk, lamp body silhouetted correctly against dark scene.
 
 **Findings worth documenting**:
 - Mesh emission strength is **NOT comparable** to light-object energy — strength scales with surface area, so small mesh emitters need values 100x+ higher than intuition suggests

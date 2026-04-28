@@ -112,20 +112,20 @@
 
 #### M.render attempts — three iterations to surface recipe gaps
 
-**Attempt 1** (`M_sword_attempt1_broken_world.png`):
+**Attempt 1** (`M_sword_attempt1_broken_world.webp`):
 - Used recipes verbatim with no scene-prep
 - **Render**: magenta dominates, sword barely visible as thin streak
 - **Root cause**: The world tree from round-1 test C2 was still in place — an Environment Texture node with `image=None` cascading into Background. Result: undefined shader output, magenta visible everywhere.
 - **This is a real recipe gap**: scene-build recipes assume a clean default world. The orchestrator should **reset world to a known state** before composition, or at least detect a broken world (Environment Texture without image) and substitute a neutral background.
 
-**Attempt 2** (`M_sword_attempt2_clean_world.png`):
+**Attempt 2** (`M_sword_attempt2_clean_world.webp`):
 - After replacing world with simple dark background (0.05, 0.05, 0.06) at strength 0.3
 - Pulled camera back to (0.7, -1.6, 0.3); set lens to 60mm
 - **Render**: clean dark BG, blade visible, but sword mostly in shadow — gold/leather details are barely visible, only blade reflects light from the rim
 - **Issue**: Light positions in the lighting recipe (`(3, -3, 3.5)`, `(-3, -2, 2.5)`, `(0, 4, 3.0)`) are absolute world coords matching a generic 1m-cube subject — they're poorly positioned for a small (~1.3m vertical) sword scene
 - **Issue**: Lights had explicit `rotation_euler` angles in the recipe but those don't necessarily aim at the new subject
 
-**Attempt 3** (`M_sword_attempt3_aimed_lights.png`):
+**Attempt 3** (`M_sword_attempt3_aimed_lights.webp`):
 - Programmatically aimed each light at the scene center (computed by averaging mesh locations)
 - Repositioned lights closer to subject scale
 - Used Track-To on an Empty at scene center for camera
@@ -181,9 +181,9 @@
 
 | File | Iteration | Notable |
 |------|-----------|---------|
-| `M_sword_attempt1_broken_world.png` | First — recipes verbatim | Magenta-flooded; world from round-1 C2 was broken |
-| `M_sword_attempt2_clean_world.png` | After world reset | Clean BG; sword mostly in shadow due to fixed-coord lighting |
-| `M_sword_attempt3_aimed_lights.png` | After aiming lights at scene center + reframing | Best result; sword parts clearly visible; blade still clips top |
+| `M_sword_attempt1_broken_world.webp` | First — recipes verbatim | Magenta-flooded; world from round-1 C2 was broken |
+| `M_sword_attempt2_clean_world.webp` | After world reset | Clean BG; sword mostly in shadow due to fixed-coord lighting |
+| `M_sword_attempt3_aimed_lights.webp` | After aiming lights at scene center + reframing | Best result; sword parts clearly visible; blade still clips top |
 
 ---
 
@@ -278,7 +278,7 @@ User-driven iteration: the user repeatedly inspected the actual Blender viewport
 
 The user-observed sword scene was rebuilt fresh using the patched recipes (referencing `common-object-dimensions.md` for sizing, applying the orientation/tapering/overlap rules from `blender-modeling`, the subject-aware lighting from `blender-lighting`, the bbox camera from `blender-cameras`, the world-reset and viewport-mode steps from the orchestrator).
 
-Final result: `plugin/skills/text-to-blender/assets/v0.6.0-round2-validation/M_sword_FINAL_v0.6.0.png` — a recognizable sword with proper proportions, sharp pointed tip, gold guard with hammered finish, leather grip with voronoi grain, gold pommel, all parts integrated without visible seams.
+Final result: `plugin/skills/text-to-blender/assets/v0.6.0-round2-validation/M_sword_FINAL_v0.6.0.webp` — a recognizable sword with proper proportions, sharp pointed tip, gold guard with hammered finish, leather grip with voronoi grain, gold pommel, all parts integrated without visible seams.
 
 ### Quality estimate
 

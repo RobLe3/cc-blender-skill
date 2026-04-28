@@ -282,6 +282,6 @@ For a "complete rendered and textured X" (e.g. Ray-Ban Aviator from a wireframe)
 | 5 | `blender-cameras` | 85-100mm focal length, shallow DoF for hero product shot |
 | 6 | `blender-rendering` | Cycles 256+ samples, denoise, AgX view transform |
 
-See `text-to-blender/assets/v0.9.0-validation/03_aviator_wireframe_to_3d.png` for what wireframe-to-3d produces alone (flat outline tracing) vs `04_aviator_chained_upgrade.png` for what the chained orchestration produces (a Ray-Ban-style hero render).
+See `text-to-blender/assets/v0.9.0-validation/03_aviator_wireframe_to_3d.webp` for what wireframe-to-3d produces alone (flat outline tracing) vs `04_aviator_chained_upgrade.webp` for what the chained orchestration produces (a Ray-Ban-style hero render).
 
 **The orchestrator (`text-to-blender`) should always plan for the chain** when the user asks for a "model of X" from a wireframe.

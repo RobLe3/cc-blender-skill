@@ -78,13 +78,13 @@ The roadmap from v0.3.0 (scaffolding, untested) to v1.0.0 took **9 versions of p
 
 | Scene | Validated | Render proof |
 |-------|-----------|--------------|
-| Sword (primitive assembly + metallic) | ✅ | `v0.6.0/M_sword_attempt6_with_pointed_tip.png` |
-| Bottle (surface revolution + glass) | ✅ | `v0.7.0-bottle-validation/bottle_FINAL_v0.7.0.png` |
-| Chair (multi-part + wood) | ✅ | `v0.8.0-chair-validation/chair_FINAL_v0.8.0.png` |
-| Aviator wireframe-to-3d | ✅ (foundation) | `v0.9.0-validation/03_aviator_wireframe_to_3d.png` |
-| Aviator chained upgrade | ✅ | `v0.9.0-validation/04_aviator_chained_upgrade.png` |
-| Aviator hand-crafted hero | ✅ | `v0.9.0-validation/05_aviator_proper_rayban_dimensions.png` |
-| Bottle with glass-class lighting | ✅ | `v0.9.0-validation/02_bottle_proper_wine_density.png` |
+| Sword (primitive assembly + metallic) | ✅ | `v0.6.0/M_sword_attempt6_with_pointed_tip.webp` |
+| Bottle (surface revolution + glass) | ✅ | `v0.7.0-bottle-validation/bottle_FINAL_v0.7.0.webp` |
+| Chair (multi-part + wood) | ✅ | `v0.8.0-chair-validation/chair_FINAL_v0.8.0.webp` |
+| Aviator wireframe-to-3d | ✅ (foundation) | `v0.9.0-validation/03_aviator_wireframe_to_3d.webp` |
+| Aviator chained upgrade | ✅ | `v0.9.0-validation/04_aviator_chained_upgrade.webp` |
+| Aviator hand-crafted hero | ✅ | `v0.9.0-validation/05_aviator_proper_rayban_dimensions.webp` |
+| Bottle with glass-class lighting | ✅ | `v0.9.0-validation/02_bottle_proper_wine_density.webp` |
 
 **What's explicitly NOT in v1.0.0** (called out so users aren't surprised):
 
@@ -142,7 +142,7 @@ User pointed out: the v0.9.0 wireframe-to-3d output is recognizable as aviator s
 This patch:
 1. **Documents the scope boundary explicitly** in `wireframe-to-3d/SKILL.md` — added a "Scope boundary" section listing what wireframe-to-3d does NOT produce, and pointing the orchestrator at the multi-skill chain that does.
 2. **Demonstrates chained upgrade** — re-rendered the aviator using wireframe-to-3d as the foundation + blender-modeling (filled lens discs as scaled UV spheres + temple arms as Bezier curves) + blender-materials (gold metal frame `Metallic=1.0/Roughness=0.18`, blue mirror lens `Metallic=0.9/Roughness=0.04`) + subject-class metal lighting + 100mm product-shot camera + Cycles render.
-3. **Proof committed**: `assets/v0.9.0-validation/04_aviator_chained_upgrade.png` shows what the chained orchestration produces (recognizable Ray-Ban-style hero) vs `03_aviator_wireframe_to_3d.png` (raw wireframe-to-3d output, flat outline tracing).
+3. **Proof committed**: `assets/v0.9.0-validation/04_aviator_chained_upgrade.webp` shows what the chained orchestration produces (recognizable Ray-Ban-style hero) vs `03_aviator_wireframe_to_3d.webp` (raw wireframe-to-3d output, flat outline tracing).
 
 The orchestrator (`text-to-blender/SKILL.md`) is updated to explicitly plan for chaining when the user asks for "a model of X from this wireframe" — wireframe-to-3d is the foundation, never the deliverable on its own.
 
@@ -155,7 +155,7 @@ Four targeted improvements driven by the v0.x → v1.0 plan:
 2. **Wireframe-to-3d full end-to-end validation** — closes the original use case the repo started with (the wireframe-to-3d skill has existed since v0.3.0 but never run end-to-end). Two real bugs surfaced and patched in `wireframe_analyzer.py`:
    - **Contour filter used `cv2.contourArea`** which returns ~0 for thin Canny edges → all contours filtered out. Fixed by using `max(area, arcLength)` so thin edges are scored by their length.
    - **Morphological closing with 5×5 ellipse kernel destroyed wireframe lines** because dilation eats into ~3-pixel-wide black lines. Added `line_art=True` mode (default) that skips Gaussian blur + Canny entirely and traces contours directly on the binary mask — using closing kernel of 3×3 only when `gaussian_kernel > 0`.
-   - Result: aviator wireframe → 21 extracted contours → Blender curves with 0.8mm bevel → metallic frame material → recognizable aviator-sunglasses render. Proof in `assets/v0.9.0-validation/03_aviator_wireframe_to_3d.png`.
+   - Result: aviator wireframe → 21 extracted contours → Blender curves with 0.8mm bevel → metallic frame material → recognizable aviator-sunglasses render. Proof in `assets/v0.9.0-validation/03_aviator_wireframe_to_3d.webp`.
 
 3. **Bottle volume density correction** — the new glass-class lighting was so soft that the v0.7.0 default Density=30 read as "obsidian glass" (user's term). Updated the Recipe 6b density table: wine bottle Density=80 (was 30), with deeper saturated colours. Re-validated bottle now reads as proper wine green with depth-based variation.
 
@@ -198,7 +198,7 @@ Quality estimate: **8.5/10** (unchanged) — these are coverage-and-correctness 
   5. **Grey viewport / flat materials** ("sword is grey, no textures"): added viewport-shading switch + procedural texture variation patterns
   6. **Visible seams between parts** ("objects don't connect smoothly"): added connection-overlap pattern (parts interpenetrate by 5-15mm, hiding cylinder→cube transitions)
 - Also added: `aim_at(light, target)` helper + Recipe 0 (subject-aware lighting) to `blender-lighting`; Recipe 0 (bbox-aware hero camera) to `blender-cameras`; Blender 5.x `Mesh.use_auto_smooth` removal noted
-- Final sword render committed to `plugin/skills/text-to-blender/assets/v0.6.0-round2-validation/M_sword_FINAL_v0.6.0.png` — recognizable sword on first try with patched recipes
+- Final sword render committed to `plugin/skills/text-to-blender/assets/v0.6.0-round2-validation/M_sword_FINAL_v0.6.0.webp` — recognizable sword on first try with patched recipes
 - Quality estimate: **8.5/10** (was 8/10 at v0.5.0)
 - See `test_round2.md` for the full investigation arc with 7 user-feedback iterations and the patches each one drove
 

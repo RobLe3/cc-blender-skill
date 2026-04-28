@@ -273,7 +273,7 @@ print('lighting:practical_setup')
 
 The practical light's emission shader (mesh-emissive bulb / candle flame / etc.) handles the rest. Scene appears like real photography of an illuminated subject — dark surroundings, warm pool of light from the practical, subject silhouette gently filled.
 
-**Validation proof**: see `text-to-blender/assets/v1.1.0-validation/desk_lamp_emission.png` for what this setup produces (desk lamp with visible bulb glow, warm light pool on desk surface, lamp body visible against the dark scene).
+**Validation proof**: see `text-to-blender/assets/v1.1.0-validation/desk_lamp_emission.webp` for what this setup produces (desk lamp with visible bulb glow, warm light pool on desk surface, lamp body visible against the dark scene).
 
 ### Recipe 1 — Three-point lighting (the canonical setup)
 

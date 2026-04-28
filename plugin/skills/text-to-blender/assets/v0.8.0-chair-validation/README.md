@@ -6,10 +6,10 @@ This round tested whether the patches generalise to a third scene class: **multi
 
 | File | What it shows | Lesson |
 |------|---------------|--------|
-| `chair_attempt1_simple_rectangles.png` | 6 plain rectangles + subtle wood texture | User reaction: "very simple chair with a printed plastic wrap" — texture too subtle, shape too plain |
-| `chair_attempt2_overcooked_wood.png` | After ramping up bump strength + ColorRamp contrast + Voronoi knots | User reaction (anticipated): "looks like rough timber" — over-corrected from subtle to busy |
-| `chair_attempt3_balanced_wood.png` | Tuned bump down + smoother ColorRamp + fewer knots | Wood now reads as wood (per user: "looks more like wood"), but model still simple rectangles |
-| **`chair_FINAL_v0.8.0.png`** | Added structural details: stretchers, slatted back, top rail | Recognizable Mission/Shaker chair; user reaction: "looks better, but is still an ugly designed chair" |
+| `chair_attempt1_simple_rectangles.webp` | 6 plain rectangles + subtle wood texture | User reaction: "very simple chair with a printed plastic wrap" — texture too subtle, shape too plain |
+| `chair_attempt2_overcooked_wood.webp` | After ramping up bump strength + ColorRamp contrast + Voronoi knots | User reaction (anticipated): "looks like rough timber" — over-corrected from subtle to busy |
+| `chair_attempt3_balanced_wood.webp` | Tuned bump down + smoother ColorRamp + fewer knots | Wood now reads as wood (per user: "looks more like wood"), but model still simple rectangles |
+| **`chair_FINAL_v0.8.0.webp`** | Added structural details: stretchers, slatted back, top rail | Recognizable Mission/Shaker chair; user reaction: "looks better, but is still an ugly designed chair" |
 
 ## What this round contributed
 

@@ -49,10 +49,12 @@ htmlcov/
 *.gltf
 *.bin
 *.png
+*.webp
 
 # But DO track validation proof renders and skill manifests
 !plugin/manifest.json
 !plugin/skills/**/assets/**/*.png
+!plugin/skills/**/assets/**/*.webp
 
 # Temporary
 tmp/

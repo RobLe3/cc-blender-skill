@@ -6,13 +6,13 @@ Seven renders documenting the full investigation arc from "recipes verbatim" thr
 
 | File | Recipe state | Outcome | What it revealed |
 |------|-------------|---------|------------------|
-| `M_sword_attempt1_broken_world.png` | Recipes verbatim | Magenta floods scene | World tree leftover from earlier C2 HDRI test; Environment Texture had `image=None` |
-| `M_sword_attempt2_clean_world.png` | After manual world reset | Sword mostly in shadow | Lights at fixed coords with hardcoded rotations; no subject-aware aim |
-| `M_sword_attempt3_aimed_lights.png` | + aimed lights + reframed | Parts visible but blade clips top | Camera lacks bbox-aware framing |
-| `M_sword_attempt4_correct_dimensions_wrong_orientation.png` | + proper sword dimensions (78×4.5×0.8cm) | Looks like a "thin pole" | Camera viewing edge of blade (0.8cm thick), not broad face (4.5cm) |
-| `M_sword_attempt5_rotated_no_taper.png` | + Z-rotated 90° to face broad side | Visible blade but blunt tip | Top vertices scaled to 30%/50% leaves a chiseled flat |
-| `M_sword_attempt6_with_pointed_tip.png` | + merged top vertices to a point | Recognizable sword | Working — needed proper merge after collapse |
-| **`M_sword_FINAL_v0.6.0.png`** | All v0.6.0 patches applied; built fresh | Credible sword | Final result with all patches integrated |
+| `M_sword_attempt1_broken_world.webp` | Recipes verbatim | Magenta floods scene | World tree leftover from earlier C2 HDRI test; Environment Texture had `image=None` |
+| `M_sword_attempt2_clean_world.webp` | After manual world reset | Sword mostly in shadow | Lights at fixed coords with hardcoded rotations; no subject-aware aim |
+| `M_sword_attempt3_aimed_lights.webp` | + aimed lights + reframed | Parts visible but blade clips top | Camera lacks bbox-aware framing |
+| `M_sword_attempt4_correct_dimensions_wrong_orientation.webp` | + proper sword dimensions (78×4.5×0.8cm) | Looks like a "thin pole" | Camera viewing edge of blade (0.8cm thick), not broad face (4.5cm) |
+| `M_sword_attempt5_rotated_no_taper.webp` | + Z-rotated 90° to face broad side | Visible blade but blunt tip | Top vertices scaled to 30%/50% leaves a chiseled flat |
+| `M_sword_attempt6_with_pointed_tip.webp` | + merged top vertices to a point | Recognizable sword | Working — needed proper merge after collapse |
+| **`M_sword_FINAL_v0.6.0.webp`** | All v0.6.0 patches applied; built fresh | Credible sword | Final result with all patches integrated |
 
 ## Six patches that came out of this
 
