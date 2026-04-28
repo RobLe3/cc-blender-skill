@@ -1,6 +1,32 @@
 # Changelog
 
-All notable changes to **cc-blender-skill** since first commit. Detailed rationale per version is in [`VERSIONING.md`](./VERSIONING.md). Patch-by-patch root-cause notes are in [`IMPLEMENTATION_LOG.md`](./IMPLEMENTATION_LOG.md). Test results are in [`test.md`](./test.md), [`test_round2.md`](./test_round2.md), and [`test_round3.md`](./test_round3.md).
+All notable changes to **cc-blender-skill** since first commit. Detailed rationale per version is in [`VERSIONING.md`](./VERSIONING.md). Patch-by-patch root-cause notes are in [`docs/process/IMPLEMENTATION_LOG.md`](./docs/process/IMPLEMENTATION_LOG.md). Test results are in [`docs/test-results/`](./docs/test-results/).
+
+## [1.2.3] — 2026-04-28
+
+### Repo hygiene reorg + .github scaffolding
+
+Top-level was cluttered with 14 .md files (process docs + test results). Reorg moves them into `docs/process/` and `docs/test-results/`, leaving only canonical files at the root.
+
+**Top-level after reorg** (4 .md + LICENSE + requirements.txt + .gitignore):
+- `README.md`
+- `CHANGELOG.md`
+- `VERSIONING.md`
+- `LICENSE`
+
+**Moved to `docs/process/`** (8 dev journals): `PLAN.md`, `DEVELOPMENT.md`, `TESTING_PLAN.md`, `IMPLEMENTATION_LOG.md`, `VERIFICATION_REPORT.md`, `MCP_COVERAGE_ASSESSMENT.md`, `BLENDER_TOOLKIT_COMPARISON.md`, `INSTALL_BLENDER_MCP.md`.
+
+**Moved to `docs/test-results/`** (3 round logs): `test.md`, `test_round2.md`, `test_round3.md`.
+
+**Added `.github/`**:
+- `CONTRIBUTING.md` — bug-report and feature-request workflow, honesty principle, semver
+- `ISSUE_TEMPLATE/bug_report.yml` — structured form (Blender version, OS, prompt, failure type, what happened vs expected)
+- `ISSUE_TEMPLATE/feature_request.yml` — structured form (change type, description, motivation, optional draft recipe)
+- `ISSUE_TEMPLATE/config.yml` — disables blank issues, links to discussions and ahujasid/blender-mcp for upstream MCP bugs
+
+Updated cross-references in README, CHANGELOG, and VERSIONING to point at new locations. `git mv` preserves blame history.
+
+This is structural housekeeping. No skill code changed.
 
 ## [1.2.2] — 2026-04-28
 

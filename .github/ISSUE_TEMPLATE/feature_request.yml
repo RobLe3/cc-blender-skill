@@ -1,0 +1,48 @@
+name: Feature request
+description: Propose a recipe addition, new scene-class validation, or other improvement
+title: "[feat] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for proposing an improvement. The project lands new content as recipe additions, scene-class validations, or new dimension references — pick the closest match.
+
+  - type: dropdown
+    id: feature_type
+    attributes:
+      label: What kind of change
+      options:
+        - New scene-class validation (e.g. character, vehicle, kitchen) — surfaces recipe gaps
+        - New material recipe (e.g. neon glow, anodized aluminum) — extends blender-materials
+        - New dimension reference for a common subject — extends references/common-object-dimensions.md
+        - New lighting recipe (e.g. dramatic theatrical, golden hour, blue hour)
+        - Trigger-eval addition (cases that surfaced false-positive / false-negative behaviour)
+        - Cross-version compat report (Blender 4.x install)
+        - Skill description tuning (specific phrasing that triggers wrong / right)
+        - Documentation fix or clarity improvement
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What you'd like to see
+      description: |
+        Describe the addition concretely. For new scene classes, name the subject and what stress-profile it tests. For new recipes, describe the visual outcome and rough material/lighting parameters. For dimension references, cite a real-world source.
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Why this matters
+      description: What use case does this enable? What's currently impossible or awkward?
+
+  - type: textarea
+    id: proposed_approach
+    attributes:
+      label: Proposed approach (optional)
+      description: |
+        If you have a draft recipe, paste it here. If you've prototyped the addition in your local Blender, attach a render. Both make adoption faster.

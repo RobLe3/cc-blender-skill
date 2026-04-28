@@ -1,0 +1,85 @@
+name: Bug report
+description: Report something that doesn't work as documented
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a bug. The more detail you provide, the faster it gets fixed.
+
+  - type: input
+    id: blender_version
+    attributes:
+      label: Blender version
+      description: Run `bpy.app.version_string` in Blender's Scripting workspace.
+      placeholder: "5.1.1"
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: OS
+      placeholder: "macOS 14.5 / Ubuntu 24.04 / Windows 11"
+    validations:
+      required: true
+
+  - type: input
+    id: blender_mcp_version
+    attributes:
+      label: ahujasid/blender-mcp version
+      description: Run `gh release view --repo ahujasid/blender-mcp` or check the addon panel.
+      placeholder: "1.5.5"
+
+  - type: input
+    id: skill_version
+    attributes:
+      label: cc-blender-skill version
+      description: Check `plugin/manifest.json` or your local clone's `git describe`.
+      placeholder: "1.2.2"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: failure_type
+    attributes:
+      label: Failure type
+      options:
+        - Numerical (Python error, file not created, MCP timeout)
+        - Visual (render produced but looks wrong)
+        - Trigger (skill didn't activate when it should have, or activated when it shouldn't)
+        - Documentation (claim in docs doesn't match reality)
+    validations:
+      required: true
+
+  - type: textarea
+    id: prompt
+    attributes:
+      label: The prompt you sent
+      description: Verbatim — include the natural-language request and any file paths.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual_behaviour
+    attributes:
+      label: What happened
+      description: For numerical bugs, paste the error message. For visual bugs, attach the render and describe what's wrong.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_behaviour
+    attributes:
+      label: What you expected
+      description: What did you think would happen, given the skill's documented behaviour?
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional context
+      description: Anything else that might help — Blender scene state, other skills loaded, network setup, etc.

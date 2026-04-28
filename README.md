@@ -86,13 +86,11 @@ Full install + verification: [`plugin/README.md`](./plugin/README.md).
 ```
 cc-blender-skill/
 ├── README.md                         # this file
-├── VERSIONING.md                     # honest version status + path to v1.0
-├── PLAN.md                           # original scope expansion
-├── DEVELOPMENT.md                    # phase-based dev guide
-├── VERIFICATION_REPORT.md            # what we got right/wrong vs official skills spec
-├── MCP_COVERAGE_ASSESSMENT.md        # is ahujasid/blender-mcp enough? (yes)
-├── BLENDER_TOOLKIT_COMPARISON.md     # comparison to Dev-GOM/blender-toolkit
+├── CHANGELOG.md                      # release notes per version
+├── VERSIONING.md                     # full per-version rationale
+├── LICENSE                           # MIT
 ├── requirements.txt
+├── .github/                          # CONTRIBUTING + issue templates
 │
 ├── plugin/                           # ← the installable skill plugin
 │   ├── README.md
@@ -128,13 +126,26 @@ cc-blender-skill/
 │   ├── 15-cross-cutting/00-overview.md
 │   └── 16-pro-workflows/00-overview.md
 │
-├── docs/                             # original research (kept for archive)
-│   ├── SKILL_FOUNDATION.md
+├── docs/                             # documentation
+│   ├── SKILL_FOUNDATION.md           # original research
 │   ├── BLENDER_BEST_PRACTICES.md
 │   ├── BLENDER_INTEGRATION_GUIDE.md
 │   ├── BLENDER_MCP_ALIGNMENT.md
 │   ├── WIREFRAME_SKILL.md
-│   └── SKILL_RESEARCH_SUMMARY.md
+│   ├── SKILL_RESEARCH_SUMMARY.md
+│   ├── process/                      # dev journals (planning, tests, mcp coverage)
+│   │   ├── PLAN.md
+│   │   ├── DEVELOPMENT.md
+│   │   ├── TESTING_PLAN.md
+│   │   ├── IMPLEMENTATION_LOG.md
+│   │   ├── VERIFICATION_REPORT.md
+│   │   ├── MCP_COVERAGE_ASSESSMENT.md
+│   │   ├── BLENDER_TOOLKIT_COMPARISON.md
+│   │   └── INSTALL_BLENDER_MCP.md
+│   └── test-results/                 # per-round eval logs
+│       ├── test.md                   # round 1: 30-test smoke
+│       ├── test_round2.md            # round 2: scene-build feedback loop
+│       └── test_round3.md            # round 3: trigger-eval self-assessment
 │
 ├── src/                              # original wireframe analyzer (still used by skill)
 │   └── wireframe_analyzer.py
@@ -165,7 +176,7 @@ Neither tackles the **task-level orchestration**: "given a natural-language requ
 - Decision trees mapped to natural-language intent
 - Naming and validation conventions throughout
 
-See [`BLENDER_TOOLKIT_COMPARISON.md`](./BLENDER_TOOLKIT_COMPARISON.md) for the full landscape comparison.
+See [`docs/process/BLENDER_TOOLKIT_COMPARISON.md`](./docs/process/BLENDER_TOOLKIT_COMPARISON.md) for the full landscape comparison.
 
 ---
 

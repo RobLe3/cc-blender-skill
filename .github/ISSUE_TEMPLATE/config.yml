@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: cc-blender-skill discussions
+    url: https://github.com/RobLe3/cc-blender-skill/discussions
+    about: Open questions, ideas not yet a feature request, share your renders.
+  - name: ahujasid/blender-mcp issues
+    url: https://github.com/ahujasid/blender-mcp/issues
+    about: For bugs in the underlying MCP server (port 9876, addon, command timeouts), file there.
