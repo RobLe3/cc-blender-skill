@@ -766,3 +766,84 @@ def process_with_progress(items, process_func, label="Processing"):
 **Date Created**: 2026-04-27  
 **Status**: Ready for skill integration  
 **Usage**: Reference this when building code generators for Blender operations
+
+## 9. Reference-Locked / Texture-First Modeling Workflow
+
+Use this workflow when a user supplies branding art, a texture atlas, front/side/back wireframes, or says the model must fit the drawing/texture exactly. It is a corrective mode for repeated visual mismatches.
+
+### 9.1 Source-of-truth hierarchy
+
+1. **Front texture or front wireframe is canonical for silhouette, part count, and face placement.**
+2. Side/back/top views define only depth, stacking, curvature, and hidden surfaces.
+3. Textures are not decoration after the fact; they are measurement references. If the mesh silhouette does not match the texture crop, reshape the mesh rather than stretching the texture.
+4. Always write a part-count checklist before running Blender code, e.g. `expected_primary_parts=<manifest_count>`, then assert the scene creates exactly that number.
+
+### 9.2 Blender reference setup
+
+Official Blender docs note that Image Empties are intended for reference images/blueprints and can be displayed in front/back, orthographic-only, axis-aligned, and with opacity. For skill-generated scenes, create equivalent reference planes or image empties locked to the validation cameras. Keep them out of export by prefixing `REF_` and hiding from render except overlay checks.
+
+Reference-plane pattern:
+```python
+# Front reference plane in X/Z, behind model along Y.
+verts = [(-w/2, y, -h/2), (w/2, y, -h/2), (w/2, y, h/2), (-w/2, y, h/2)]
+# UVs [(0,0), (1,0), (1,1), (0,1)] map the full reference image 1:1.
+# Prefix object name with REF_ and exclude from GLB export.
+```
+
+### 9.3 Silhouette-first mesh construction
+
+For logos/mascots/flat designed subjects, build each visible structural part from traced 2D X/Z coordinates before adding Y depth:
+
+```python
+def make_front_locked_component(name, centerline, widths, y_layer, crown_depth):
+    # centerline: list of X/Z points from the front reference
+    # widths: per-row half-widths measured/traced from the reference crop
+    # y_layer: stacking order, not silhouette
+    # crown_depth: shallow front/back curvature; must not change X/Z outline
+    # 1. Generate rows across width along local normal.
+    # 2. Store UV=(width_fraction, length_fraction) for Project-from-View texture fit.
+    # 3. Add depth only as +/-Y dome/extrusion after X/Z positions are fixed.
+    pass
+```
+
+Do not use generic radial duplication unless the reference itself is truly radial. Logos often have intentional asymmetry, occlusion, and a fixed visible part count.
+
+### 9.4 UV and texture fit
+
+Blender's Project from View workflow flattens a mesh as it appears from the current view and is intended for mapping a picture of the modeled object; expect stretching on surfaces that recede from the view. For mascot/logo modeling, this means:
+
+- front-facing hero surfaces should receive front-projected UVs;
+- side/back surfaces need separate procedural/solid materials or separate UV islands;
+- do not project a whole atlas over every component; crop or assign per-part UV rectangles;
+- a texture mismatch is normally a mesh silhouette problem first, not a shader problem.
+
+### 9.5 Trace and retopo tools
+
+Blender's Trace Image to Grease Pencil can vectorize black/white images, but the manual warns that non-B/W images are converted internally and high resolutions can create dense strokes. For skill automation, prefer preprocessing a mask with Pillow/OpenCV and sampling contours, or create manually-defined control points when the source is a clean logo/wireframe.
+
+Shrinkwrap is useful after the front silhouette is correct: it can move vertices to a target surface or project along an axis. Use it for conforming secondary details to a curved shell, not for discovering the primary silhouette.
+
+### 9.6 Required validation gates
+
+Before declaring success, produce at least these renders/files:
+
+- `front_preview`: normal front render.
+- `front_overlay`: front reference/wireframe blended with the model, same orthographic camera.
+- `side_preview`: optional aura hidden, validates depth only.
+- `back_preview`: face hidden or backside shown as specified.
+- `measurements.json`: expected vs actual counts and object bounding boxes.
+
+Checklist to print in Blender stdout:
+```python
+print('VALIDATE expected_primary_parts=', manifest_count, 'actual_primary_parts=', len(primary_part_objects))
+print('VALIDATE front_locked=True aura_excluded_from_base_export=True')
+```
+
+If `actual_primary_parts != expected_primary_parts`, stop and do not export.
+
+### 9.7 Sources consulted
+
+- Blender Manual: Image Empty/reference-image settings for blueprint-style modeling.
+- Blender Manual: UV Project from View for mapping a reference picture onto a modeled object.
+- Blender Manual: Trace Image to Grease Pencil; best results from manually prepared black/white images and controlled resolution.
+- Blender Manual: Shrinkwrap Modifier; use projection/nearest-surface wrapping to conform secondary geometry to a target surface.

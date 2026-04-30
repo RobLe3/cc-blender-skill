@@ -9,6 +9,10 @@ allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blend
 
 Turn plain-English requests into Blender work. You are the conductor: read the request, decide which sub-skills to chain-load, sequence them in the right order, and execute via the Blender MCP.
 
+## Multi-skill harmonization
+
+For complex tasks that trigger multiple Blender skills, especially reference/template/brand work, load `blender-skill-harmonizer` before choosing the execution order. It owns precedence, handoff artifacts, and conflict policy.
+
 ## How this skill works
 
 The user speaks in tasks ("render a hero shot of a sword on a stone"); you:

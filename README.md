@@ -2,7 +2,7 @@
 
 A Claude Code skill plugin that lets Claude use Blender like a senior 3D artist via natural language.
 
-**Version**: **1.2.4** ([CHANGELOG](./CHANGELOG.md)) · validated end-to-end on Blender 5.1.1 across **6 scene classes** (sword, bottle, chair, aviator, desk lamp, broadcaster avatar) plus wireframe-to-3d closure. Validation proof renders are committed in [`plugin/skills/text-to-blender/assets/`](./plugin/skills/text-to-blender/assets/) (failure-state renders included for honesty — no cherry-picking).
+**Version**: **1.2.9** ([CHANGELOG](./CHANGELOG.md)) · adds generic reference-locked reconstruction, UV/atlas fitting, multiview validation, fit-repair orchestration, and reference-look calibration on top of the stable Blender 5.x workflow. The core has been validated end-to-end on Blender 5.1.1 across **6 scene classes** (sword, bottle, chair, aviator, desk lamp, broadcaster avatar) plus wireframe-to-3d closure. Validation proof renders are committed in [`plugin/skills/text-to-blender/assets/`](./plugin/skills/text-to-blender/assets/) (failure-state renders included for honesty — no cherry-picking).
 
 **Quick links**: [Install](#quick-install) · [What works (honestly)](#what-works-honestly) · [What doesn't](#what-doesnt-work-yet-honestly) · [Architecture](#architecture-in-one-paragraph) · [Contributing](.github/CONTRIBUTING.md) · [Releases](https://github.com/RobLe3/cc-blender-skill/releases)
 
@@ -10,7 +10,7 @@ A Claude Code skill plugin that lets Claude use Blender like a senior 3D artist 
 
 ## What this is
 
-Ten chain-loadable Claude Code skills that turn requests like *"model a sword and render a hero shot with three-point lighting"* into Blender Python executed via the [Blender MCP](https://github.com/ahujasid/blender-mcp).
+Twenty-one chain-loadable Claude Code skills that turn requests like *"model a sword and render a hero shot with three-point lighting"* into Blender Python executed via the [Blender MCP](https://github.com/ahujasid/blender-mcp).
 
 ```
 User prompt
@@ -19,12 +19,36 @@ Claude detects intent → loads text-to-blender (orchestrator)
     ↓
 Orchestrator chain-loads relevant sub-skills
     ↓ ↓ ↓
-modeling, materials, lighting, cameras, rendering, animation, export, wireframe-to-3d, pro-workflow
+modeling, materials, lighting, cameras, rendering, animation, export, wireframe-to-3d, pro-workflow, reference-to-3d, UV/atlas fitting, validation, fit repair, look calibration
     ↓
 Generated Python → mcp__blender__execute_blender_code → Blender → output
 ```
 
 The plugin is the actual installable thing. It lives at [`plugin/`](./plugin/). Knowledge research that produced it lives at [`knowledge/`](./knowledge/) and [`docs/`](./docs/).
+
+---
+
+## What's new in v1.2.9
+
+This release adds a generic, source-driven reconstruction layer on top of the existing natural-language Blender workflow. The important changes are:
+
+### Added
+
+- `blender-skill-harmonizer` — a meta-orchestrator for multi-skill precedence, source-of-truth policy, handoff artifacts, and source-conflict gates.
+- `reference-to-3d` — a source-locked reconstruction workflow for templates, reference sheets, texture packs, and orthographic views.
+- `reference-analysis-validator` — source manifests, part-count gates, masks, overlays, IoU/SSIM/bbox/centroid validation, and fail-before-export checks.
+- `contour-to-mesh` and `orthographic-registration` — silhouette-first mesh construction plus front/side/back/top coordinate contracts.
+- `blender-uv-texturing` and `atlas-uv-fitting` — UV projection, atlas-region mapping, decals, lightmaps, and supplemental-map sanity checks.
+- `multiview-fit-loop` and `fit-repair-optimizer` — render/compare/adjust loops and dependency-aware repair queues.
+- `reference-look-calibration` — measurable source-image look matching for crop, brightness, saturation, hue, accent/glow, materials, lights, and render settings.
+- `mascot-logo-reconstruction` — generic brand mascot/logo orchestration driven by `reference_manifest.json`, not hardcoded project assumptions.
+
+### Changed
+
+- Existing production skills now hand off to the reference-locked stack when the user provides source templates, texture packs, or repeated visual mismatch feedback.
+- The wireframe workflow now has a correction mode for source/texture-driven subjects instead of continuing primitive-first rebuilds.
+- Lighting, material, and rendering skills now defer source-image look matching to `reference-look-calibration` when exact visual match matters.
+- Examples and scripts were sanitized so structural counts, accent hues, guide masks, and validation gates are manifest/report-driven and reusable across projects.
 
 ---
 
@@ -41,7 +65,11 @@ The plugin is the actual installable thing. It lives at [`plugin/`](./plugin/). 
 | Emission material + practical lighting | ✅ Lamp scene validated | Recipe 11b in `blender-materials`, Recipe 0c in `blender-lighting` |
 | Volume-absorption coloured glass | ✅ 5 colour types tuned | Recipe 6b in `blender-materials/SKILL.md` |
 | Trigger-eval description tuning | ✅ 200 starter queries shipped | Each skill has `evals/evals.json`; aggregate 100% TP / 4% FP |
-| Wireframe-to-3d auto-extraction | ⚠️ Foundation only, simple line-art | Aviator validated; complex named-design objects need hand-crafted layer on top |
+| Wireframe-to-3d auto-extraction | ⚠️ Works for simple line-art; now has reference-locked correction handoff | Aviator validated; complex designed objects should use the reference-to-3d / contour / registration / validation stack |
+| Reference-locked reconstruction | ✅ Workflow added | Source manifest, contour-to-mesh, orthographic registration, multiview fit loop, repair queue, and overlay validation |
+| Texture-pack / atlas fitting | ✅ Workflow added | UV projection, per-region atlas mapping, alpha decals, supplemental-map sanity checks, lightmap handling |
+| Reference look calibration | ✅ Workflow added | Camera crop, brightness/saturation/hue, accent/glow masks, material/light/render handoff |
+| Skill harmonization | ✅ Workflow added | Meta-orchestrator defines precedence, handoff artifacts, source-conflict gates, and sequential/parallel repair lanes |
 
 ## What doesn't work yet (honestly)
 
@@ -49,7 +77,7 @@ The plugin is the actual installable thing. It lives at [`plugin/`](./plugin/). 
 - **Human faces from primitives.** A sphere + nose + ears + mouth + brows reads as "abstract avatar," not "human." Real human faces require subtractive sculpting. v1.2.1 documents three escape paths: import via `download_polyhaven_asset` / `download_sketchfab_model` / `generate_hyper3d_model_via_text` (then chain), sculpt mode, or commission an artist (`docs/avatar-design-kit/prompts/04-blender-workflow.md`).
 - **Thin-metal specular flare.** Hero shots of thin metal (eyewear arms, jewellery) catch side lighting as bright streaks. Workaround: top-down softbox lighting or crop temple arms out of the frame.
 - **Subjective quality.** Numerical validation passing ≠ render looks right. The orchestrator's mandatory visual-validation checkpoint exists, but the user remains the final oracle.
-- **External user feedback.** Validation is internal only; real-use feedback drives v1.x patches.
+- **External user feedback.** Core validation is internal; the newer reference-locked stack still needs broader external examples, and real-use feedback drives v1.x patches.
 
 ---
 
@@ -61,7 +89,7 @@ Prerequisites: Blender ≥ 4.0 with [BlenderMCP addon](https://github.com/ahujas
 git clone git@github.com:RobLe3/cc-blender-skill.git
 cd cc-blender-skill
 
-# Symlink all 10 skills into ~/.claude/skills/
+# Symlink all 21 skills into ~/.claude/skills/
 for skill in plugin/skills/*/; do
     name=$(basename "$skill")
     ln -sfn "$(pwd)/$skill" "$HOME/.claude/skills/$name"
@@ -102,6 +130,7 @@ cc-blender-skill/
 │   ├── manifest.json
 │   └── skills/
 │       ├── text-to-blender/          # orchestrator
+│       ├── blender-skill-harmonizer/ # multi-skill precedence + handoff contracts
 │       ├── blender-pro-workflow/     # multi-phase guidance
 │       ├── blender-modeling/         # geometry creation
 │       ├── blender-materials/        # PBR via Principled BSDF
@@ -110,7 +139,17 @@ cc-blender-skill/
 │       ├── blender-rendering/        # Cycles/EEVEE
 │       ├── blender-animation/        # keyframes, F-curves, shape keys
 │       ├── blender-export/           # glTF/FBX/OBJ/USD/STL
-│       └── wireframe-to-3d/          # specialty: 2D wireframe → 3D
+│       ├── wireframe-to-3d/          # specialty: 2D wireframe → 3D
+│       ├── reference-to-3d/          # source-locked reconstruction
+│       ├── reference-analysis-validator/ # masks, metrics, overlays
+│       ├── contour-to-mesh/          # contour-derived mesh generation
+│       ├── orthographic-registration/ # front/side/back/top coordinate contract
+│       ├── blender-uv-texturing/     # UV, projection, baking, lightmaps
+│       ├── atlas-uv-fitting/         # per-part atlas/decal mapping
+│       ├── mascot-logo-reconstruction/ # generic brand mascot/logo workflow
+│       ├── multiview-fit-loop/       # render/compare/adjust validation loop
+│       ├── fit-repair-optimizer/     # dependency-aware repair queues
+│       └── reference-look-calibration/ # source-image look matching
 │
 ├── knowledge/                        # raw research aggregation (16 domains)
 │   ├── README.md
@@ -187,11 +226,19 @@ See [`docs/process/BLENDER_TOOLKIT_COMPARISON.md`](./docs/process/BLENDER_TOOLKI
 
 ## Honest status
 
-The plugin shipped through **15+ versions of validation and patches** since the v0.3.0 scaffolding (v0.4.0 → v1.2.4 as of this writing). Each version's commit summary in [`CHANGELOG.md`](./CHANGELOG.md) records concrete bugs found and fixed; each user-driven feedback iteration is in [`VERSIONING.md`](./VERSIONING.md) with the patch it produced. The proof renders in [`plugin/skills/text-to-blender/assets/v0.X.0-validation/`](./plugin/skills/text-to-blender/assets/) are honest evidence — no cherry-picking, including failure-state renders.
+The plugin shipped through **15+ versions of validation and patches** since the v0.3.0 scaffolding, then expanded with a generic reference-locked reconstruction stack for source/template/texture-driven work. Each version's commit summary in [`CHANGELOG.md`](./CHANGELOG.md) records concrete bugs found and fixed; each user-driven feedback iteration is in [`VERSIONING.md`](./VERSIONING.md) with the patch it produced. The proof renders in [`plugin/skills/text-to-blender/assets/v0.X.0-validation/`](./plugin/skills/text-to-blender/assets/) are honest evidence — no cherry-picking, including failure-state renders.
 
-The validation pattern is documented in [`docs/process/TESTING_PLAN.md`](./docs/process/TESTING_PLAN.md): cheap-Haiku tester runs deterministic tests + writes structured results, expensive-Opus patcher reads them and applies fixes. ~10× cheaper than running the full loop on a frontier model throughout. Three round logs in [`docs/test-results/`](./docs/test-results/).
+The validation pattern is documented in [`docs/process/TESTING_PLAN.md`](./docs/process/TESTING_PLAN.md): cheap-Haiku tester runs deterministic tests + writes structured results, expensive-Opus patcher reads them and applies fixes. ~10× cheaper than running the full loop on a frontier model throughout. Three round logs live in [`docs/test-results/`](./docs/test-results/).
 
-What v1.x means here: **stable enough that the patches won't churn day-to-day**, the recipe vocabulary is settled, scope boundaries (design quality, human faces, thin-metal flare) are explicitly documented with escape paths, and the trigger-evals enable continued description tuning. Real external use will surface edge cases that incremental v1.x patches will address.
+### What v1.2.9 adds
+
+- Generic `blender-skill-harmonizer` meta-layer for multi-skill precedence, source-of-truth policy, and handoff artifacts.
+- Source-locked reconstruction stack: `reference-to-3d`, `reference-analysis-validator`, `orthographic-registration`, `contour-to-mesh`, `multiview-fit-loop`, and `fit-repair-optimizer`.
+- Texture workflow expansion: `blender-uv-texturing` plus `atlas-uv-fitting` for texture packs, decals, UV regions, and supplemental map sanity checks.
+- `reference-look-calibration` for measurable source-image look matching after geometry/UV gates pass.
+- Generic mascot/logo workflow that derives structural counts and visual constraints from `reference_manifest.json` instead of hardcoded project assumptions.
+
+What v1.2.9 means here: **the stable core remains intact**, scope boundaries (design quality, human faces, thin-metal flare) are documented with escape paths, and the new reference-locked stack is generic, manifest-driven, and ready for broader examples. Real external use will surface edge cases that incremental v1.x patches will address.
 
 ---
 

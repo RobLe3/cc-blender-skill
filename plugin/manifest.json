@@ -1,7 +1,7 @@
 {
   "name": "cc-blender-skill",
-  "version": "1.2.4",
-  "description": "Comprehensive Blender skill plugin for Claude Code — turns natural-language requests into Blender Python via the Blender MCP. 9 chain-loadable skills covering modeling, materials, lighting, cameras, rendering, animation, export, wireframe-to-3D, and pro-workflow orchestration.",
+  "version": "1.2.9",
+  "description": "Comprehensive Blender skill plugin for Claude Code with harmonized multi-skill orchestration, reference-locked reconstruction, multiview validation, repair optimization, UV/texturing, look-dev, animation, and export workflows.",
   "author": "RobLe3 (with Claude)",
   "license": "MIT",
   "homepage": "https://github.com/RobLe3/cc-blender-skill",
@@ -18,9 +18,15 @@
       "path": "skills/text-to-blender/SKILL.md"
     },
     {
+      "name": "blender-skill-harmonizer",
+      "role": "orchestrator",
+      "description": "Meta-orchestrator that harmonizes Blender skills, resolves precedence/contract conflicts, and defines sequential/parallel handoffs.",
+      "path": "skills/blender-skill-harmonizer/SKILL.md"
+    },
+    {
       "name": "blender-pro-workflow",
       "role": "guidance",
-      "description": "Multi-phase pipeline guidance — scene assembly order, critique protocols, recovery patterns.",
+      "description": "Multi-phase pipeline guidance \u2014 scene assembly order, critique protocols, recovery patterns.",
       "path": "skills/blender-pro-workflow/SKILL.md"
     },
     {
@@ -32,7 +38,7 @@
     {
       "name": "blender-materials",
       "role": "domain",
-      "description": "PBR materials via Principled BSDF — metals, glass, plastic, fabric, skin, procedural patterns.",
+      "description": "PBR materials via Principled BSDF \u2014 metals, glass, plastic, fabric, skin, procedural patterns.",
       "path": "skills/blender-materials/SKILL.md"
     },
     {
@@ -68,20 +74,80 @@
     {
       "name": "wireframe-to-3d",
       "role": "specialty",
-      "description": "Convert 2D orthographic wireframe drawings to parametric 3D models via image processing → Bezier fitting → Blender curves → mesh → glTF.",
+      "description": "Convert 2D orthographic wireframe drawings to parametric 3D models via image processing \u2192 Bezier fitting \u2192 Blender curves \u2192 mesh \u2192 glTF.",
       "path": "skills/wireframe-to-3d/SKILL.md"
+    },
+    {
+      "name": "reference-to-3d",
+      "role": "specialty",
+      "description": "Template/branding/orthographic-reference locked 3D reconstruction with source analysis and overlay validation.",
+      "path": "skills/reference-to-3d/SKILL.md"
+    },
+    {
+      "name": "blender-uv-texturing",
+      "role": "domain",
+      "description": "UV unwrap/projection, atlas mapping, alpha decals, baking, lightmaps, and texture-pack validation.",
+      "path": "skills/blender-uv-texturing/SKILL.md"
+    },
+    {
+      "name": "reference-analysis-validator",
+      "role": "specialty",
+      "description": "Source manifest, mask/component analysis, overlay validation, IoU/SSIM/bbox/centroid gates for 1:1 reconstruction.",
+      "path": "skills/reference-analysis-validator/SKILL.md"
+    },
+    {
+      "name": "contour-to-mesh",
+      "role": "specialty",
+      "description": "Generate Blender mesh surfaces from extracted 2D contours/masks before adding shallow depth.",
+      "path": "skills/contour-to-mesh/SKILL.md"
+    },
+    {
+      "name": "orthographic-registration",
+      "role": "specialty",
+      "description": "Register front/side/back/top references into a shared coordinate contract for depth-accurate reconstruction.",
+      "path": "skills/orthographic-registration/SKILL.md"
+    },
+    {
+      "name": "atlas-uv-fitting",
+      "role": "specialty",
+      "description": "Detect atlas/decal regions and map each structural part to correct UV rectangles/projections.",
+      "path": "skills/atlas-uv-fitting/SKILL.md"
+    },
+    {
+      "name": "mascot-logo-reconstruction",
+      "role": "orchestrator",
+      "description": "Top-level fail-gated workflow for 1:1 brand mascot/logo reconstruction from references and textures.",
+      "path": "skills/mascot-logo-reconstruction/SKILL.md"
+    },
+    {
+      "name": "multiview-fit-loop",
+      "role": "specialty",
+      "description": "Closed-loop render/compare/adjust/re-render validation across front/side/back/top templates.",
+      "path": "skills/multiview-fit-loop/SKILL.md"
+    },
+    {
+      "name": "fit-repair-optimizer",
+      "role": "specialty",
+      "description": "Turns validation failures into sequential/parallel source-of-truth alignment repair queues with dependency gates.",
+      "path": "skills/fit-repair-optimizer/SKILL.md"
+    },
+    {
+      "name": "reference-look-calibration",
+      "role": "specialty",
+      "description": "Reference-image look calibration for lighting/material/render/aura matching using color and mask metrics.",
+      "path": "skills/reference-look-calibration/SKILL.md"
     }
   ],
   "complementary": [
     {
       "name": "ra100/blender-claude-plugin",
       "url": "https://github.com/ra100/blender-claude-plugin",
-      "rationale": "8 generalist Blender reference skills (geometry-nodes, shader-nodes, compositor, etc.). Complementary — they teach Blender's API; we teach how to use it for tasks."
+      "rationale": "8 generalist Blender reference skills (geometry-nodes, shader-nodes, compositor, etc.). Complementary \u2014 they teach Blender's API; we teach how to use it for tasks."
     },
     {
       "name": "Dev-GOM/blender-toolkit",
       "url": "https://mcpmarket.com/tools/skills/blender-toolkit",
-      "rationale": "Specializes in Mixamo retargeting via custom WebSocket addon. Coexists fine with this plugin — different port, different focus."
+      "rationale": "Specializes in Mixamo retargeting via custom WebSocket addon. Coexists fine with this plugin \u2014 different port, different focus."
     }
   ]
 }

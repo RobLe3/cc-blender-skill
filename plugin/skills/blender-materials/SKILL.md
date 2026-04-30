@@ -44,6 +44,11 @@ What is it made of?
     → Metallic=1.0, Roughness=0.02-0.05, near-white base
 ```
 
+## Reference-look handoff
+
+If the goal is to match an original/reference image rather than make a generally attractive render, chain-load `reference-look-calibration`. It owns measurement of hue/saturation/value, object extent, glow/aura color, and before/after look metrics. This skill should then apply the requested material/lighting/render changes within that calibrated target.
+
+
 ## Recipes (the 12 to know)
 
 Each recipe creates the material and assigns it to a target object. Replace `'GEO-target'` with your actual object name.

@@ -1,21 +1,15 @@
-# Versioning — Honest Quality Path to v1.0
+# Versioning — Honest Release History
 
-**Current version**: **1.0.0** — first stable release
-**Date**: 2026-04-27
+**Current version**: **1.2.9** — generic reference-locked reconstruction and skill harmonization
+**Date**: 2026-04-30
 
 ---
 
-## Why we're not calling this v1.0
+## Current release posture
 
-The skill plugin is structurally complete (10 skills, ~6500 lines of distilled knowledge across 16 domains, official-spec-compliant SKILL.md files). But **none of this has been run against an actual Blender instance**. Calling it v1.0 would oversell quality and erode trust on first failure.
+The original 10-skill core reached v1.0.0 after live Blender validation and patch rounds. Version 1.2.9 keeps that stable core and adds a generic, source-locked reconstruction layer for reference sheets, texture packs, orthographic views, validation loops, and look calibration.
 
-A senior skill author would gate v1.0 on:
-1. End-to-end execution against a real Blender MCP
-2. Recipe coverage of the long tail (current is ~80% of common requests)
-3. Trigger-eval test cases per skill (Anthropic recommends ~20 per skill)
-4. Worked example scenes with proof-renders
-
-Until then, this is an honest **0.3.0** — production-ready scaffolding.
+The v1.2.9 additions are intentionally manifest-driven: source files define structural counts, guide masks, accent hues, texture regions, and validation gates. Project-specific facts belong in project docs/memory, not in reusable skill instructions.
 
 ---
 
@@ -48,17 +42,24 @@ Until then, this is an honest **0.3.0** — production-ready scaffolding.
 
 | Version | Definition of done |
 |---------|---------------------|
-| **0.3.0** *(current)* | Plugin structure complete; all 10 skills written; manifest + READMEs; no validation |
+| **0.3.0** | Plugin structure complete; all 10 original skills written; manifest + READMEs; no validation |
 | **0.5.0** | Each skill smoke-tested against Blender via `mcp__blender__execute_blender_code`; bugs documented in `IMPLEMENTATION_LOG.md` and fixed; failure rate < 10% on common requests |
 | **0.7.0** | Trigger-eval JSON files per skill (20 trigger + 20 no-trigger queries each); description-tuning loop run twice; recipe library expanded ~2× in modeling, materials, lighting |
 | **0.9.0** | 3–5 worked example scenes (sword + materials + render, character close-up, archviz still) with proof-renders committed to `assets/`; install instructions verified on macOS + Linux + Windows |
 | **1.0.0** | All of the above + 1+ week of real-use feedback from external testers, top failure modes patched, clear changelog |
 
-**Estimated effort to v1.0**: 1–2 weeks of focused work after this scaffolding pass.
-
 ---
 
 ## What changed at each version
+
+
+### 1.2.9 — 2026-04-30 — Generic reference-locked reconstruction stack
+
+- Added `blender-skill-harmonizer` to coordinate multi-skill Blender workflows with explicit precedence, handoff artifacts, and source-conflict gates.
+- Added generic source-locked reconstruction skills: `reference-to-3d`, `reference-analysis-validator`, `contour-to-mesh`, `orthographic-registration`, `multiview-fit-loop`, and `fit-repair-optimizer`.
+- Added texture/look workflows: `blender-uv-texturing`, `atlas-uv-fitting`, and `reference-look-calibration`.
+- Added generic `mascot-logo-reconstruction` orchestration for brand mascots/logos without hardcoded project-specific counts or colors.
+- Sanitized examples and scripts so structural counts, accent hues, guide masks, and validation gates come from source manifests/reports rather than the task that motivated the improvement.
 
 ### 1.0.0 — 2026-04-27 — First stable release
 

@@ -33,6 +33,11 @@ What's the mood?
 └── Unsure → Three-point with HDRI grounding (works for 90% of cases)
 ```
 
+## Reference-look handoff
+
+If the goal is to match an original/reference image rather than make a generally attractive render, chain-load `reference-look-calibration`. It owns measurement of hue/saturation/value, object extent, glow/aura color, and before/after look metrics. This skill should then apply the requested material/lighting/render changes within that calibrated target.
+
+
 ## Recipes
 
 ### Helper: `aim_at(light, target)` — required for subject-aware lighting

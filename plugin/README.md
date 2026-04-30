@@ -2,13 +2,13 @@
 
 A Claude Code skill plugin that lets Claude use Blender like a senior 3D artist via natural language.
 
-**Version**: 0.3.0 (scaffolding complete; not yet validated against a real Blender instance — see [VERSIONING.md](../VERSIONING.md))
+**Version**: 1.2.9 (generic reference-locked reconstruction, UV/atlas fitting, validation, repair optimization, and look calibration added — see [VERSIONING.md](../VERSIONING.md))
 
 ---
 
 ## What's in this plugin
 
-10 chain-loadable skills:
+21 chain-loadable skills:
 
 | Skill | Role | What it does |
 |-------|------|--------------|
@@ -22,6 +22,17 @@ A Claude Code skill plugin that lets Claude use Blender like a senior 3D artist 
 | `blender-animation` | Domain | Keyframes, F-curves, shape keys, drivers, NLA |
 | `blender-export` | Domain | glTF/FBX/OBJ/USD/STL with target settings |
 | `wireframe-to-3d` | Specialty | Convert 2D wireframe images to parametric 3D models |
+| `blender-skill-harmonizer` | Orchestrator | Resolve multi-skill precedence, handoff contracts, and source-of-truth conflicts |
+| `reference-to-3d` | Specialty | Source/template/texture-locked reconstruction workflow |
+| `reference-analysis-validator` | Specialty | Source manifests, masks, overlays, IoU/SSIM/bbox/centroid gates |
+| `contour-to-mesh` | Specialty | Build mesh surfaces directly from extracted contours/masks |
+| `orthographic-registration` | Specialty | Register front/side/back/top references into one coordinate contract |
+| `blender-uv-texturing` | Domain | UV unwrap/projection, baking, decals, lightmaps, GLB texture setup |
+| `atlas-uv-fitting` | Specialty | Detect atlas/decal regions and map each part to correct UV rectangles |
+| `mascot-logo-reconstruction` | Orchestrator | Generic fail-gated brand mascot/logo reconstruction from references/textures |
+| `multiview-fit-loop` | Specialty | Render/compare/adjust/re-render validation across orthographic templates |
+| `fit-repair-optimizer` | Specialty | Convert failed validation reports into dependency-aware repair queues |
+| `reference-look-calibration` | Specialty | Match material/light/render/glow look to source images with measurable metrics |
 
 ---
 
@@ -69,7 +80,7 @@ In Claude Code, type:
 What skills are available?
 ```
 
-You should see the 10 skills listed. If not:
+You should see the 21 skills listed. If not:
 - Restart Claude Code (top-level skills directories are watched on startup; new directories require a restart)
 - Check `ls ~/.claude/skills/` to confirm the symlinks are present
 - Check Blender is running with the MCP addon enabled
@@ -148,15 +159,15 @@ This plugin coexists peacefully with:
 
 ## Status & honest version
 
-**0.3.0** — scaffolding complete. The skill structure follows Anthropic's official skills spec, the architecture is verified against the actual Blender MCP source, and the recipe library covers ~80% of common requests.
+**1.2.9** — stable core plus generic reference-locked reconstruction workflows. The skill structure follows the skills spec, the architecture is verified against Blender MCP usage, and the new source-driven stack avoids hardcoded project assumptions by deriving counts, masks, hues, and validation gates from manifests/reports.
 
 What's NOT done yet:
-- End-to-end validation against a running Blender instance
-- Trigger-eval test cases per skill (recommended 20 trigger / 20 no-trigger queries each)
+- More external validation on diverse non-mascot source sheets
+- Trigger-eval expansion for the newly added skills
 - Recipe library expansion in long-tail areas (geometry nodes recipes, sculpting, complex sims)
-- Worked example scenes with proof-renders in `assets/`
+- More worked example scenes with proof-renders in `assets/`
 
-See [VERSIONING.md](../VERSIONING.md) for the path to v1.0.
+See [VERSIONING.md](../VERSIONING.md) for release history and validation rationale.
 
 ---
 

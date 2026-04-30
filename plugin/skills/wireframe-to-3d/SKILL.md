@@ -55,6 +55,23 @@ Before any wireframe work, verify the environment:
 - If the user gave dimensions (e.g., "glasses are 140 mm wide"), use them.
 - Otherwise infer from wireframe aspect ratio and assume a sensible default (140 mm width for glasses, 180 mm for helmets, etc.). Confirm with user if not obvious.
 
+
+
+## Mandatory correction loop for reference/texture-driven subjects
+
+When user feedback says the model does not match the reference/texture, stop the normal "generate from primitives" loop and switch to **reference-locked modeling**:
+
+1. **Count visible design parts first** from the provided texture/wireframe and write the count into stdout/notes before modeling. Do not infer a radial or repeated count from symmetry; the visual design count in the source manifest is the contract.
+2. **Use the front view as canonical.** Create an image-empty/plane/reference overlay in the same front orthographic camera used for validation. Align scale, centerline, and bounding circle before adding depth.
+3. **Trace or define 2D silhouettes in front-view X/Z first.** Build mesh surfaces from those silhouettes; do not place generic ellipses and then try to texture them.
+4. **Lock the front projection.** Add depth only on the view axis after the front silhouette matches. Side/back views refine thickness and stacking but must not alter the front outline.
+5. **Use Project-from-View-style UVs** for any texture that is meant to match the front drawing. One front-facing surface should map to the corresponding texture crop 1:1.
+6. **Render an overlay validation**: reference/wireframe behind or over the model, plus a printed checklist: expected count, actual object count, face position, outer silhouette bounds, and side/back depth.
+7. If an iteration repeats the same error twice, consult `references/best-practices.md` and add a short durable note before another attempt.
+
+For repeated motif subjects, create exactly the primary structural components declared by the source manifest. Name them by source-visible position or semantic role, and validate the count before export.
+
+
 ## Stage 1 — Run the analyzer
 
 Run the bundled analyzer once per view:

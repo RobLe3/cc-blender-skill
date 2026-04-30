@@ -2,6 +2,22 @@
 
 All notable changes to **cc-blender-skill** since first commit. Detailed rationale per version is in [`VERSIONING.md`](./VERSIONING.md). Patch-by-patch root-cause notes are in [`docs/process/IMPLEMENTATION_LOG.md`](./docs/process/IMPLEMENTATION_LOG.md). Test results are in [`docs/test-results/`](./docs/test-results/).
 
+## [1.2.9] — 2026-04-30
+
+### Added
+
+- Generic reference-locked reconstruction stack: `reference-to-3d`, `reference-analysis-validator`, `contour-to-mesh`, `orthographic-registration`, `multiview-fit-loop`, and `fit-repair-optimizer`.
+- `blender-skill-harmonizer` for multi-skill precedence, handoff contracts, source-conflict gates, and sequential/parallel repair planning.
+- UV/texture expansion with `blender-uv-texturing` and `atlas-uv-fitting`.
+- `reference-look-calibration` for measurable source-image look matching after geometry and UV gates pass.
+- Generic `mascot-logo-reconstruction` orchestrator for brand mascots/logos from wireframes, texture packs, and orthographic views.
+
+### Changed
+
+- Manifest version bumped to `1.2.9`.
+- Existing generic Blender production skills now hand off to the reference-locked stack when source templates, texture packs, or validation failures are present.
+- Sanitized task-specific examples so counts, accent hues, guide colors, and structural/decorative classification are manifest-driven.
+
 ## [1.2.4] — 2026-04-28
 
 ### PNG → WebP conversion (99% size reduction) + README polish
@@ -63,6 +79,7 @@ Used `gh` CLI to set up the repo's discoverability and legal context:
 - **Formal GitHub Releases** created for v1.0.0, v1.1.0, v1.2.0, v1.2.1 — each with curated release notes, not just auto-generated tag pages
 
 This is housekeeping, not feature work — making the repo properly discoverable and legally clear. Users finding the repo via GitHub topics can now see what it does at a glance, and the formal releases give them clean version-by-version notes instead of having to read commit logs.
+
 
 ## [1.2.1] — 2026-04-28
 

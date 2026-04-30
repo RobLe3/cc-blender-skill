@@ -9,6 +9,10 @@ allowed-tools: Read Bash mcp__blender__execute_blender_code mcp__blender__get_sc
 
 End-to-end guidance for putting a real scene together. This skill answers "in what order, with what fidelity at each step, should I tackle this?" Use it as the planner, then chain-load the specific sub-skills for each step.
 
+## Reference-locked override
+
+If a task involves source templates, orthographic references, brand mascots, or fit validation, defer ordering to `blender-skill-harmonizer` and the reference-locked skills. The generic production order is subordinate to source-of-truth gates.
+
 ## The 11-step canonical order
 
 ```
