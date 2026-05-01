@@ -18,11 +18,12 @@ Use a **Merge → Consistency → Optimize → Store** cycle:
 
 ## Skill category map
 
-- **Top-level orchestrators:** `text-to-blender`, `mascot-logo-reconstruction`.
+- **Top-level orchestrators:** `text-to-blender`, `quality-refinement-autoloop`, `mascot-logo-reconstruction`.
 - **General production:** `blender-pro-workflow`, `blender-modeling`, `blender-materials`, `blender-lighting`, `blender-cameras`, `blender-rendering`, `blender-animation`, `blender-export`.
-- **Reference reconstruction:** `reference-to-3d`, `wireframe-to-3d`, `reference-analysis-validator`, `orthographic-registration`, `contour-to-mesh`, `multiview-fit-loop`, `fit-repair-optimizer`.
-- **Texture/UV:** `blender-uv-texturing`, `atlas-uv-fitting`.
+- **Reference reconstruction:** `reference-to-3d`, `wireframe-to-3d`, `reference-analysis-validator`, `source-part-segmentation`, `orthographic-registration`, `multiview-constraint-solver`, `contour-to-mesh`, `texture-driven-mesh-fitting`, `landmark-fit-repair`, `multiview-fit-loop`, `fit-repair-optimizer`.
+- **Texture/UV:** `blender-uv-texturing`, `atlas-uv-fitting`, `closed-surface-uv-coverage`.
 - **Look calibration:** `reference-look-calibration`.
+- **Animation/motion design:** `texture-state-animation`, `orbital-hud-motion`, `animation-quality-gate`, coordinated by `blender-animation`.
 - **Task-specific/full workflow:** `mascot-logo-reconstruction`.
 
 ## Activation precedence
@@ -30,15 +31,21 @@ Use a **Merge → Consistency → Optimize → Store** cycle:
 For a task involving references/templates/textures:
 
 1. `blender-skill-harmonizer` — choose the pipeline and conflict policy.
+1a. `quality-refinement-autoloop` — if output is rejected/subpar, freeze product work, diagnose, sanitize/patch generic skill knowledge, validate, then retry.
 2. `reference-analysis-validator` — source manifest and source-of-truth classification.
 3. `orthographic-registration` — view consistency and coordinate contract.
-4. `fit-repair-optimizer` — dependency repair queue if validation fails.
-5. `contour-to-mesh` / `wireframe-to-3d` / `blender-modeling` — geometry, selected by source type.
-6. `atlas-uv-fitting` / `blender-uv-texturing` — UV and texture fit.
-7. `multiview-fit-loop` — render/compare/adjust loop.
-8. `reference-look-calibration` + `blender-materials` / `blender-lighting` / `blender-rendering` — look only after geometry/UV gates.
-9. `blender-export` — only after validation gates.
-10. `blender-animation` — only after static fit acceptance.
+4. `multiview-constraint-solver` — rigid feasibility and canonical view policy.
+5. `fit-repair-optimizer` — dependency repair queue if validation fails.
+6. `source-part-segmentation` — split overlapping structural/decorative masks.
+7. `contour-to-mesh` / `wireframe-to-3d` / `blender-modeling` — geometry, selected by source type.
+8. `texture-driven-mesh-fitting` + `landmark-fit-repair` — fit mesh boundaries and named landmarks to source/texture.
+9. `atlas-uv-fitting` / `blender-uv-texturing` / `closed-surface-uv-coverage` — UV, texture fit, and full front/back/side surface coverage.
+10. `multiview-fit-loop` — render/compare/adjust loop.
+11. `reference-look-calibration` + `blender-materials` / `blender-lighting` / `blender-rendering` — look only after geometry/UV gates.
+12. `blender-export` — only after validation gates.
+13. `blender-animation` — only after static fit acceptance.
+14. `texture-state-animation` / `orbital-hud-motion` — design texture/HUD motion as layered, source-derived animation.
+15. `animation-quality-gate` — render contact sheet and reject bad motion before final export.
 
 Generic `blender-pro-workflow` is subordinate to the reference-locked order whenever the source is a template/brand asset.
 
@@ -67,7 +74,7 @@ Every non-trivial multi-skill pipeline should keep these files in the output fol
 
 Sequential gates:
 
-1. source conflict
+1. source conflict / multiview rigidity
 2. structural part count
 3. front geometry
 4. multiview geometry
@@ -89,3 +96,16 @@ Parallel lanes allowed after their blockers clear:
 ## Script
 
 - `scripts/skill_graph_audit.py` audits the local manifest, roles, missing paths, and overlap warnings.
+
+
+## Animation handoff rule
+
+For reference-locked mascots/logos, animation is not a generic spin/pulse task. Use `texture-state-animation` for material/texture state changes, `orbital-hud-motion` for circles/HUD/aura, and `animation-quality-gate` before accepting or exporting. If an animation is rejected as ugly, run a RALPH loop before rebuilding.
+
+## Closed-surface coverage handoff rule
+
+For closed or extruded reference-locked assets, front texture fit is not enough. Before look-dev or animation acceptance, run `closed-surface-uv-coverage` to verify that front cap, back cap, and sidewall surfaces each have explicit UV/generated/procedural coverage. Curves, planes, HUD, and aura elements are accents only and do not count as surface texture fill.
+
+## Quality-refinement autoloop handoff rule
+
+When a user rejects output quality, or repeated failures show missing skill depth, do not continue blind retries. Invoke `quality-refinement-autoloop`: preserve the baseline, capture evidence, classify failure dimension, decide whether existing skills are sufficient, sanitize any new lesson into generic skill guidance, validate the skill stack, then repair the artifact. Publication prep is only done on explicit user request.

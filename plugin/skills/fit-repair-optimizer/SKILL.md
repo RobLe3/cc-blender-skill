@@ -31,7 +31,7 @@ Do not parallelize two tasks that both edit the same Blender recipe, object tran
 ## Mandatory repair order
 
 ```
-0 source-conflict gate
+0 source-conflict / multiview-rigidity gate
 1 structural part count
 2 front silhouette and landmarks
 3 side/back/top depth and projection
@@ -44,7 +44,7 @@ If an earlier stage fails, later stages may be analyzed but must not be finalize
 
 ## Source-conflict gate
 
-Before repair, check whether templates are mutually satisfiable. If the same physical axis receives incompatible ratios across views, write a conflict report and require a canonical policy:
+Before repair, use `multiview-constraint-solver` to check whether templates are mutually satisfiable. If the same physical axis receives incompatible ratios across views, write a conflict report and require a canonical policy:
 
 - front+side canonical;
 - front+top canonical;
@@ -68,7 +68,7 @@ Each repair item must include:
 
 ## Skill-gap rule
 
-If the same failure recurs twice, stop and improve the relevant skill before another rebuild:
+If the same failure recurs twice, stop and invoke `quality-refinement-autoloop` before another rebuild. The autoloop must capture evidence, diagnose the missing method, sanitize the lesson into generic publishable guidance, patch the relevant skill(s), validate the skill stack, then return here with a new repair queue. Common routing:
 
 - geometry mismatch → `contour-to-mesh`, `orthographic-registration`, or this skill;
 - UV/texture mismatch → `atlas-uv-fitting`;

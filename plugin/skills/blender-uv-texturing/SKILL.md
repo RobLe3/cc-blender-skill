@@ -128,6 +128,10 @@ img.file_format = 'PNG'
 img.save()
 ```
 
+## Closed/extruded surface coverage gate
+
+For closed or extruded assets, do not stop at front projection. Use `closed-surface-uv-coverage` to verify front cap, back cap, and sidewall material/UV/generated coverage separately. Back/side curve overlays are accents, not texture fill.
+
 ## Validation checklist
 
 - [ ] UV layer exists and is active.

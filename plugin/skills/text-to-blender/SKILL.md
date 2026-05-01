@@ -1,6 +1,6 @@
 ---
 name: text-to-blender
-description: Drive Blender from natural language. Converts plain-English requests ("model a sword and render it with cinematic lighting", "make this glass look frosted", "set up three-point lighting", "export this scene as glTF for the web") into Blender Python code executed via the Blender MCP server. Acts as the orchestrator that picks and chain-loads specialised sub-skills (blender-modeling, blender-materials, blender-lighting, blender-cameras, blender-rendering, blender-animation, blender-export, wireframe-to-3d, blender-pro-workflow). Use this skill whenever the user wants Claude to do anything in Blender, including creating geometry, applying materials, lighting a scene, framing a camera, rendering, animating, or exporting. Make sure to invoke this skill even if the user does not say "Blender" — also covers requests like "create a 3D model of...", "render this...", "make a glTF from...", "set up a scene with...", or any 3D-creation task. Requires the Blender MCP addon (ahujasid/blender-mcp) running on port 9876.
+description: Drive Blender from natural language. Converts plain-English requests ("model a sword and render it with cinematic lighting", "make this glass look frosted", "set up three-point lighting", "export this scene as glTF for the web") into Blender Python code executed via the Blender MCP server. Acts as the orchestrator that picks and chain-loads specialised sub-skills (blender-modeling, blender-materials, blender-lighting, blender-cameras, blender-rendering, blender-animation, blender-export, wireframe-to-3d, blender-pro-workflow, blender-skill-harmonizer, quality-refinement-autoloop). Use this skill whenever the user wants Claude to do anything in Blender, including creating geometry, applying materials, lighting a scene, framing a camera, rendering, animating, or exporting. Make sure to invoke this skill even if the user does not say "Blender" — also covers requests like "create a 3D model of...", "render this...", "make a glTF from...", "set up a scene with...", or any 3D-creation task. Requires the Blender MCP addon (ahujasid/blender-mcp) running on port 9876.
 when_to_use: User asks for any 3D creation, modification, lighting, rendering, animation, or export task. Anything involving Blender or that should reasonably be done in Blender.
 allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info mcp__blender__get_viewport_screenshot
 ---
@@ -12,6 +12,8 @@ Turn plain-English requests into Blender work. You are the conductor: read the r
 ## Multi-skill harmonization
 
 For complex tasks that trigger multiple Blender skills, especially reference/template/brand work, load `blender-skill-harmonizer` before choosing the execution order. It owns precedence, handoff artifacts, and conflict policy.
+
+If the user rejects an output as sub-par, says the same issue is recurring, or asks to improve the skill stack before retrying, load `quality-refinement-autoloop` before further product work. It turns evidence into a sanitized reusable lesson, patches generic skills/docs/versioning when explicitly requested, and only then resumes the Blender repair loop.
 
 ## How this skill works
 
@@ -124,6 +126,8 @@ For each intent the user expresses, load (via `Read`) the matching sub-skill's `
 | "Export as glTF / FBX / OBJ / for web / for Unity" | `blender-export` | Final step |
 | "Set up a scene / production-quality result" | `blender-pro-workflow` | First — guides everything |
 | "I'm new / not sure where to start" | `blender-pro-workflow` | First |
+| "This is sub-par / still wrong / same issue again" | `quality-refinement-autoloop`, then `blender-skill-harmonizer` | First — learn, sanitize, patch, then retry |
+| "Match these templates / wireframes / textures exactly" | `blender-skill-harmonizer`, then reference-specific fit skills | First — establish source-of-truth gates |
 
 **Multi-intent example**: "Model a sword with materials, light it dramatically, and export as glTF" →
 1. `blender-pro-workflow` (sequencing strategy)

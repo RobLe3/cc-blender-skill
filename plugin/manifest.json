@@ -1,6 +1,6 @@
 {
   "name": "cc-blender-skill",
-  "version": "1.2.9",
+  "version": "1.3.0",
   "description": "Comprehensive Blender skill plugin for Claude Code with harmonized multi-skill orchestration, reference-locked reconstruction, multiview validation, repair optimization, UV/texturing, look-dev, animation, and export workflows.",
   "author": "RobLe3 (with Claude)",
   "license": "MIT",
@@ -22,6 +22,12 @@
       "role": "orchestrator",
       "description": "Meta-orchestrator that harmonizes Blender skills, resolves precedence/contract conflicts, and defines sequential/parallel handoffs.",
       "path": "skills/blender-skill-harmonizer/SKILL.md"
+    },
+    {
+      "name": "quality-refinement-autoloop",
+      "role": "orchestrator",
+      "description": "Self-refinement loop for subpar Blender outputs: diagnose failure, acquire/refine generic skills, sanitize lessons, validate, update docs/versioning, and prepare release commit/push when requested.",
+      "path": "skills/quality-refinement-autoloop/SKILL.md"
     },
     {
       "name": "blender-pro-workflow",
@@ -108,10 +114,22 @@
       "path": "skills/orthographic-registration/SKILL.md"
     },
     {
+      "name": "multiview-constraint-solver",
+      "role": "specialty",
+      "description": "Checks whether orthographic references can be satisfied by one rigid 3D model and emits canonical source policy when views conflict.",
+      "path": "skills/multiview-constraint-solver/SKILL.md"
+    },
+    {
       "name": "atlas-uv-fitting",
       "role": "specialty",
       "description": "Detect atlas/decal regions and map each structural part to correct UV rectangles/projections.",
       "path": "skills/atlas-uv-fitting/SKILL.md"
+    },
+    {
+      "name": "closed-surface-uv-coverage",
+      "role": "specialty",
+      "description": "Audit and enforce full visible-surface texture coverage for closed/extruded assets, including back caps and sidewalls, before look-dev or animation acceptance.",
+      "path": "skills/closed-surface-uv-coverage/SKILL.md"
     },
     {
       "name": "mascot-logo-reconstruction",
@@ -136,6 +154,42 @@
       "role": "specialty",
       "description": "Reference-image look calibration for lighting/material/render/aura matching using color and mask metrics.",
       "path": "skills/reference-look-calibration/SKILL.md"
+    },
+    {
+      "name": "source-part-segmentation",
+      "role": "specialty",
+      "description": "Segment overlapping source/template/atlas parts into per-structural-component masks before contour mesh generation.",
+      "path": "skills/source-part-segmentation/SKILL.md"
+    },
+    {
+      "name": "texture-driven-mesh-fitting",
+      "role": "specialty",
+      "description": "Reshape mesh boundaries to fit texture-atlas/source contours 1:1 instead of stretching textures onto approximate geometry.",
+      "path": "skills/texture-driven-mesh-fitting/SKILL.md"
+    },
+    {
+      "name": "landmark-fit-repair",
+      "role": "specialty",
+      "description": "Validate and repair named feature landmarks such as tips, shell corners, face features, aura rings, and depth markers.",
+      "path": "skills/landmark-fit-repair/SKILL.md"
+    },
+    {
+      "name": "texture-state-animation",
+      "role": "specialty",
+      "description": "Layered, registered, export-aware texture/material state animation without ugly full-image crossfades.",
+      "path": "skills/texture-state-animation/SKILL.md"
+    },
+    {
+      "name": "orbital-hud-motion",
+      "role": "specialty",
+      "description": "Source-derived circular/HUD/orbital motion design for halos, rings, dots, dashes, and aura elements.",
+      "path": "skills/orbital-hud-motion/SKILL.md"
+    },
+    {
+      "name": "animation-quality-gate",
+      "role": "specialty",
+      "description": "Contact-sheet and motion QA gate for validating texture morphs, HUD animation, silhouette stability, and export truth.",
+      "path": "skills/animation-quality-gate/SKILL.md"
     }
   ],
   "complementary": [

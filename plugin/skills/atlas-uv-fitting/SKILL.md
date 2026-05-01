@@ -37,3 +37,22 @@ Do not blindly wire emissive/roughness/bump/lightmap images into every atlas-map
 - Blender baking needs UV maps and active image targets.
 - Blender glTF exporter is most reliable with Principled BSDF, UVs, textures, normals.
 - Khronos glTF PBR: base color, metallic/roughness, normal maps are standard channels.
+
+
+## Semantic atlas mapping
+
+Region detection is only a candidate list. For source-locked work, create an `atlas_part_map.json` that binds each structural part name to exactly one atlas region or declares `procedural/no_texture`.
+
+Mapping order:
+
+1. Detect candidate regions from basecolor/decal/lightmap.
+2. Reject decorative/aura/composite-preview regions unless the target is context/aura.
+3. Match structural parts by role, aspect ratio, and relative size.
+4. Manually rename ambiguous regions before automated UV assignment.
+5. Verify supplemental maps share the same region layout before connecting roughness/bump/emission/lightmap.
+
+Do not map a full rosette/composite atlas region onto individual petals unless the mesh is a single rosette sheet. Individual meshes need individual source regions.
+
+## Additional script
+
+- `scripts/atlas_region_mapper.py` proposes part→atlas-region mappings using aspect/size similarity. Treat output as a draft; semantic names still win.

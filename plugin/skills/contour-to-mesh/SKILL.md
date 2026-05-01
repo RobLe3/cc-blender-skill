@@ -41,3 +41,42 @@ In this Blender coordinate convention, the front camera looks along the Y axis a
 - Blender BMesh: use for cleanup, triangulation, normals, smoothing.
 - OpenCV contours: detect and simplify boundaries.
 - Delaunay triangulation: useful for filled interior meshes when filtered by mask containment.
+
+
+## Part-inventory handoff
+
+When masks come from `source-part-segmentation`, preserve the `part_inventory.json` names in Blender:
+`GEO_<part_name>`, `MAT_<part_name>`, and UV layer names. Mesh generation must record:
+
+- source image size;
+- source mask path;
+- contour boundary point count;
+- boundary landmark points (tip, base-left, base-right, centroid/extrema) when detectable;
+- atlas UV rectangle or projection mode.
+
+For exact mascot/logo work, generate boundary vertices from the contour and add interior vertices only for surface support.
+The boundary is a contract: bevels, solidify, subdivision, shrinkwrap, or sculpt passes must not move front-view X/Z boundary vertices unless a new source mask is produced.
+
+## Hole and stroke policy
+
+- Filled structural masks become meshes.
+- Wireframe strokes guide boundaries/landmarks; they are not structural meshes unless the manifest classifies them as decorative linework.
+- Holes/negative regions should be kept as separate cut masks when they affect silhouette; otherwise implement them as decals/material masks.
+
+
+## Source-locked front-skin fallback
+
+When a design sheet is painterly/stylized and separate orthographic views are not CAD-consistent, use a **front-skin** pass before sculptural interpretation:
+
+1. choose the canonical front/master source;
+2. extract the visible subject mask as a filled contour;
+3. create a shallow 2.5D mesh whose X/Z boundary is that contour;
+4. assign full-image front-projected UVs so the rendered front matches the source pixels;
+5. add depth only along Y and behind the front surface;
+6. optionally add separate relief/backing parts for side plausibility, but keep the front skin as the visual acceptance gate.
+
+This is a generic fallback for logos/mascots where a faithful front read is more important than speculative volume. Mark it as `front_locked_visual_skin`, not as a fully solved turntable model.
+
+## Script
+
+- `scripts/source_locked_skin_recipe.py` extracts a largest/canonical foreground component and emits a mask + contour mesh recipe using full-image front-projected UV coordinates.

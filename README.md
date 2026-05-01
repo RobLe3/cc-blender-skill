@@ -2,7 +2,7 @@
 
 A Claude Code skill plugin that lets Claude use Blender like a senior 3D artist via natural language.
 
-**Version**: **1.2.9** ([CHANGELOG](./CHANGELOG.md)) · adds generic reference-locked reconstruction, UV/atlas fitting, multiview validation, fit-repair orchestration, and reference-look calibration on top of the stable Blender 5.x workflow. The core has been validated end-to-end on Blender 5.1.1 across **6 scene classes** (sword, bottle, chair, aviator, desk lamp, broadcaster avatar) plus wireframe-to-3d closure. Validation proof renders are committed in [`plugin/skills/text-to-blender/assets/`](./plugin/skills/text-to-blender/assets/) (failure-state renders included for honesty — no cherry-picking).
+**Version**: **1.3.0** ([CHANGELOG](./CHANGELOG.md)) · adds a generic quality-refinement autoloop, closed-surface texture coverage gates, layered texture/HUD animation QA, and source-locked reconstruction workflows on top of the stable Blender 5.x workflow. The core has been validated end-to-end on Blender 5.1.1 across **6 scene classes** (sword, bottle, chair, aviator, desk lamp, broadcaster avatar) plus wireframe-to-3d closure. Validation proof renders are committed in [`plugin/skills/text-to-blender/assets/`](./plugin/skills/text-to-blender/assets/) (failure-state renders included for honesty — no cherry-picking).
 
 **Quick links**: [Install](#quick-install) · [What works (honestly)](#what-works-honestly) · [What doesn't](#what-doesnt-work-yet-honestly) · [Architecture](#architecture-in-one-paragraph) · [Contributing](.github/CONTRIBUTING.md) · [Releases](https://github.com/RobLe3/cc-blender-skill/releases)
 
@@ -10,7 +10,7 @@ A Claude Code skill plugin that lets Claude use Blender like a senior 3D artist 
 
 ## What this is
 
-Twenty-one chain-loadable Claude Code skills that turn requests like *"model a sword and render a hero shot with three-point lighting"* into Blender Python executed via the [Blender MCP](https://github.com/ahujasid/blender-mcp).
+Thirty chain-loadable Claude Code skills that turn requests like *"model a sword and render a hero shot with three-point lighting"* into Blender Python executed via the [Blender MCP](https://github.com/ahujasid/blender-mcp).
 
 ```
 User prompt
@@ -25,6 +25,26 @@ Generated Python → mcp__blender__execute_blender_code → Blender → output
 ```
 
 The plugin is the actual installable thing. It lives at [`plugin/`](./plugin/). Knowledge research that produced it lives at [`knowledge/`](./knowledge/) and [`docs/`](./docs/).
+
+---
+
+
+## What's new in v1.3.0
+
+This release adds a generic self-refinement layer for cases where output quality is below expectation. Instead of blindly retrying, the stack now freezes the artifact, diagnoses the failure dimension, decides whether existing skills are sufficient, sanitizes the lesson into publishable generic guidance, validates the skill graph, and only then repairs the product.
+
+### Added
+
+- `quality-refinement-autoloop` — a RALPH-style loop for subpar outputs, repeated failures, skill-gap diagnosis, sanitization, docs/version prep, and release handoff.
+- `closed-surface-uv-coverage` — a hard gate for closed/extruded assets so front caps, back caps, and sidewalls each have real surface coverage rather than overlay-only detail.
+- Animation/look motion skills: `texture-state-animation`, `orbital-hud-motion`, and `animation-quality-gate` for registered texture states, source-derived HUD motion, and contact-sheet QA.
+- Additional source-driven repair skills: `source-part-segmentation`, `texture-driven-mesh-fitting`, `landmark-fit-repair`, and `multiview-constraint-solver`.
+
+### Changed
+
+- `blender-skill-harmonizer` now routes rejected/subpar outputs through the quality-refinement autoloop before further artifact work.
+- UV/texturing guidance now includes closed-surface front/back/side coverage validation.
+- README/plugin docs now describe the expanded 30-skill stack and the publishable self-refinement workflow.
 
 ---
 
@@ -89,7 +109,7 @@ Prerequisites: Blender ≥ 4.0 with [BlenderMCP addon](https://github.com/ahujas
 git clone git@github.com:RobLe3/cc-blender-skill.git
 cd cc-blender-skill
 
-# Symlink all 21 skills into ~/.claude/skills/
+# Symlink all 30 skills into ~/.claude/skills/
 for skill in plugin/skills/*/; do
     name=$(basename "$skill")
     ln -sfn "$(pwd)/$skill" "$HOME/.claude/skills/$name"
@@ -131,6 +151,7 @@ cc-blender-skill/
 │   └── skills/
 │       ├── text-to-blender/          # orchestrator
 │       ├── blender-skill-harmonizer/ # multi-skill precedence + handoff contracts
+│       ├── quality-refinement-autoloop/ # RALPH-style quality loop + release prep
 │       ├── blender-pro-workflow/     # multi-phase guidance
 │       ├── blender-modeling/         # geometry creation
 │       ├── blender-materials/        # PBR via Principled BSDF
@@ -146,10 +167,17 @@ cc-blender-skill/
 │       ├── orthographic-registration/ # front/side/back/top coordinate contract
 │       ├── blender-uv-texturing/     # UV, projection, baking, lightmaps
 │       ├── atlas-uv-fitting/         # per-part atlas/decal mapping
+│       ├── closed-surface-uv-coverage/ # front/back/side surface coverage audits
 │       ├── mascot-logo-reconstruction/ # generic brand mascot/logo workflow
 │       ├── multiview-fit-loop/       # render/compare/adjust validation loop
 │       ├── fit-repair-optimizer/     # dependency-aware repair queues
-│       └── reference-look-calibration/ # source-image look matching
+│       ├── reference-look-calibration/ # source-image look matching
+│       ├── source-part-segmentation/ # per-part source masks
+│       ├── texture-driven-mesh-fitting/ # mesh boundaries fit texture/source contours
+│       ├── landmark-fit-repair/      # named feature repair gates
+│       ├── texture-state-animation/  # layered registered texture motion
+│       ├── orbital-hud-motion/       # source-derived HUD/circle motion
+│       └── animation-quality-gate/   # contact-sheet animation QA
 │
 ├── knowledge/                        # raw research aggregation (16 domains)
 │   ├── README.md

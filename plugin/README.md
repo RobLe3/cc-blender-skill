@@ -2,13 +2,13 @@
 
 A Claude Code skill plugin that lets Claude use Blender like a senior 3D artist via natural language.
 
-**Version**: 1.2.9 (generic reference-locked reconstruction, UV/atlas fitting, validation, repair optimization, and look calibration added — see [VERSIONING.md](../VERSIONING.md))
+**Version**: 1.3.0 (quality-refinement autoloop, closed-surface coverage, animation QA, source-locked reconstruction, UV/atlas fitting, validation, repair optimization, and look calibration — see [VERSIONING.md](../VERSIONING.md))
 
 ---
 
 ## What's in this plugin
 
-21 chain-loadable skills:
+30 chain-loadable skills:
 
 | Skill | Role | What it does |
 |-------|------|--------------|
@@ -23,6 +23,7 @@ A Claude Code skill plugin that lets Claude use Blender like a senior 3D artist 
 | `blender-export` | Domain | glTF/FBX/OBJ/USD/STL with target settings |
 | `wireframe-to-3d` | Specialty | Convert 2D wireframe images to parametric 3D models |
 | `blender-skill-harmonizer` | Orchestrator | Resolve multi-skill precedence, handoff contracts, and source-of-truth conflicts |
+| `quality-refinement-autoloop` | Orchestrator | RALPH-style failure loop: diagnose, sanitize, patch skills, validate, and prep release |
 | `reference-to-3d` | Specialty | Source/template/texture-locked reconstruction workflow |
 | `reference-analysis-validator` | Specialty | Source manifests, masks, overlays, IoU/SSIM/bbox/centroid gates |
 | `contour-to-mesh` | Specialty | Build mesh surfaces directly from extracted contours/masks |
@@ -33,6 +34,14 @@ A Claude Code skill plugin that lets Claude use Blender like a senior 3D artist 
 | `multiview-fit-loop` | Specialty | Render/compare/adjust/re-render validation across orthographic templates |
 | `fit-repair-optimizer` | Specialty | Convert failed validation reports into dependency-aware repair queues |
 | `reference-look-calibration` | Specialty | Match material/light/render/glow look to source images with measurable metrics |
+| `multiview-constraint-solver` | Specialty | Resolve front/side/back/top feasibility and canonical view policy |
+| `closed-surface-uv-coverage` | Specialty | Audit and enforce front/back/side surface texture coverage on closed assets |
+| `source-part-segmentation` | Specialty | Segment overlapping source/template/atlas parts into structural masks |
+| `texture-driven-mesh-fitting` | Specialty | Fit mesh boundaries to source/texture contours before UV/material work |
+| `landmark-fit-repair` | Specialty | Validate and repair named tips, corners, face features, and depth markers |
+| `texture-state-animation` | Specialty | Registered layered texture/material state animation without bad whole-image crossfades |
+| `orbital-hud-motion` | Specialty | Source-derived circular/HUD/aura motion design |
+| `animation-quality-gate` | Specialty | Contact-sheet QA for motion, morph, texture coherence, and export truth |
 
 ---
 
@@ -80,7 +89,7 @@ In Claude Code, type:
 What skills are available?
 ```
 
-You should see the 21 skills listed. If not:
+You should see the 30 skills listed. If not:
 - Restart Claude Code (top-level skills directories are watched on startup; new directories require a restart)
 - Check `ls ~/.claude/skills/` to confirm the symlinks are present
 - Check Blender is running with the MCP addon enabled
@@ -159,7 +168,7 @@ This plugin coexists peacefully with:
 
 ## Status & honest version
 
-**1.2.9** — stable core plus generic reference-locked reconstruction workflows. The skill structure follows the skills spec, the architecture is verified against Blender MCP usage, and the new source-driven stack avoids hardcoded project assumptions by deriving counts, masks, hues, and validation gates from manifests/reports.
+**1.3.0** — stable core plus generic quality-refinement autoloop, closed-surface coverage, animation QA, and reference-locked reconstruction workflows. The skill structure follows the skills spec, the architecture is verified against Blender MCP usage, and the new source-driven stack avoids hardcoded project assumptions by deriving counts, masks, hues, and validation gates from manifests/reports.
 
 What's NOT done yet:
 - More external validation on diverse non-mascot source sheets

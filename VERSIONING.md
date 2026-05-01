@@ -1,15 +1,15 @@
 # Versioning — Honest Release History
 
-**Current version**: **1.2.9** — generic reference-locked reconstruction and skill harmonization
-**Date**: 2026-04-30
+**Current version**: **1.3.0** — quality-refinement autoloop, closed-surface coverage, animation QA, and reference-locked reconstruction
+**Date**: 2026-05-01
 
 ---
 
 ## Current release posture
 
-The original 10-skill core reached v1.0.0 after live Blender validation and patch rounds. Version 1.2.9 keeps that stable core and adds a generic, source-locked reconstruction layer for reference sheets, texture packs, orthographic views, validation loops, and look calibration.
+The original 10-skill core reached v1.0.0 after live Blender validation and patch rounds. Version 1.3.0 keeps that stable core, preserves the v1.2.9 source-locked reconstruction layer, and adds a generic quality-refinement autoloop plus explicit closed-surface coverage and animation QA gates for subpar outputs.
 
-The v1.2.9 additions are intentionally manifest-driven: source files define structural counts, guide masks, accent hues, texture regions, and validation gates. Project-specific facts belong in project docs/memory, not in reusable skill instructions.
+The v1.2.9+ additions are intentionally manifest/report-driven: source files define structural counts, guide masks, accent hues, texture regions, and validation gates. Project-specific facts belong in project docs/memory, not in reusable skill instructions.
 
 ---
 
@@ -52,6 +52,17 @@ The v1.2.9 additions are intentionally manifest-driven: source files define stru
 
 ## What changed at each version
 
+
+
+### 1.3.0 — 2026-05-01 — Quality-refinement autoloop and surface/animation QA gates
+
+- Added `quality-refinement-autoloop`, a generic RALPH-style loop for subpar outputs: freeze baseline, capture evidence, classify failure dimension, decide skill gap, sanitize lessons, patch generic skill knowledge, validate, then repair.
+- Added `closed-surface-uv-coverage`, a hard gate for closed/extruded Blender assets so front cap, back cap, and sidewall surfaces each have explicit UV/generated/procedural coverage.
+- Added animation/motion QA skills: `texture-state-animation`, `orbital-hud-motion`, and `animation-quality-gate`.
+- Added repair-support skills: `source-part-segmentation`, `texture-driven-mesh-fitting`, `landmark-fit-repair`, and `multiview-constraint-solver`.
+- Added helper scripts for autoloop planning, sanitization scanning, release readiness checks, surface coverage audits, contact sheets, texture transition plans, and orbital HUD manifests.
+- Updated harmonizer precedence so rejected/subpar results trigger skill-gap diagnosis before blind rebuilds.
+- Public skill guidance is sanitized: reusable methods and gates are kept, task-specific project details are excluded.
 
 ### 1.2.9 — 2026-04-30 — Generic reference-locked reconstruction stack
 

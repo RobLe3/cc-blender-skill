@@ -2,6 +2,28 @@
 
 All notable changes to **cc-blender-skill** since first commit. Detailed rationale per version is in [`VERSIONING.md`](./VERSIONING.md). Patch-by-patch root-cause notes are in [`docs/process/IMPLEMENTATION_LOG.md`](./docs/process/IMPLEMENTATION_LOG.md). Test results are in [`docs/test-results/`](./docs/test-results/).
 
+
+## [1.3.0] — 2026-05-01
+
+### Added
+
+- `quality-refinement-autoloop` for RALPH-style handling of subpar outputs: freeze, capture evidence, diagnose failure dimension, decide skill gap, sanitize lessons, patch generic skills, validate, and prepare release handoff when explicitly requested.
+- `closed-surface-uv-coverage` to audit and enforce real front/back/side surface coverage for closed or extruded Blender assets.
+- Animation and motion-design skills: `texture-state-animation`, `orbital-hud-motion`, and `animation-quality-gate`.
+- Additional source-driven repair skills: `source-part-segmentation`, `texture-driven-mesh-fitting`, `landmark-fit-repair`, and `multiview-constraint-solver`.
+- Helper scripts for refinement planning, skill sanitization scans, release readiness checks, surface coverage audits, texture transition planning, orbital HUD manifests, and animation contact sheets.
+
+### Changed
+
+- Manifest version bumped to `1.3.0`; plugin now ships 30 chain-loadable skills.
+- `blender-skill-harmonizer` now routes rejected/subpar output through the quality-refinement autoloop before further product work.
+- UV/texturing guidance now requires separate cap/sidewall coverage validation for closed/extruded assets.
+- Documentation updated for the expanded self-refinement, animation QA, and surface-coverage workflows.
+
+### Notes
+
+- The new workflows are sanitized and generic: project-specific names, paths, counts, and visual targets belong in project artifacts, not reusable skill instructions.
+
 ## [1.2.9] — 2026-04-30
 
 ### Added
