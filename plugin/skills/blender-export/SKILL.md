@@ -2,7 +2,7 @@
 name: blender-export
 description: Export Blender scenes to glTF/GLB (web/AR), FBX (game engines), OBJ (universal), USD (VFX pipelines), STL (3D printing). Includes per-format settings, embed/unpack textures, axis conversion, polygon optimization (Decimate), and target-platform validation. Use whenever the user asks to "export this", "save as glTF / FBX / OBJ / STL / USD", "package for Unity / Unreal / Three.js / web / AR / 3D print", or any output format conversion. Make sure to use this skill even if the user does not say "export" — also covers "package this for the web", "make it work in Unity", "send to Unreal", "save for 3D printing".
 when_to_use: Any export to a non-.blend format, packaging for game engines, web, AR, or 3D printing.
-allowed-tools: Read Bash mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info
+allowed-tools: Read Bash mcp__blender__execute_blender_code mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs
 ---
 
 # Blender Export

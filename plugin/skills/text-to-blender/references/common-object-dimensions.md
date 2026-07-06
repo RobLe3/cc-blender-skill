@@ -52,9 +52,9 @@ The hard limit: a real human face requires **subtractive sculpting** (eye socket
 **Three realistic paths past this limit, all out of pure-recipe scope**:
 
 1. **Import an existing human base mesh** via the Blender MCP's other tools:
-   - `mcp__blender__download_polyhaven_asset` — Poly Haven has CC0 character assets
-   - `mcp__blender__download_sketchfab_model` — Sketchfab CC-BY models
-   - `mcp__blender__generate_hyper3d_model_via_text` — text-to-3D AI generation
+   - Download CC0 assets from Poly Haven (polyhaven.com) manually, then import (`bpy.ops.wm.obj_import`, glTF import) — the official MCP has no download tools
+   - Sketchfab CC-BY models — download manually, import as glTF/FBX
+   - Text-to-3D services (Hyper3D/Rodin, Meshy…) — generate on the web, import the resulting GLB
    These produce a real human mesh foundation that the orchestrator can then materially / lighting / pose via existing skills.
 
 2. **Sculpt mode** — gestural, not driven well from natural-language. The skill can prepare a base mesh and recommend the user sculpts manually.

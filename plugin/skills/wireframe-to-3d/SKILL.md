@@ -1,8 +1,8 @@
 ---
 name: wireframe-to-3d
-description: Convert 2D orthographic wireframe PNG drawings to 3D Blender models exported as glTF/GLB. Use this skill whenever the user provides wireframe images (technical drawings, line drawings, orthographic views, side/front/back panels) and wants to generate a 3D model, mesh, or .glb file. Triggers on phrases like "convert this wireframe to 3D", "make a 3D model from these drawings", "build a model from this wireframe", "generate GLB from these views", or any image-to-3D-mesh request involving line drawings. Make sure to use this skill even if the user does not explicitly say "wireframe" — also covers "orthographic views", "technical drawings", "line drawings of objects", "front and side views". Requires the Blender MCP addon to be running (port 9876) and Python with opencv-python, numpy, scipy installed.
+description: Convert 2D orthographic wireframe PNG drawings to 3D Blender models exported as glTF/GLB. Use this skill whenever the user provides wireframe images (technical drawings, line drawings, orthographic views, side/front/back panels) and wants to generate a 3D model, mesh, or .glb file. Triggers on phrases like "convert this wireframe to 3D", "make a 3D model from these drawings", "build a model from this wireframe", "generate GLB from these views", or any image-to-3D-mesh request involving line drawings. Make sure to use this skill even if the user does not explicitly say "wireframe" — also covers "orthographic views", "technical drawings", "line drawings of objects", "front and side views". Requires the official Blender MCP add-on to be enabled in Blender and Python with opencv-python, numpy, scipy installed.
 when_to_use: User provides one or more PNG wireframe images and wants a 3D model. Also use when user asks to model an object from front/side/back drawings, or to convert technical line art to glTF/GLB.
-allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info mcp__blender__get_viewport_screenshot
+allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__get_screenshot_of_area_as_image mcp__blender__render_viewport_to_path mcp__blender__search_api_docs
 ---
 
 # Wireframe-to-3D Conversion
@@ -23,8 +23,8 @@ You (Claude) are the orchestrator. The `scripts/` directory contains the only st
 
 Before any wireframe work, verify the environment:
 
-1. **Blender MCP is reachable**. Call `mcp__blender__get_scene_info`. If it errors with "Could not connect to Blender", stop and tell the user:
-   > "Blender's MCP addon isn't running. Start Blender, enable the BlenderMCP addon (port 9876), then re-run."
+1. **Blender MCP is reachable**. Call `mcp__blender__get_objects_summary`. If it errors with "Could not connect to Blender", stop and tell the user:
+   > "Blender's MCP addon isn't running. Start Blender, enable the official Blender MCP add-on (Preferences → Add-ons → MCP), then re-run."
 
 2. **Python deps for the analyzer**. Run:
    ```
@@ -210,9 +210,9 @@ If `size_mb > 15`: apply Decimate and re-export (see error recovery).
 
 After the full pipeline, validate before declaring success:
 
-1. `mcp__blender__get_scene_info` — confirm expected objects exist.
-2. For paired parts (left/right lens), call `mcp__blender__get_object_info` on each and compare bounding box widths. Tolerance: 1 mm.
-3. Triangle count: get via `get_object_info`. If a part exceeds budget, plan Decimate.
+1. `mcp__blender__get_objects_summary` — confirm expected objects exist.
+2. For paired parts (left/right lens), call `mcp__blender__get_object_detail_summary` on each and compare bounding box widths. Tolerance: 1 mm.
+3. Triangle count: get via `get_object_detail_summary`. If a part exceeds budget, plan Decimate.
 4. File size: must be ≤ 15 MB hard cap, ideally ≤ 8 MB.
 
 ## Error recovery

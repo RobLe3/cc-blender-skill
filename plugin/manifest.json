@@ -8,7 +8,7 @@
   "requires": {
     "claude-code": ">=1.0.0",
     "blender": ">=4.0",
-    "blender-mcp": "ahujasid/blender-mcp >=1.5.0"
+    "blender-mcp": "official Blender MCP add-on (Blender extensions platform, lab_blender_org/mcp)"
   },
   "skills": [
     {

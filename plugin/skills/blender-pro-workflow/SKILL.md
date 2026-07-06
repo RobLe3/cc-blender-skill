@@ -2,7 +2,7 @@
 name: blender-pro-workflow
 description: End-to-end production workflow guidance for Blender — the order to assemble scenes (block-out → camera → light → forms → materials → detail → render → composite → export), critique protocols, time budgets, and recovery patterns. Use whenever the user asks to "make a complete scene / hero shot / production-quality render", "what's the right order to do this", "set up a full pipeline", or has a multi-step request crossing modeling + lighting + materials + rendering. Make sure to use this skill for any request that spans multiple phases of 3D work, even if the user does not say "workflow" — also covers "make a final image of X", "produce a hero render", "professional-looking result".
 when_to_use: Multi-phase Blender work spanning modeling + lighting + materials + render. Or when the user is unsure where to start. Often loaded BEFORE other sub-skills as a guide for sequencing.
-allowed-tools: Read Bash mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info
+allowed-tools: Read Bash mcp__blender__execute_blender_code mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs
 ---
 
 # Blender Pro Workflow

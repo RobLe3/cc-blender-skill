@@ -2,7 +2,7 @@
 name: blender-rendering
 description: Render Blender scenes with the right engine and settings — Cycles for photoreal, EEVEE for speed/stylized, sample counts, denoising (OptiX/OIDN), light path tuning, color management (AgX/Filmic), file output (PNG/EXR/MP4), animation rendering. Use whenever the user asks to "render this", "produce an image", "render a frame / animation", "make a final image", "save the render", or any output-generation request. Make sure to use this skill even if the user does not say "render" — also covers "make a picture", "save the result", "produce a final image", "export as image".
 when_to_use: Any image or animation render output request in Blender.
-allowed-tools: Read Bash mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info
+allowed-tools: Read Bash mcp__blender__execute_blender_code mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs
 ---
 
 # Blender Rendering

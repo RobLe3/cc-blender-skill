@@ -2,7 +2,7 @@
 name: texture-state-animation
 description: Design and validate texture-state transitions for Blender animations without ugly whole-image crossfades, texture popping, misregistered morphs, or target-engine-incompatible Python-only swaps. Use when animating between multiple source textures, mascot/logo states, style states, lightmaps, decals, or UI skins.
 when_to_use: Texture state animation, texture morphs, material state transitions, image sequence planning, masked wipes, glow reveals, texture registration, avoiding bad crossfades, GLB-compatible texture animation planning.
-allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info
+allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs
 ---
 
 # Texture State Animation

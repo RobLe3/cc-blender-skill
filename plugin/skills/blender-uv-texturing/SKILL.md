@@ -2,7 +2,7 @@
 name: blender-uv-texturing
 description: UV unwrap, atlas-map, project textures, use alpha decals, bake maps/lightmaps, and prepare texture-driven Blender assets for glTF/GLB export. Use whenever the user provides texture packs, texture atlases, decals, UV layouts, lightmaps, wants a texture to fit a mesh 1:1, or reports stretched/off textures. Pairs with reference-to-3d for template-accurate reconstruction and blender-materials for PBR values.
 when_to_use: Texture atlas/UV/baking/lightmap/decal work in Blender; any request involving texture fit, UV islands, project-from-view, texture packs, alpha decals, or baked maps.
-allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info
+allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs
 ---
 
 # Blender UV Texturing
