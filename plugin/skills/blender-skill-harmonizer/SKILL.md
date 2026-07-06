@@ -2,7 +2,7 @@
 name: blender-skill-harmonizer
 description: Harmonize multiple Blender skills into a coherent pipeline with clear activation precedence, handoff artifacts, dependency gates, and conflict-resolution rules. Use when a Blender task spans several skills, when reference-locked work conflicts with generic production workflow, after adding/updating skills, or when repeated failures indicate skill interference or missing inter/intra-play.
 when_to_use: Multi-skill Blender orchestration, skill graph audits, resolving overlaps between text-to-blender/pro-workflow/reference-to-3d/wireframe/UV/fit/repair skills, defining source-of-truth precedence, artifact contracts, and sequential-vs-parallel execution plans.
-allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info
+allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs
 ---
 
 # Blender Skill Harmonizer

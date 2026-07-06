@@ -2,7 +2,7 @@
 name: orbital-hud-motion
 description: Create tasteful circular/orbital HUD and aura animations around a Blender subject using source-derived arcs, dots, dashes, opacity, parallax, and restrained motion. Use when decorative circles, halos, orbit markers, scanner rings, or HUD effects must correlate with a logo/mascot rather than looking like random oversized rings.
 when_to_use: Animated circular HUD elements, aura rings, orbit arcs, dots, dashed circles, halo effects, mascot/logo motion graphics, source-derived decorative elements, avoiding bad outside-element animation.
-allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info
+allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs
 ---
 
 # Orbital HUD Motion

@@ -2,7 +2,7 @@
 name: multiview-fit-loop
 description: Closed-loop compare-adjust-repeat workflow for fitting Blender models to supplied front/side/back/top templates and originals. Use when the user asks to compare the product to templates/originals and adjust until it fits across all dimensions, or when all views must pass measurable bbox/centroid/silhouette/edge validation before export.
 when_to_use: Multi-view validation and iterative fitting against reference templates, all-dimension mascot/object reconstruction, front/side/back/top overlay reports, fit deltas, automated adjustment loops.
-allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info
+allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs
 ---
 
 # Multiview Fit Loop

@@ -2,7 +2,7 @@
 name: blender-lighting
 description: Light Blender scenes professionally — three-point setups, HDRI environments, studio/cinematic/dramatic configurations, light groups, color temperature, soft vs hard shadows. Use whenever the user asks to "light the scene", "set up lighting", "make it look cinematic / dramatic / studio / outdoor / sunset", "add a key light", "use HDRI", or any lighting-related request. Make sure to use this skill even if the user does not say "light" — also covers "make it look professional", "studio shot", "moody atmosphere", "golden hour", "rim light". Pairs with blender-materials (lighting reveals materials) and blender-cameras (lighting + composition together = shot).
 when_to_use: Any lighting setup or modification in Blender. Includes HDRI/environment lighting and individual lamp placement.
-allowed-tools: Read Bash mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info
+allowed-tools: Read Bash mcp__blender__execute_blender_code mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs
 ---
 
 # Blender Lighting

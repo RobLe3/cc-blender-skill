@@ -2,7 +2,7 @@
 name: quality-refinement-autoloop
 description: Run a self-refinement loop when a Blender result is subpar, user expectations are not met, validation fails, or repeated issues reveal missing skill depth. The loop diagnoses the gap, decides whether to repair the artifact or acquire/refine a generic skill, sanitizes lessons for reusable publication, updates docs/versioning, validates, and prepares stage/commit/push when explicitly requested.
 when_to_use: Subpar output, user rejects quality, repeated Blender failure, RALPH loop, skill gap diagnosis, autonomous skill refinement, sanitized skill contribution, release prep, docs/version bump, staged commit and push workflow.
-allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info
+allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs
 ---
 
 # Quality Refinement Autoloop

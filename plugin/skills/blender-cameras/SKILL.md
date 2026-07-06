@@ -2,7 +2,7 @@
 name: blender-cameras
 description: Set up Blender cameras with cinematic intent — focal length, depth of field (f-stop / focus object), composition (rule of thirds, leading lines), animated cameras (orbit, dolly, push-in), tracking constraints. Use whenever the user asks to "set up the camera", "frame the shot", "make it look cinematic / hero / portrait / wide-angle / telephoto", "add depth of field", "orbit the camera", or any composition/framing request. Make sure to use this skill even if the user does not say "camera" — also covers "hero shot", "close-up", "from above", "shallow focus", "85mm portrait look".
 when_to_use: Any camera placement, framing, focal length, DoF, or animated camera setup in Blender.
-allowed-tools: Read Bash mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info
+allowed-tools: Read Bash mcp__blender__execute_blender_code mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs
 ---
 
 # Blender Cameras

@@ -2,7 +2,7 @@
 name: closed-surface-uv-coverage
 description: Ensure textures and decals cover all visible surfaces of a closed or extruded Blender asset, especially front/back caps and sidewalls, instead of relying on partial projected planes, curves, or linework overlays. Use when back textures do not fill the model, side textures are missing, spin/turntable views expose plain sidewalls, or a model needs separate UV treatment for caps and side surfaces.
 when_to_use: Full surface texture coverage, sidewall UVs, back cap UVs, closed mesh UV coverage audits, texture fill validation, side/back turntable QA, replacing projected overlays with real surface materials.
-allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_object_info mcp__blender__get_scene_info
+allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_object_detail_summary mcp__blender__get_objects_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs
 ---
 
 # Closed Surface UV Coverage

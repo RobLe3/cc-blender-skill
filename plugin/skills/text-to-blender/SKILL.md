@@ -1,13 +1,15 @@
 ---
 name: text-to-blender
-description: Drive Blender from natural language. Converts plain-English requests ("model a sword and render it with cinematic lighting", "make this glass look frosted", "set up three-point lighting", "export this scene as glTF for the web") into Blender Python code executed via the Blender MCP server. Acts as the orchestrator that picks and chain-loads specialised sub-skills (blender-modeling, blender-materials, blender-lighting, blender-cameras, blender-rendering, blender-animation, blender-export, wireframe-to-3d, blender-pro-workflow, blender-skill-harmonizer, quality-refinement-autoloop). Use this skill whenever the user wants Claude to do anything in Blender, including creating geometry, applying materials, lighting a scene, framing a camera, rendering, animating, or exporting. Make sure to invoke this skill even if the user does not say "Blender" — also covers requests like "create a 3D model of...", "render this...", "make a glTF from...", "set up a scene with...", or any 3D-creation task. Requires the Blender MCP addon (ahujasid/blender-mcp) running on port 9876.
+description: Drive Blender from natural language. Converts plain-English requests ("model a sword and render it with cinematic lighting", "make this glass look frosted", "set up three-point lighting", "export this scene as glTF for the web") into Blender Python code executed via the Blender MCP server. Acts as the orchestrator that picks and chain-loads specialised sub-skills (blender-modeling, blender-materials, blender-lighting, blender-cameras, blender-rendering, blender-animation, blender-export, wireframe-to-3d, blender-pro-workflow, blender-skill-harmonizer, quality-refinement-autoloop). Use this skill whenever the user wants Claude to do anything in Blender, including creating geometry, applying materials, lighting a scene, framing a camera, rendering, animating, or exporting. Make sure to invoke this skill even if the user does not say "Blender" — also covers requests like "create a 3D model of...", "render this...", "make a glTF from...", "set up a scene with...", or any 3D-creation task. Requires the official Blender MCP add-on enabled in Blender.
 when_to_use: User asks for any 3D creation, modification, lighting, rendering, animation, or export task. Anything involving Blender or that should reasonably be done in Blender.
-allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info mcp__blender__get_viewport_screenshot
+allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__get_screenshot_of_area_as_image mcp__blender__render_viewport_to_path mcp__blender__search_api_docs
 ---
 
 # Text-to-Blender Orchestrator
 
 Turn plain-English requests into Blender work. You are the conductor: read the request, decide which sub-skills to chain-load, sequence them in the right order, and execute via the Blender MCP.
+
+> **MCP flavour note**: this plugin targets the **official Blender MCP add-on** (Blender extensions platform, `lab_blender_org/mcp`), not `ahujasid/blender-mcp`. Tool names, return conventions (`result` dict), screenshot/render parameters, and unavailable asset-download tools are documented in `references/official-blender-mcp.md` — read it before debugging any MCP tool mismatch. For final-quality visual validation prefer `render_viewport_to_path` over viewport screenshots.
 
 ## Multi-skill harmonization
 
@@ -26,7 +28,7 @@ The user speaks in tasks ("render a hero shot of a sword on a stone"); you:
 5. **Route to sub-skills** → load the relevant ones via `Read` and follow their instructions.
 6. **Sequence** the work in the order pros use (see `references/assembly-order.md`).
 7. **Execute** generated Python via `mcp__blender__execute_blender_code`.
-8. **Validate** with `mcp__blender__get_scene_info`, `get_object_info`, AND **`get_viewport_screenshot`** — see *Visual validation checkpoint* below. Numerical validation alone is not enough: the API can report success while geometry is grossly wrong.
+8. **Validate** with `mcp__blender__get_objects_summary`, `get_object_detail_summary`, AND **`get_screenshot_of_area_as_image`** — see *Visual validation checkpoint* below. Numerical validation alone is not enough: the API can report success while geometry is grossly wrong.
 9. **Iterate** — if the visual check shows an obvious problem (subject barely visible, wrong proportions, wrong orientation), fix and re-render BEFORE reporting success.
 10. **Report** to the user with concrete numbers AND a path to the proof render they can inspect.
 
@@ -54,7 +56,7 @@ If the user wants HDRI lighting, override this AFTER it runs (load the actual `.
 
 After rendering, **always**:
 
-1. Call `mcp__blender__get_viewport_screenshot` (or read the rendered file with `Read`).
+1. Render to a file with `mcp__blender__render_viewport_to_path` and read it with `Read` (or, for a quick viewport-shading check, call `mcp__blender__get_screenshot_of_area_as_image` with `area_ui_type="VIEW_3D"`).
 2. Visually verify against the user's request. Specifically:
    - Subject is visible and recognisable (not a thin streak, not magenta-flooded, not entirely in shadow)
    - Proportions match the real-world reference dimensions for that subject
@@ -98,12 +100,12 @@ The full reference list lives in `references/common-object-dimensions.md`. Do no
 
 Before any work, verify:
 
-1. **Blender MCP is reachable**. Call `mcp__blender__get_scene_info`. If it errors with "Could not connect to Blender":
-   > "Blender's MCP addon isn't running. Start Blender, enable the BlenderMCP addon (port 9876 default), then re-run."
+1. **Blender MCP is reachable**. Call `mcp__blender__get_objects_summary`. If it errors with "Could not connect to Blender":
+   > "Blender's MCP addon isn't running. Start Blender, enable the official Blender MCP add-on (Preferences → Add-ons → MCP), then re-run."
    
    Stop and ask the user to fix this.
 
-2. **Scene state**. `get_scene_info` returns the current objects. Decide:
+2. **Scene state**. `get_objects_summary` returns the current objects. Decide:
    - **Empty scene?** → Start fresh; build from primitives.
    - **Existing objects?** → Operate on them; do NOT delete unless asked.
    - **Default cube only?** → Probably safe to delete (`bpy.ops.object.delete()`).
@@ -196,7 +198,7 @@ Suffix `.L` / `.R` for left/right. Examples: `GEO-sword_blade`, `MAT-steel_brush
 
 ## Validation rule of thumb
 
-After significant work, call `mcp__blender__get_scene_info` and verify:
+After significant work, call `mcp__blender__get_objects_summary` and verify:
 - Expected objects exist with correct names.
 - Object counts make sense (no runaway duplication).
 - Polycount roughly matches target.
@@ -241,7 +243,7 @@ Example:
 | User reports "scene is grey / no materials visible" while looking at Blender's viewport | Blender viewport defaults to **Solid** shading mode which ignores materials. The render is correct; only the viewport looks grey. After every scene assembly, set viewport to Material Preview: `space.shading.type = 'MATERIAL'; space.shading.use_scene_lights = True; space.shading.use_scene_world = True` |
 | User reports "materials look flat / no texture" | Flat PBR colors lack surface variation. Add procedural textures (Noise/Voronoi → ColorRamp → Roughness or Bump) for steel scratches, hammered metal, leather grain, etc. See `blender-materials` Recipe 12 (procedural wood) for the pattern. |
 | Subject looks wrongly proportioned (e.g. blade too short, chair too narrow) | The orchestrator skipped the dimension lookup. Always read `references/common-object-dimensions.md` BEFORE generating modeling code. Don't guess. |
-| User asks for a "human" / "character" / "face" / "person" | Pure-recipe primitives produce a recognisable silhouette only, NOT a human face. Suggest one of: (a) `mcp__blender__download_polyhaven_asset` / `download_sketchfab_model` / `generate_hyper3d_model_via_text` for an actual human base mesh, then chain materials + lighting + render; (b) commission a Blender character artist (see `prompts/04-blender-workflow.md`). Do NOT pretend a sphere-with-features looks human — it doesn't. See `references/common-object-dimensions.md` "Characters / avatars" section. |
+| User asks for a "human" / "character" / "face" / "person" | Pure-recipe primitives produce a recognisable silhouette only, NOT a human face. Suggest one of: (a) a manually downloaded base mesh (Poly Haven / Sketchfab / a text-to-3D service; official MCP has no asset-download tools) for an actual human base mesh, then chain materials + lighting + render; (b) commission a Blender character artist (see `prompts/04-blender-workflow.md`). Do NOT pretend a sphere-with-features looks human — it doesn't. See `references/common-object-dimensions.md` "Characters / avatars" section. |
 | Elongated subject renders as a thin pole instead of a recognisable shape | Camera viewing the **thin axis** of an elongated object. Rotate the object so its broad axis faces the camera. See `blender-modeling` "Critical: axis orientation for elongated objects". |
 | Blade/spike has a "chiseled flat" tip instead of a point | Top vertices were scaled toward zero but not merged. Use the proper tapering recipe in `blender-modeling` ("Critical: tapering to a point") — collapse top verts to centerline AND `remove_doubles`. |
 | Coloured glass renders flat/metallic instead of "glass-like" | Tint set on `Base Color` of Principled BSDF only. Real coloured glass needs **Volume Absorption** for depth-based tint. See `blender-materials` Recipe 6b. Also: `Roughness=0.0` produces mirror-flat highlights that look metallic — use 0.02–0.05 instead. |

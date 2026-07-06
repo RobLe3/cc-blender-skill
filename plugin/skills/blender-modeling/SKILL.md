@@ -2,7 +2,7 @@
 name: blender-modeling
 description: Create and edit 3D meshes in Blender — primitives, hard-surface modeling, mesh operators, modifier stacks (Bevel, Subdivision, Boolean, Mirror, Array, Solidify), bmesh-level edits, retopology basics. Use whenever the user asks to "make/model/create/build a 3D object", "shape/sculpt this", "add a cube/sphere/cylinder/etc.", "extrude/inset/bevel this face", "add a modifier", or any geometry-creation request that isn't a wireframe trace. Make sure to use this skill even if the user does not say "model" — also covers "make a sword", "build a chair", "add a door", "carve out a hole". Pairs with blender-materials for look-dev and blender-pro-workflow for full pipelines.
 when_to_use: Any geometry creation, mesh edit, or modifier stack work in Blender. Not for wireframe → 3D conversion (use wireframe-to-3d) and not for sculpting strokes (Blender's sculpt mode is gestural, not text-driven).
-allowed-tools: Read Bash mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info
+allowed-tools: Read Bash mcp__blender__execute_blender_code mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs
 ---
 
 # Blender Modeling

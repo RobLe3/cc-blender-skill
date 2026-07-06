@@ -49,7 +49,7 @@ A Claude Code skill plugin that lets Claude use Blender like a senior 3D artist 
 
 ### Prerequisites
 
-1. **Blender ≥ 4.0** with the [BlenderMCP addon](https://github.com/ahujasid/blender-mcp) installed and running on port 9876.
+1. **Blender ≥ 4.0** with the official Blender MCP add-on (install from Blender's extensions platform, then enable it in Preferences → Add-ons) installed and enabled.
 2. **Claude Code** ≥ 1.0 with skills support.
 3. **Python 3.9+** with `opencv-python`, `numpy`, `scipy`, `Pillow` (only needed for `wireframe-to-3d` — install with `pip install -r ../requirements.txt`).
 
@@ -151,7 +151,7 @@ User: "Hero shot of a sword on a stone pedestal, exported as glTF"
 - **Pure-skill design**: no Python wrapper, no custom MCP. Claude is the orchestrator. Sub-skills are markdown decision trees + inline code recipes.
 - **Generated Python via `mcp__blender__execute_blender_code`**: each call is a fresh namespace. Objects identified by `bpy.data.objects['name']`, never by Python variables.
 - **Naming convention**: `GEO-`, `MAT-`, `LGT-`, `CAM-`, `ARM-`, `COL-` prefixes (Blender Studio standard).
-- **MCP transport**: `ahujasid/blender-mcp` socket on :9876 (synchronous, 180 s timeout per call).
+- **MCP transport**: official Blender MCP add-on (runs inside Blender; tools execute synchronously).
 
 See `../docs/` for full architecture notes, MCP coverage assessment, and verification report.
 
@@ -162,7 +162,7 @@ See `../docs/` for full architecture notes, MCP coverage assessment, and verific
 This plugin coexists peacefully with:
 
 - [`ra100/blender-claude-plugin`](https://github.com/ra100/blender-claude-plugin) — generalist Blender API reference skills (geometry nodes, shader nodes, compositor). Install both for the broadest coverage.
-- [`Dev-GOM/blender-toolkit`](https://mcpmarket.com/tools/skills/blender-toolkit) — specialty Mixamo retargeting via a separate WebSocket addon (port 9400+, different from ahujasid's :9876). Both can run simultaneously.
+- [`Dev-GOM/blender-toolkit`](https://mcpmarket.com/tools/skills/blender-toolkit) — specialty Mixamo retargeting via a separate WebSocket addon (separate WebSocket transport, independent of the official MCP add-on). Both can run simultaneously.
 
 ---
 
@@ -187,5 +187,5 @@ Open issues at: https://github.com/RobLe3/cc-blender-skill/issues
 Include:
 - Which skill triggered (or didn't)
 - Your Blender version
-- Your `ahujasid/blender-mcp` version
+- Your Blender MCP add-on version
 - The full prompt + Claude's response (or refusal)

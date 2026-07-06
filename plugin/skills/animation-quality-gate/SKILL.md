@@ -2,7 +2,7 @@
 name: animation-quality-gate
 description: Validate Blender animation attempts before accepting them by rendering contact sheets, checking silhouette stability, flicker, framing, subject dominance, layer separation, export compatibility, and motion-design coherence. Use after animation renders or when the user says motion/morph/outside elements look bad.
 when_to_use: Animation QA, contact-sheet review, motion critique, morph validation, texture flicker detection, storyboard checks, rejecting bad animation passes, pre-export animation acceptance gates.
-allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info
+allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs
 ---
 
 # Animation Quality Gate
