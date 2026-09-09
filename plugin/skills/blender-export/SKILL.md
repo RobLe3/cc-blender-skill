@@ -215,6 +215,88 @@ else:
 
 Always verify after export. Use `Bash` tool: `ls -la /tmp/output.glb`.
 
+### Recipe 9 — Collision meshes for Unreal (`UCX_`)
+
+Unreal reads collision out of the FBX **by object name**. A collider is a
+separate object in the same file, named for the mesh it wraps:
+
+| Prefix | Shape |
+|--------|-------|
+| `UCX_` | Convex hull — the usual choice |
+| `UBX_` | Box |
+| `USP_` | Sphere |
+| `UCP_` | Capsule |
+
+`SM_Chair` gets `UCX_SM_Chair_01`, `UCX_SM_Chair_02`, ... Select the mesh and
+its colliders together and export with `use_selection=True`; they must travel
+in one file.
+
+**A concave `UCX_` hull is accepted silently** — no warning, no import error,
+and wrong collision in engine. Check before exporting:
+
+```python
+import bpy
+
+def is_convex(obj, tolerance=1e-5):
+    """True when every vertex sits behind every face plane."""
+    coords = [v.co for v in obj.data.vertices]
+    for poly in obj.data.polygons:
+        if poly.normal.length_squared < 1e-12:
+            continue
+        for co in coords:
+            if (co - poly.center).dot(poly.normal) > tolerance:
+                return False
+    return True
+
+for obj in bpy.data.objects:
+    if obj.name.startswith(('UCX_', 'UBX_', 'USP_', 'UCP_')):
+        print(f"collision:{obj.name} convex:{is_convex(obj)}")
+```
+
+Derive hull dimensions from the mesh bounding box rather than typing them —
+hand-entered collider positions drift from the geometry and nothing checks it.
+
+Prefer several primitive hulls over one dense hull. A single hull around a
+table is a solid block with no space under it.
+
+### Recipe 10 — Sculpted detail: bake it, do not export it
+
+A Multires sculpt is displacement data, not exportable geometry. Exported live
+it either ships every subdivided face — a level-8 sculpt on a 30-face cage is
+~2 million faces — or drops the sculpt entirely, depending on
+`use_mesh_modifiers`. Neither is intended. Bake to a normal map, export the
+base cage.
+
+```python
+import bpy
+
+obj = bpy.data.objects['GEO-target']
+bpy.context.view_layer.objects.active = obj
+
+# Requires UV0 on the base cage, and a material whose ACTIVE node is an Image
+# Texture holding a Non-Color image.
+bake = bpy.context.scene.render.bake
+bake.use_multires = True      # Blender 4.x and earlier: scene.render.use_bake_multires
+bake.type = 'NORMALS'
+bake.margin = 16
+bpy.ops.object.bake_image()
+
+multires = next(m for m in obj.modifiers if m.type == 'MULTIRES')
+multires.levels = 0           # export the cage; sculpt data stays in the .blend
+
+bpy.data.images['N_target'].save()   # embed_textures can only embed a file that exists
+print(f"baked:{obj.name} sculpt_levels:{multires.total_levels}")
+```
+
+Two failure modes, both of which mislead:
+
+- **Multires must be last in the modifier stack.** Anything after it fails the
+  bake with `Multires data baking requires multi-resolution object`, which does
+  not describe the actual problem.
+- **The modifier's viewport `levels` decides what exports**, not
+  `total_levels`: `use_mesh_modifiers` evaluates at the viewport level, so a
+  mesh showing level 8 exports level 8 however the bake went.
+
 ## Polycount targets per platform
 
 | Platform | Target | Notes |
@@ -239,6 +321,10 @@ Always verify after export. Use `Bash` tool: `ls -la /tmp/output.glb`.
 | GLB > 15 MB | Apply Decimate (Recipe 2); reduce textures to 1024×1024 |
 | Bone count exceeded | Limit weights to 4 per vertex; reduce bone count |
 | Animation didn't export | glTF: `export_animations=True`; FBX: `bake_anim=True` |
+| Unreal: prop imports with no collision | Add a `UCX_<MeshName>_01` object to the same FBX (Recipe 9) |
+| Unreal: collision is wrong but nothing warned | The `UCX_` hull is concave — check convexity (Recipe 9) |
+| FBX is millions of faces, or the sculpt is missing | Multires exported live — bake it and set viewport level 0 (Recipe 10) |
+| Unreal: "No smoothing group information was found" | `mesh_smooth_type='FACE'`; Blender's default is `'OFF'` |
 
 ## When to load `references/overview.md`
 
