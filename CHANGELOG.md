@@ -3,6 +3,26 @@
 All notable changes to **cc-blender-skill** since first commit. Detailed rationale per version is in [`VERSIONING.md`](./VERSIONING.md). Patch-by-patch root-cause notes are in [`docs/process/IMPLEMENTATION_LOG.md`](./docs/process/IMPLEMENTATION_LOG.md). Test results are in [`docs/test-results/`](./docs/test-results/).
 
 
+## [Unreleased]
+
+### Added
+
+- `blender-export` Recipe 9: Unreal collision meshes — the `UCX_`/`UBX_`/`USP_`/`UCP_`
+  naming convention, and a convexity check, because Unreal accepts a concave `UCX_`
+  hull silently and then behaves wrongly.
+- `blender-export` Recipe 10: baking a Multires sculpt to a normal map and exporting
+  the base cage, with the two failure modes that mislead — Multires must be last in
+  the modifier stack, and the modifier's viewport `levels` (not `total_levels`) is
+  what `use_mesh_modifiers` exports.
+- Four rows in the `blender-export` pitfalls table covering the above plus the
+  "No smoothing group information was found" warning.
+
+### Notes
+
+- Verified on Blender 5.2.1 LTS only. Nothing here was confirmed inside Unreal
+  itself; the collision and smoothing claims are conventions and Blender-side
+  behaviour, not engine-side test results.
+
 ## [1.3.0] — 2026-05-01
 
 ### Added
