@@ -1,16 +1,14 @@
 ---
 name: blender-materials
 description: Create and assign PBR materials in Blender via Principled BSDF — metals, glass, plastic, fabric, skin, organics. Covers physically-based material recipes with real-world values, Coat layer (varnish/car paint), Sheen (cloth), Subsurface scattering (skin/wax), Transmission (glass), and procedural patterns (wood grain, marble, fabric weave). Use whenever the user asks to "make it look like X material", "give it a metallic finish", "apply a wood texture", "make this glass / plastic / brushed steel / leather / skin", or any look-development request. Make sure to use this skill even if the user does not say "material" — also covers "make it shiny", "matte finish", "looks like copper", "rough surface". Works with any geometry; pairs with blender-lighting (materials only look right under proper lighting).
-when_to_use: Any material assignment, PBR setup, shader work, or look-dev request in Blender.
-allowed-tools: Read Bash mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info
+allowed-tools: Read Bash mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs mcp__blender_official__execute_blender_code mcp__blender_official__get_objects_summary mcp__blender_official__get_object_detail_summary mcp__blender_official__render_viewport_to_path mcp__blender_official__search_api_docs
 ---
-
+## MCP backend
+Use when: Any material assignment, PBR setup, shader work, or look-dev request in Blender.
+Before the first Blender call, read [../text-to-blender/references/mcp-backends.md](../text-to-blender/references/mcp-backends.md). Prefer official MCP for shared capabilities; preserve the selected backend for the whole task. Tool names in recipes are client/legacy examples: map them through that reference and its agent-host guide.
 # Blender Materials
-
 Apply physically-based materials to objects. Use **only Principled BSDF** — it's the only shader that exports cleanly to glTF and matches what other DCC tools expect.
-
 ## The metallic switch — never an in-between
-
 The single most-important rule: **Metallic is a switch, not a slider.** Set it to `0.0` (dielectric: plastic, wood, glass, skin) or `1.0` (metal: steel, gold, copper). Values between 0.2 and 0.8 are almost always wrong; they produce energy-non-conservative renders that look "plasticky."
 
 Exception: dark mirror lenses (sunglasses) use ~0.8 to combine strong reflection with slight tint — that's a stylistic choice, not strict PBR.

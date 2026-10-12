@@ -1,10 +1,15 @@
 ---
 name: reference-to-3d
 description: Reconstruct Blender models from supplied reference sheets, branding templates, texture atlases, orthographic front/side/back/top views, or mascot/logo art where visual fidelity to the source is more important than a plausible generated object. Use when the user says the model must match a template, wireframe, texture pack, character sheet, mascot sheet, or brand asset exactly; also use after feedback like "does not look like the reference", "fit the texture 1:1", "wrong number of visible parts", or "compare against the template". Requires Blender MCP plus local Python with Pillow/OpenCV/numpy; pairs with blender-uv-texturing, wireframe-to-3d, blender-modeling, blender-materials, and blender-export.
-when_to_use: User supplies reference images/templates/texture atlases/orthographic views and wants a model matching them, or repeated visual mismatch feedback requires a reference-locked corrective loop.
-allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info mcp__blender__get_viewport_screenshot
+allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info mcp__blender__get_viewport_screenshot mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs mcp__blender_official__execute_blender_code mcp__blender_official__get_objects_summary mcp__blender_official__get_object_detail_summary mcp__blender_official__render_viewport_to_path mcp__blender_official__search_api_docs mcp__blender__get_screenshot_of_area_as_image mcp__blender_official__get_screenshot_of_area_as_image
 ---
 
+
+## MCP backend
+
+Use when: User supplies reference images/templates/texture atlases/orthographic views and wants a model matching them, or repeated visual mismatch feedback requires a reference-locked corrective loop.
+
+Before the first Blender call, read [../text-to-blender/references/mcp-backends.md](../text-to-blender/references/mcp-backends.md). Prefer official MCP for shared capabilities; preserve the selected backend for the whole task. Tool names in recipes are client/legacy examples: map them through that reference and its agent-host guide.
 # Reference-to-3D Reconstruction
 
 This skill is for **source-locked modeling**: the reference asset is the contract. Do not generate a plausible object from memory and then decorate it. Extract measurements, part counts, silhouettes, and UV regions from the supplied files first, then build the Blender model to satisfy those measurements.

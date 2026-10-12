@@ -1,10 +1,15 @@
 ---
 name: text-to-blender
-description: Drive Blender from natural language. Converts plain-English requests ("model a sword and render it with cinematic lighting", "make this glass look frosted", "set up three-point lighting", "export this scene as glTF for the web") into Blender Python code executed via the Blender MCP server. Acts as the orchestrator that picks and chain-loads specialised sub-skills (blender-modeling, blender-materials, blender-lighting, blender-cameras, blender-rendering, blender-animation, blender-export, wireframe-to-3d, blender-pro-workflow, blender-skill-harmonizer, quality-refinement-autoloop). Use this skill whenever the user wants Claude to do anything in Blender, including creating geometry, applying materials, lighting a scene, framing a camera, rendering, animating, or exporting. Make sure to invoke this skill even if the user does not say "Blender" — also covers requests like "create a 3D model of...", "render this...", "make a glTF from...", "set up a scene with...", or any 3D-creation task. Requires the Blender MCP addon (ahujasid/blender-mcp) running on port 9876.
-when_to_use: User asks for any 3D creation, modification, lighting, rendering, animation, or export task. Anything involving Blender or that should reasonably be done in Blender.
-allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info mcp__blender__get_viewport_screenshot
+description: "Drive Blender from natural language: create or edit 3D models, materials, lighting, cameras, renders, animation, and exports through Blender MCP. Route complete scenes to domain skills and wireframe/reference requests to reconstruction skills. Also use for 3D requests that do not name Blender. Requires a configured official or ahujasid MCP backend."
+allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info mcp__blender__get_viewport_screenshot mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs mcp__blender_official__execute_blender_code mcp__blender_official__get_objects_summary mcp__blender_official__get_object_detail_summary mcp__blender_official__render_viewport_to_path mcp__blender_official__search_api_docs mcp__blender__get_screenshot_of_area_as_image mcp__blender_official__get_screenshot_of_area_as_image mcp__blender__download_polyhaven_asset mcp__blender__download_sketchfab_model mcp__blender__generate_hyper3d_model_via_text mcp__blender__get_polyhaven_status mcp__blender__get_sketchfab_status mcp__blender__get_hyper3d_status
 ---
 
+
+## MCP backend
+
+Use when: User asks for any 3D creation, modification, lighting, rendering, animation, or export task. Anything involving Blender or that should reasonably be done in Blender.
+
+Before the first Blender call, read [references/mcp-backends.md](references/mcp-backends.md). Prefer official MCP for shared capabilities; preserve the selected backend for the whole task. Tool names in recipes are client/legacy examples: map them through that reference and its agent-host guide.
 # Text-to-Blender Orchestrator
 
 Turn plain-English requests into Blender work. You are the conductor: read the request, decide which sub-skills to chain-load, sequence them in the right order, and execute via the Blender MCP.
@@ -23,10 +28,10 @@ The user speaks in tasks ("render a hero shot of a sword on a stone"); you:
 2. **Check prerequisites** → MCP server reachable, scene state.
 3. **Reset world** to a known-good baseline (see *World reset* below) — prevents leftover broken HDRI / Environment Texture nodes from previous runs corrupting the render.
 4. **Look up real-world dimensions** for the subject (`references/common-object-dimensions.md`) BEFORE generating Python. A "sword" has specific proportions; a "chair" has specific proportions; do not guess.
-5. **Route to sub-skills** → load the relevant ones via `Read` and follow their instructions.
+5. **Route to sub-skills** → load the relevant ones with the host's file-reading tool and follow their instructions.
 6. **Sequence** the work in the order pros use (see `references/assembly-order.md`).
-7. **Execute** generated Python via `mcp__blender__execute_blender_code`.
-8. **Validate** with `mcp__blender__get_scene_info`, `get_object_info`, AND **`get_viewport_screenshot`** — see *Visual validation checkpoint* below. Numerical validation alone is not enough: the API can report success while geometry is grossly wrong.
+7. **Execute** generated Python with the selected backend's code-execution tool.
+8. **Validate** with the selected backend's scene/object inspection and screenshot or render tools — see *Visual validation checkpoint* below. Numerical validation alone is not enough: the API can report success while geometry is grossly wrong.
 9. **Iterate** — if the visual check shows an obvious problem (subject barely visible, wrong proportions, wrong orientation), fix and re-render BEFORE reporting success.
 10. **Report** to the user with concrete numbers AND a path to the proof render they can inspect.
 
@@ -54,7 +59,7 @@ If the user wants HDRI lighting, override this AFTER it runs (load the actual `.
 
 After rendering, **always**:
 
-1. Call `mcp__blender__get_viewport_screenshot` (or read the rendered file with `Read`).
+1. Inspect the completed render (on official MCP, read the returned filepath). For quick GUI checks use the selected backend's screenshot tool. Headless sessions require a render, not a screenshot.
 2. Visually verify against the user's request. Specifically:
    - Subject is visible and recognisable (not a thin streak, not magenta-flooded, not entirely in shadow)
    - Proportions match the real-world reference dimensions for that subject
@@ -98,8 +103,8 @@ The full reference list lives in `references/common-object-dimensions.md`. Do no
 
 Before any work, verify:
 
-1. **Blender MCP is reachable**. Call `mcp__blender__get_scene_info`. If it errors with "Could not connect to Blender":
-   > "Blender's MCP addon isn't running. Start Blender, enable the BlenderMCP addon (port 9876 default), then re-run."
+1. **Blender MCP is reachable**. Use the selected backend's scene query from `references/mcp-backends.md`. If it cannot connect:
+   > "Start the selected backend's add-on socket and matching MCP client process, then re-run. Official MCP requires Blender 5.1+."
    
    Stop and ask the user to fix this.
 
@@ -112,7 +117,7 @@ Before any work, verify:
 
 ## Intent → sub-skill routing table
 
-For each intent the user expresses, load (via `Read`) the matching sub-skill's `SKILL.md` and follow its patterns. Multiple intents = chain multiple sub-skills.
+For each intent the user expresses, load (with the host's file-reading tool) the matching sub-skill's `SKILL.md` and follow its patterns. Multiple intents = chain multiple sub-skills.
 
 | User intent (paraphrased) | Load these sub-skills | Order |
 |--------------------------|----------------------|-------|
@@ -156,11 +161,11 @@ Source: `references/assembly-order.md` (deeper rationale).
 
 ## Code-execution rules — non-negotiable
 
-When emitting Python for `mcp__blender__execute_blender_code`:
+When emitting Python for the selected backend's code-execution tool:
 
 - **Each call is a fresh namespace.** Only `bpy` is pre-imported; re-import `math`, `bmesh`, `numpy`, etc. each call.
 - **Identify objects by stable name**, never by Python variable. `bpy.data.objects['GEO-sword']` works across calls; a `sword = ...` assignment does not.
-- **Print structured output** so you can parse it back. End each chunk with `print(f"...")` reporting what changed (object names, vertex counts, file paths).
+- **Check backend response status** as well as stdout. On official MCP assign a JSON-serializable `result` dict; print-only recipes remain supported. **Print structured output** so you can parse it back. End each chunk with `print(f"...")` reporting what changed (object names, vertex counts, file paths).
 - **Chunk the work.** 180-second timeout per call. Don't dump 500 lines in one call — split into ~5–20-line chunks.
 - **Use Blender Studio naming conventions** for everything you create: `GEO-`, `MAT-`, `LGT-`, `CAM-`, `ARM-`, `COL-`. Never leave anything as `Cube.027`.
 
@@ -201,7 +206,7 @@ After significant work, call `mcp__blender__get_scene_info` and verify:
 - Object counts make sense (no runaway duplication).
 - Polycount roughly matches target.
 
-Before reporting success on a render or export, confirm the file actually exists (use `Bash`: `ls -la /path/to/output`).
+Before reporting success on a render or export, confirm the file actually exists (use the host's shell tool: `ls -la /path/to/output`).
 
 ## When to load deeper references
 
@@ -232,7 +237,7 @@ Example:
 | `Code execution error: <line>` | Read the error; fix that one line; retry |
 | Object not found in next call | You used a Python var instead of `bpy.data.objects['name']` |
 | Render took too long | Reduce samples, enable adaptive sampling, lower resolution |
-| File not at expected path | Use absolute paths; verify with Bash `ls` |
+| File not at expected path | Use absolute paths; verify with the shell tool `ls` |
 | Material looks wrong after export | You used non-Principled-BSDF nodes; rebuild material with Principled only |
 | `'Action' object has no attribute 'fcurves'` | Blender 5.x layered Actions; walk `action.layers[].strips[].channelbags[].fcurves` instead. See `blender-animation` Recipe 3 for the compat helper. |
 | `BLENDER_EEVEE_NEXT` rejected | Blender 5.x renamed it back to `BLENDER_EEVEE`. See `blender-rendering` Recipe 3 for the try/except fallback. |

@@ -1,10 +1,15 @@
 ---
 name: quality-refinement-autoloop
 description: Run a self-refinement loop when a Blender result is subpar, user expectations are not met, validation fails, or repeated issues reveal missing skill depth. The loop diagnoses the gap, decides whether to repair the artifact or acquire/refine a generic skill, sanitizes lessons for reusable publication, updates docs/versioning, validates, and prepares stage/commit/push when explicitly requested.
-when_to_use: Subpar output, user rejects quality, repeated Blender failure, RALPH loop, skill gap diagnosis, autonomous skill refinement, sanitized skill contribution, release prep, docs/version bump, staged commit and push workflow.
-allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info
+allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs mcp__blender_official__execute_blender_code mcp__blender_official__get_objects_summary mcp__blender_official__get_object_detail_summary mcp__blender_official__render_viewport_to_path mcp__blender_official__search_api_docs
 ---
 
+
+## MCP backend
+
+Use when: Subpar output, user rejects quality, repeated Blender failure, RALPH loop, skill gap diagnosis, autonomous skill refinement, sanitized skill contribution, release prep, docs/version bump, staged commit and push workflow.
+
+Before the first Blender call, read [../text-to-blender/references/mcp-backends.md](../text-to-blender/references/mcp-backends.md). Prefer official MCP for shared capabilities; preserve the selected backend for the whole task. Tool names in recipes are client/legacy examples: map them through that reference and its agent-host guide.
 # Quality Refinement Autoloop
 
 Use this when the user says the result is wrong, ugly, not aligned, not textured, not animated, not exportable, or otherwise below expectation. The goal is not to keep tweaking blindly. The goal is to convert failure into a reusable, generic skill improvement before trying again.

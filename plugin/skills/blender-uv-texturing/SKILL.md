@@ -1,10 +1,15 @@
 ---
 name: blender-uv-texturing
 description: UV unwrap, atlas-map, project textures, use alpha decals, bake maps/lightmaps, and prepare texture-driven Blender assets for glTF/GLB export. Use whenever the user provides texture packs, texture atlases, decals, UV layouts, lightmaps, wants a texture to fit a mesh 1:1, or reports stretched/off textures. Pairs with reference-to-3d for template-accurate reconstruction and blender-materials for PBR values.
-when_to_use: Texture atlas/UV/baking/lightmap/decal work in Blender; any request involving texture fit, UV islands, project-from-view, texture packs, alpha decals, or baked maps.
-allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info
+allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs mcp__blender_official__execute_blender_code mcp__blender_official__get_objects_summary mcp__blender_official__get_object_detail_summary mcp__blender_official__render_viewport_to_path mcp__blender_official__search_api_docs
 ---
 
+
+## MCP backend
+
+Use when: Texture atlas/UV/baking/lightmap/decal work in Blender; any request involving texture fit, UV islands, project-from-view, texture packs, alpha decals, or baked maps.
+
+Before the first Blender call, read [../text-to-blender/references/mcp-backends.md](../text-to-blender/references/mcp-backends.md). Prefer official MCP for shared capabilities; preserve the selected backend for the whole task. Tool names in recipes are client/legacy examples: map them through that reference and its agent-host guide.
 # Blender UV Texturing
 
 This skill fills the gap between “assign a material” and “the supplied texture pack actually fits the model.” It is mandatory for template/atlas-driven assets.

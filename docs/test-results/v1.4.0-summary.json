@@ -1,0 +1,132 @@
+{
+  "baseline_failures": [
+    {
+      "id": "D3",
+      "status": "FAIL",
+      "error": "AttributeError: 'Action' object has no attribute 'fcurves'"
+    },
+    {
+      "id": "E2",
+      "status": "FAIL",
+      "error": "AttributeError: 'SceneEEVEE' object has no attribute 'use_gtao'"
+    },
+    {
+      "id": "G4",
+      "status": "FAIL",
+      "error": "AttributeError: 'DecimateModifier' object has no attribute 'use_collapse_degenerate'"
+    }
+  ],
+  "candidates": {
+    "legacy-candidate": {
+      "tests": 35,
+      "new_failures": [],
+      "fixture_stats_match": true,
+      "images": {
+        "sword": {
+          "rmse_vs_baseline": 0.0,
+          "baseline_repeat_rmse": 0.0,
+          "within_repeatability_envelope": true
+        },
+        "bottle": {
+          "rmse_vs_baseline": 0.0,
+          "baseline_repeat_rmse": 0.0,
+          "within_repeatability_envelope": true
+        },
+        "chair": {
+          "rmse_vs_baseline": 0.0,
+          "baseline_repeat_rmse": 0.0,
+          "within_repeatability_envelope": true
+        },
+        "aviator": {
+          "rmse_vs_baseline": 0.0,
+          "baseline_repeat_rmse": 0.0,
+          "within_repeatability_envelope": true
+        },
+        "desk_lamp": {
+          "rmse_vs_baseline": 0.0,
+          "baseline_repeat_rmse": 7.357435902828928,
+          "within_repeatability_envelope": true
+        },
+        "broadcaster_avatar": {
+          "rmse_vs_baseline": 0.0,
+          "baseline_repeat_rmse": 0.0,
+          "within_repeatability_envelope": true
+        }
+      },
+      "passed": true
+    },
+    "official-candidate": {
+      "tests": 35,
+      "new_failures": [],
+      "fixture_stats_match": true,
+      "images": {
+        "sword": {
+          "rmse_vs_baseline": 0.0,
+          "baseline_repeat_rmse": 0.0,
+          "within_repeatability_envelope": true
+        },
+        "bottle": {
+          "rmse_vs_baseline": 0.0,
+          "baseline_repeat_rmse": 0.0,
+          "within_repeatability_envelope": true
+        },
+        "chair": {
+          "rmse_vs_baseline": 0.0,
+          "baseline_repeat_rmse": 0.0,
+          "within_repeatability_envelope": true
+        },
+        "aviator": {
+          "rmse_vs_baseline": 0.0,
+          "baseline_repeat_rmse": 0.0,
+          "within_repeatability_envelope": true
+        },
+        "desk_lamp": {
+          "rmse_vs_baseline": 5.052413541614158,
+          "baseline_repeat_rmse": 7.357435902828928,
+          "within_repeatability_envelope": true
+        },
+        "broadcaster_avatar": {
+          "rmse_vs_baseline": 0.0,
+          "baseline_repeat_rmse": 0.0,
+          "within_repeatability_envelope": true
+        }
+      },
+      "passed": true
+    }
+  },
+  "runtime_regression_passed": true,
+  "merge_ready": false,
+  "blocking_gates": [
+    "Actual Codex and Claude Code skill-trigger and backend-routing evaluations are incomplete."
+  ],
+  "baseline_failures_fixed_in_candidate": [
+    "D3",
+    "E2",
+    "G4"
+  ],
+  "native_agent_checks": {
+    "codex": {
+      "discovery": "passed for explicit $blender-modeling in isolated .agents/skills workspace",
+      "legacy_workflow": "passed: skill-guided material, render, GLB export, screenshot",
+      "official_workflow": "passed: direct leaf skills, material, animation, render, collision preflight, FBX and animated GLB export",
+      "multires_workflow": "not completed: native Codex turn timed out before producing a trace; deterministic Blender helper coverage passed separately",
+      "trigger_queries_run": 0,
+      "backend_scenarios_run": 0
+    },
+    "claude_code": {
+      "status": "not run: CLI unavailable"
+    }
+  },
+  "environment": {
+    "blender": "5.1.1",
+    "baseline_commit": "11016c9a5847897491dde935c346571bd7548e3d",
+    "official_addon": "1.0.3",
+    "official_server_commit": "dbbf836ad4b1025f14a2b3b504c43903f39e0b04",
+    "legacy_server": "1.5.5",
+    "core_tests_per_candidate_run": 35,
+    "candidate_passes_per_backend": 35,
+    "export_tests": 12,
+    "host_tests": 6,
+    "skill_metadata_validations": 30
+  }
+}

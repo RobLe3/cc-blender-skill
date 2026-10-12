@@ -2,7 +2,7 @@
 
 Each skill in this plugin ships with a starter `evals/evals.json` containing 10 trigger queries (should activate the skill) + 10 no-trigger queries (should NOT activate it). These are sized for a quick description-quality check, not exhaustive coverage.
 
-Per Anthropic's skill-authoring best practices: skill descriptions are the **primary triggering mechanism**. Bad descriptions → Claude misses skill invocations OR over-triggers on adjacent prompts. The evals files let you measure both failure modes.
+Skill descriptions are the **primary triggering mechanism** in supported hosts. Weak descriptions make an agent miss a skill or over-trigger on adjacent prompts. The eval files measure both failure modes.
 
 ## Schema
 
@@ -22,14 +22,14 @@ Per Anthropic's skill-authoring best practices: skill descriptions are the **pri
 There is no automated runner shipped yet. The intended workflow is:
 
 1. **Pick a skill** to evaluate (start with `text-to-blender` since it's the most-invoked entry point).
-2. **Read each query** and **mentally check** whether Claude's description for that skill would cause it to load.
+2. **Read each query** and make a preliminary check whether the description should cause the target agent to load it.
 3. **Score**: count true positives (trigger queries that activate), false negatives (trigger queries that don't), false positives (no-trigger queries that wrongly activate), true negatives (no-trigger queries correctly skipped).
 4. **If false-negative rate > 20%**: description is under-triggering. Make it more "pushy" (Anthropic's term) — add explicit example phrases users might say.
 5. **If false-positive rate > 10%**: description is over-triggering. Tighten with disambiguating phrases ("ONLY for Blender 3D work, NOT for general Python coding").
 
-## Pairing with claude `--print` for actual verification
+## Actual verification in an agent client
 
-You can also automate the loop by sending each query to a fresh Claude session and inspecting whether it loaded the skill. Sketch:
+Send each query to a fresh, isolated client session and inspect the client's skill and tool trace. A text-only self-assessment is not a substitute for an observed load. For example, a Claude Code harness may resemble:
 
 ```bash
 for query in $(jq -r '.[].query' plugin/skills/text-to-blender/evals/evals.json); do
@@ -38,7 +38,10 @@ for query in $(jq -r '.[].query' plugin/skills/text-to-blender/evals/evals.json)
 done
 ```
 
-(Requires Claude CLI in `--print` mode + a way to introspect skill loading. Out of scope for this plugin — left to the operator.)
+Codex should be tested with the skills linked into an isolated `.agents/skills/`
+directory and its structured execution trace retained. Keep client/model/tool settings
+fixed between baseline and candidate runs. The repository does not claim a client
+gate passed unless the native trace was captured and reviewed.
 
 ## Honest caveats
 
@@ -49,8 +52,19 @@ done
 
 ## When to update an evals file
 
-- After changing a skill's `description` or `when_to_use` frontmatter
+- After changing a skill's `description` or its body-level `Use when:` guidance
 - After patching a skill that turned out to over- or under-trigger in real use
 - When adding new trigger phrases users actually said
 
-Per Anthropic: descriptions should be tuned via this loop rather than written once and shipped.
+Descriptions should be tuned through observed routing, not written once and assumed correct.
+
+## v1.4.0 backend scenarios
+
+`text-to-blender/evals/backend-scenarios.json` is a separate scenario schema, not
+`should_trigger` data. Evaluate each with its stated tool availability and inspect
+actual skill/tool traces. It covers backend preference, legacy-only assets, explicit
+choices, unavailable connections, timeout recovery, nested errors, and render paths.
+The 220 existing trigger cases are retained; blender-export adds five from PR #2.
+Compare baseline/candidate runs using the same client/model/settings. No new false
+positive/negative routes are allowed. If the client or trace capture is unavailable,
+mark this gate unexecuted; static JSON validation does not substitute for it.

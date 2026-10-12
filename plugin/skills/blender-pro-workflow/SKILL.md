@@ -1,10 +1,15 @@
 ---
 name: blender-pro-workflow
 description: End-to-end production workflow guidance for Blender — the order to assemble scenes (block-out → camera → light → forms → materials → detail → render → composite → export), critique protocols, time budgets, and recovery patterns. Use whenever the user asks to "make a complete scene / hero shot / production-quality render", "what's the right order to do this", "set up a full pipeline", or has a multi-step request crossing modeling + lighting + materials + rendering. Make sure to use this skill for any request that spans multiple phases of 3D work, even if the user does not say "workflow" — also covers "make a final image of X", "produce a hero render", "professional-looking result".
-when_to_use: Multi-phase Blender work spanning modeling + lighting + materials + render. Or when the user is unsure where to start. Often loaded BEFORE other sub-skills as a guide for sequencing.
-allowed-tools: Read Bash mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info
+allowed-tools: Read Bash mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs mcp__blender_official__execute_blender_code mcp__blender_official__get_objects_summary mcp__blender_official__get_object_detail_summary mcp__blender_official__render_viewport_to_path mcp__blender_official__search_api_docs
 ---
 
+
+## MCP backend
+
+Use when: Multi-phase Blender work spanning modeling + lighting + materials + render. Or when the user is unsure where to start. Often loaded BEFORE other sub-skills as a guide for sequencing.
+
+Before the first Blender call, read [../text-to-blender/references/mcp-backends.md](../text-to-blender/references/mcp-backends.md). Prefer official MCP for shared capabilities; preserve the selected backend for the whole task. Tool names in recipes are client/legacy examples: map them through that reference and its agent-host guide.
 # Blender Pro Workflow
 
 End-to-end guidance for putting a real scene together. This skill answers "in what order, with what fidelity at each step, should I tackle this?" Use it as the planner, then chain-load the specific sub-skills for each step.

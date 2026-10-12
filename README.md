@@ -1,8 +1,8 @@
 # cc-blender-skill
 
-A Claude Code skill plugin that lets Claude use Blender like a senior 3D artist via natural language.
+A portable agent skill pack that lets Codex, Claude Code, and compatible skill hosts use Blender like a senior 3D artist through natural language.
 
-**Version**: **1.3.0** ([CHANGELOG](./CHANGELOG.md)) · adds a generic quality-refinement autoloop, closed-surface texture coverage gates, layered texture/HUD animation QA, and source-locked reconstruction workflows on top of the stable Blender 5.x workflow. The core has been validated end-to-end on Blender 5.1.1 across **6 scene classes** (sword, bottle, chair, aviator, desk lamp, broadcaster avatar) plus wireframe-to-3d closure. Validation proof renders are committed in [`plugin/skills/text-to-blender/assets/`](./plugin/skills/text-to-blender/assets/) (failure-state renders included for honesty — no cherry-picking).
+**Version**: **1.4.0 (unreleased)** ([CHANGELOG](./CHANGELOG.md)) · adds official-first dual MCP support and checked Unreal collision / Multires cage-export workflows. The existing 30-skill stack, legacy asset integrations, and source-locked validation gates remain. See the [integration test report](./docs/test-results/v1.4.0-integration.md) for verified behavior and open release gates.
 
 **Quick links**: [Install](#quick-install) · [What works (honestly)](#what-works-honestly) · [What doesn't](#what-doesnt-work-yet-honestly) · [Architecture](#architecture-in-one-paragraph) · [Contributing](.github/CONTRIBUTING.md) · [Releases](https://github.com/RobLe3/cc-blender-skill/releases)
 
@@ -10,12 +10,12 @@ A Claude Code skill plugin that lets Claude use Blender like a senior 3D artist 
 
 ## What this is
 
-Thirty chain-loadable Claude Code skills that turn requests like *"model a sword and render a hero shot with three-point lighting"* into Blender Python executed via the [Blender MCP](https://github.com/ahujasid/blender-mcp).
+Thirty chain-loadable skills turn requests like *"model a sword and render a hero shot with three-point lighting"* into Blender Python executed via either [official Blender Lab MCP](https://www.blender.org/lab/mcp-server/) or [ahujasid Blender MCP](https://github.com/ahujasid/blender-mcp). The shared skill content is agent-agnostic; installation and MCP configuration remain host-specific.
 
 ```
 User prompt
     ↓
-Claude detects intent → loads text-to-blender (orchestrator)
+Agent detects intent → loads text-to-blender (orchestrator)
     ↓
 Orchestrator chain-loads relevant sub-skills
     ↓ ↓ ↓
@@ -28,6 +28,28 @@ The plugin is the actual installable thing. It lives at [`plugin/`](./plugin/). 
 
 ---
 
+
+## What's new in v1.4.0
+
+- **Both MCP backends are supported.** Official Blender Lab MCP is preferred for shared capabilities; existing ahujasid installations still work. Tasks requiring its asset-download/generation tools use ahujasid from the start. The chosen backend stays fixed throughout the task.
+- **Official installation and validation are explicit.** Official MCP requires Blender 5.1+, its add-on and a separate MCP process. Render validation reads the returned file path, not an assumed destination. Existing legacy Blender 4.x caveats remain.
+- **Unreal collision export has a preflight.** Collider names, evaluated geometry, closedness, winding, convexity, primitive restrictions, and same-file selection are checked before the new static FBX route.
+- **Multires baking targets the exported cage.** Level 0 is set before baking and kept through export; temporary scene/context settings are restored afterward. Existing general export defaults are unchanged.
+
+These are additive integrations, not a claim that every Blender version or Unreal import has been validated. [Testing status and limitations](./docs/test-results/v1.4.0-integration.md).
+
+### Thanks, and sorry for the slow response
+
+Thanks to **[fatalerrorist](https://github.com/fatalerrorist)** for
+[PR #1: official Blender MCP support](https://github.com/RobLe3/cc-blender-skill/pull/1),
+and **[NicoCaltha](https://github.com/NicoCaltha)** for
+[PR #2: Unreal collision meshes and Multires baking](https://github.com/RobLe3/cc-blender-skill/pull/2).
+Both contributions surfaced useful gaps and supplied concrete fixes.
+
+Sorry it took me a while to respond. I've been head-down in a gazillion other
+projects. I hope these updates make the skill more useful for everyone using it.
+
+---
 
 ## What's new in v1.3.0
 
@@ -79,7 +101,7 @@ This release adds a generic, source-driven reconstruction layer on top of the ex
 | End-to-end scene build from natural language | ✅ Works first-try on most common subjects | 6 validated scene classes: sword, bottle, chair, aviator, desk lamp, broadcaster avatar |
 | Real-world dimension lookup | ✅ Reference covers 7 categories | swords, chairs, bottles, mugs, tables, lamps, eyewear, characters — `references/common-object-dimensions.md` |
 | Multi-skill chaining | ✅ Validated | wireframe-to-3d → modeling → materials → lighting → camera → render → export |
-| Blender 5.x compat | ✅ Live-validated on 5.1.1 | All known cross-version quirks have try/except or helpers |
+| Blender 5.x compat | ⚠️ Bounded live checks on 5.1.1 | Both MCP routes pass all 35 core checks; broader 5.x coverage remains open |
 | Blender 4.x compat | ⚠️ Compat code present, not directly tested | See `plugin/skills/text-to-blender/references/blender-version-compat.md` |
 | Subject-class lighting (metal / glass / wood / fabric / skin / product) | ✅ Subject-aware profiles | Recipe 0a in `blender-lighting/SKILL.md` |
 | Emission material + practical lighting | ✅ Lamp scene validated | Recipe 11b in `blender-materials`, Recipe 0c in `blender-lighting` |
@@ -103,22 +125,29 @@ This release adds a generic, source-driven reconstruction layer on top of the ex
 
 ## Quick install
 
-Prerequisites: Blender ≥ 4.0 with [BlenderMCP addon](https://github.com/ahujasid/blender-mcp) running on port 9876, Claude Code, Python 3.9+ with `opencv-python numpy scipy Pillow`.
+Prerequisites: a compatible skill host, a configured Blender MCP backend, and Blender. Official MCP requires Blender ≥5.1; the existing ahujasid route retains Blender ≥4.0 (4.x compatibility code is not live-tested here). Image-processing helpers need Python 3.9+ with `opencv-python numpy scipy Pillow`. See the [agent-host setup](./plugin/skills/text-to-blender/references/agent-hosts.md) and [backend setup](./plugin/skills/text-to-blender/references/mcp-backends.md); enabling an add-on alone is not enough.
 
 ```bash
 git clone git@github.com:RobLe3/cc-blender-skill.git
 cd cc-blender-skill
 
-# Symlink all 30 skills into ~/.claude/skills/
+# Codex personal install. Use .agents/skills in a project for project scope.
+mkdir -p "$HOME/.agents/skills"
 for skill in plugin/skills/*/; do
     name=$(basename "$skill")
-    ln -sfn "$(pwd)/$skill" "$HOME/.claude/skills/$name"
+    test ! -e "$HOME/.agents/skills/$name" && test ! -L "$HOME/.agents/skills/$name" || {
+        echo "Refusing to replace $name" >&2; exit 1;
+    }
 done
-
-# Restart Claude Code to pick up the new top-level skills directory entries.
+for skill in plugin/skills/*/; do
+    name=$(basename "$skill")
+    ln -s "$(pwd)/$skill" "$HOME/.agents/skills/$name"
+done
 ```
 
-Then ask Claude something like:
+Claude Code installation and project-scoped examples are in the [agent-host guide](./plugin/skills/text-to-blender/references/agent-hosts.md).
+
+Then ask the agent something like:
 
 ```
 Make a 3D model of a teapot and render it with three-point lighting.
@@ -127,8 +156,10 @@ Make a 3D model of a teapot and render it with three-point lighting.
 Or invoke a specific skill:
 
 ```
-/wireframe-to-3d ./glasses_front.png
+$wireframe-to-3d ./glasses_front.png
 ```
+
+Codex supports `$skill-name` and `/skills`; Claude Code uses its own explicit skill syntax.
 
 Full install + verification: [`plugin/README.md`](./plugin/README.md).
 
@@ -230,7 +261,7 @@ cc-blender-skill/
 
 ## Architecture in one paragraph
 
-Pure-skill design — no Python wrapper class, no custom MCP. Claude itself orchestrates: reads the user's intent, loads sub-skills via `Read`, generates Blender Python, calls `mcp__blender__execute_blender_code` (the synchronous socket on port 9876), parses stdout, and reports results. State lives in `bpy.data` (Blender's global state, persists between calls); Python variables don't (each `execute_blender_code` is a fresh namespace, so we identify objects by stable name like `bpy.data.objects['GEO-sword']`). Naming follows Blender Studio conventions (`GEO-`, `MAT-`, `LGT-` prefixes). Each sub-skill stays under 500 lines (the Anthropic skills cap) and points to a deeper `references/overview.md` for the long tail.
+Pure-skill design — no Python wrapper class, no custom MCP. The host agent reads the user's intent, loads the relevant skill files with its file-reading capability, generates Blender Python, calls the selected backend's `execute_blender_code`, checks response status and stdout, and reports results. Both backends use a separate MCP process connected to an add-on socket; their protocols and result shapes differ. State lives in `bpy.data` (Blender's global state, persists between calls); Python variables don't (each `execute_blender_code` is a fresh namespace, so we identify objects by stable name like `bpy.data.objects['GEO-sword']`). Naming follows Blender Studio conventions (`GEO-`, `MAT-`, `LGT-` prefixes). Host mappings are documented in [`agent-hosts.md`](./plugin/skills/text-to-blender/references/agent-hosts.md).
 
 ---
 
@@ -241,7 +272,7 @@ There are already two Claude+Blender skills:
 - **[ra100/blender-claude-plugin](https://github.com/ra100/blender-claude-plugin)** — 8 generalist Blender API reference skills (geometry nodes, shader nodes, compositor, etc.). Teaches Claude *how* Blender works.
 - **[Dev-GOM/blender-toolkit](https://mcpmarket.com/tools/skills/blender-toolkit)** — Mixamo retargeting via custom WebSocket addon.
 
-Neither tackles the **task-level orchestration**: "given a natural-language request, produce a finished 3D output." That's what this plugin does. It depends on `ahujasid/blender-mcp` (the same MCP both other skills can also work with) and adds:
+Neither tackles the **task-level orchestration**: "given a natural-language request, produce a finished 3D output." That's what this plugin does. It supports both official Blender Lab MCP and `ahujasid/blender-mcp`, and adds:
 
 - Pro-workflow sequencing (block-out → camera → lighting → forms → materials → detail → render → composite → export)
 - Recipe libraries per domain with copy-paste-ready Python

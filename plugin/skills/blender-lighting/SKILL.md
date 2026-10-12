@@ -1,10 +1,15 @@
 ---
 name: blender-lighting
 description: Light Blender scenes professionally — three-point setups, HDRI environments, studio/cinematic/dramatic configurations, light groups, color temperature, soft vs hard shadows. Use whenever the user asks to "light the scene", "set up lighting", "make it look cinematic / dramatic / studio / outdoor / sunset", "add a key light", "use HDRI", or any lighting-related request. Make sure to use this skill even if the user does not say "light" — also covers "make it look professional", "studio shot", "moody atmosphere", "golden hour", "rim light". Pairs with blender-materials (lighting reveals materials) and blender-cameras (lighting + composition together = shot).
-when_to_use: Any lighting setup or modification in Blender. Includes HDRI/environment lighting and individual lamp placement.
-allowed-tools: Read Bash mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info
+allowed-tools: Read Bash mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs mcp__blender_official__execute_blender_code mcp__blender_official__get_objects_summary mcp__blender_official__get_object_detail_summary mcp__blender_official__render_viewport_to_path mcp__blender_official__search_api_docs
 ---
 
+
+## MCP backend
+
+Use when: Any lighting setup or modification in Blender. Includes HDRI/environment lighting and individual lamp placement.
+
+Before the first Blender call, read [../text-to-blender/references/mcp-backends.md](../text-to-blender/references/mcp-backends.md). Prefer official MCP for shared capabilities; preserve the selected backend for the whole task. Tool names in recipes are client/legacy examples: map them through that reference and its agent-host guide.
 # Blender Lighting
 
 Light scenes the way pros do: with structure, intent, and physically reasonable values.

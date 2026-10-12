@@ -1,10 +1,15 @@
 ---
 name: blender-cameras
 description: Set up Blender cameras with cinematic intent — focal length, depth of field (f-stop / focus object), composition (rule of thirds, leading lines), animated cameras (orbit, dolly, push-in), tracking constraints. Use whenever the user asks to "set up the camera", "frame the shot", "make it look cinematic / hero / portrait / wide-angle / telephoto", "add depth of field", "orbit the camera", or any composition/framing request. Make sure to use this skill even if the user does not say "camera" — also covers "hero shot", "close-up", "from above", "shallow focus", "85mm portrait look".
-when_to_use: Any camera placement, framing, focal length, DoF, or animated camera setup in Blender.
-allowed-tools: Read Bash mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info
+allowed-tools: Read Bash mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs mcp__blender_official__execute_blender_code mcp__blender_official__get_objects_summary mcp__blender_official__get_object_detail_summary mcp__blender_official__render_viewport_to_path mcp__blender_official__search_api_docs
 ---
 
+
+## MCP backend
+
+Use when: Any camera placement, framing, focal length, DoF, or animated camera setup in Blender.
+
+Before the first Blender call, read [../text-to-blender/references/mcp-backends.md](../text-to-blender/references/mcp-backends.md). Prefer official MCP for shared capabilities; preserve the selected backend for the whole task. Tool names in recipes are client/legacy examples: map them through that reference and its agent-host guide.
 # Blender Cameras
 
 Set up cameras with the same decisions a real cinematographer makes: focal length for feel, f-stop for focus, composition for storytelling.
@@ -229,8 +234,15 @@ pivot.rotation_euler = (0, 0, math.radians(360))
 pivot.keyframe_insert('rotation_euler', frame=240)
 
 # Set linear interpolation for constant orbit speed
+def get_fcurves_compat(action):
+    if hasattr(action, 'fcurves'):
+        return list(action.fcurves)
+    return [fc for layer in action.layers for strip in layer.strips
+            if hasattr(strip, 'channelbags') for bag in strip.channelbags
+            for fc in bag.fcurves]
+
 if pivot.animation_data and pivot.animation_data.action:
-    for fc in pivot.animation_data.action.fcurves:
+    for fc in get_fcurves_compat(pivot.animation_data.action):
         for kp in fc.keyframe_points:
             kp.interpolation = 'LINEAR'
 

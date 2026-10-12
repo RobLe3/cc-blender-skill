@@ -1,10 +1,15 @@
 ---
 name: blender-export
-description: Export Blender scenes to glTF/GLB (web/AR), FBX (game engines), OBJ (universal), USD (VFX pipelines), STL (3D printing). Includes per-format settings, embed/unpack textures, axis conversion, polygon optimization (Decimate), and target-platform validation. Use whenever the user asks to "export this", "save as glTF / FBX / OBJ / STL / USD", "package for Unity / Unreal / Three.js / web / AR / 3D print", or any output format conversion. Make sure to use this skill even if the user does not say "export" — also covers "package this for the web", "make it work in Unity", "send to Unreal", "save for 3D printing".
-when_to_use: Any export to a non-.blend format, packaging for game engines, web, AR, or 3D printing.
-allowed-tools: Read Bash mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info
+description: Export Blender scenes to glTF/GLB (web/AR), FBX (game engines), OBJ (universal), USD (VFX pipelines), STL (3D printing). Includes Unreal collision hulls and Multires normal-map baking for low-poly export, per-format settings, embed/unpack textures, axis conversion, polygon optimization (Decimate), and target-platform validation. Use whenever the user asks to "export this", "save as glTF / FBX / OBJ / STL / USD", "package for Unity / Unreal / Three.js / web / AR / 3D print", or any output format conversion. Make sure to use this skill even if the user does not say "export" — also covers "package this for the web", "make it work in Unity", "send to Unreal", "save for 3D printing".
+allowed-tools: Read Bash mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs mcp__blender_official__execute_blender_code mcp__blender_official__get_objects_summary mcp__blender_official__get_object_detail_summary mcp__blender_official__render_viewport_to_path mcp__blender_official__search_api_docs
 ---
 
+
+## MCP backend
+
+Use when: Any export to a non-.blend format, packaging for game engines, web, AR, or 3D printing.
+
+Before the first Blender call, read [../text-to-blender/references/mcp-backends.md](../text-to-blender/references/mcp-backends.md). Prefer official MCP for shared capabilities; preserve the selected backend for the whole task. Tool names in recipes are client/legacy examples: map them through that reference and its agent-host guide.
 # Blender Export
 
 Export to the right format with the right settings. Wrong format choice = days of debugging in the target platform.
@@ -64,12 +69,28 @@ print(f"export:gltf {size_mb:.2f} MB")
 import bpy
 
 obj = bpy.data.objects['GEO-target']
-bpy.context.view_layer.objects.active = obj
-
-mod = obj.modifiers.new('Decimate', type='DECIMATE')
-mod.ratio = 0.7    # keep 70% of faces; lower = more reduction
-mod.use_collapse_degenerate = True
-bpy.ops.object.modifier_apply(modifier=mod.name)
+if obj.type != 'MESH':
+    raise ValueError('Decimation requires a mesh')
+selected = list(bpy.context.selected_objects)
+active = bpy.context.view_layer.objects.active
+mode = active.mode if active else 'OBJECT'
+try:
+    if mode != 'OBJECT':
+        bpy.ops.object.mode_set(mode='OBJECT')
+    bpy.ops.object.select_all(action='DESELECT')
+    obj.select_set(True)
+    bpy.context.view_layer.objects.active = obj
+    mod = obj.modifiers.new('Decimate', type='DECIMATE')
+    mod.decimate_type = 'COLLAPSE'
+    mod.ratio = 0.7    # keep 70% of faces; lower = more reduction
+    bpy.ops.object.modifier_apply(modifier=mod.name)
+finally:
+    bpy.ops.object.select_all(action='DESELECT')
+    for item in selected:
+        item.select_set(True)
+    bpy.context.view_layer.objects.active = active
+    if mode != 'OBJECT':
+        bpy.ops.object.mode_set(mode=mode)
 
 print(f"decimated:{obj.name} verts:{len(obj.data.vertices)}")
 ```
@@ -213,7 +234,83 @@ else:
     print(f"verified:{filepath} {size_mb:.2f}MB")
 ```
 
-Always verify after export. Use `Bash` tool: `ls -la /tmp/output.glb`.
+Always verify after export. Use the host's shell tool: `ls -la /tmp/output.glb`.
+
+### Recipe 9 — Unreal collision meshes
+
+Export a separate collider with the render mesh in the **same FBX**. Its name must
+match the render mesh exactly: `SM_Chair` → `UCX_SM_Chair_01`, `_02`, and so on.
+For existing `GEO-` names, derive the collider name from that actual name; do not
+rename the render mesh just to fit an example.
+
+| Prefix | Required shape |
+|--------|----------------|
+| `UCX_` | One closed, outward-wound convex hull |
+| `UBX_` | Rectangular box, not deformed geometry |
+| `USP_` | Sphere, not a stretched ellipsoid |
+| `UCP_` | Cylinder with hemispherical ends |
+
+Use several simple hulls for concave props: one hull around a table blocks the
+space underneath. Derive positions from geometry, not hand-entered guesses.
+A face-plane convexity test alone accepts open or empty meshes; it is not an export
+gate. Use `scripts/collision_preflight.py` to inspect the **evaluated** collider,
+check names/closedness/winding/volume/convexity, and export only the intended objects.
+It rejects rather than repairs invalid geometry and preserves selection/mode.
+
+```python
+import bpy, runpy
+# Substitute the installed helper path; load inside Blender, not ordinary Python.
+helpers = runpy.run_path('/absolute/path/to/blender-export/scripts/collision_preflight.py')
+mesh = bpy.data.objects['SM_Chair']
+colliders = [bpy.data.objects['UCX_SM_Chair_01']]
+result = helpers['export_collision_fbx'](mesh, colliders, '/tmp/chair_collision.fbx')
+print(result)
+```
+
+The primitive checks cover local-axis authored boxes/spheres/capsules; use `UCX_`
+for shapes outside those constraints. Boxes/spheres are unsuitable for a
+non-uniformly scaled render object. Use a new output path rather than overwriting.
+Only one render mesh per collision FBX is supported by this helper.
+
+**Engine-side behavior is not yet validated.** Epic documents these conventions,
+but an Unreal import must verify hull count, openings, scale, and collision before
+claiming engine acceptance. Missing custom collision may instead trigger automatic
+collision generation; do not assume every importer configuration behaves alike.
+
+### Recipe 10 — Multires: bake to the cage, then export
+
+A live Multires modifier may export every evaluated subdivided face or omit sculpt
+geometry, depending on exporter settings. For a low-poly asset, bake the detailed
+surface to a normal map and export level 0. A 30-face cage at level 8 is approximately
+2 million faces.
+
+Use `scripts/multires_bake_export.py` for a single-material target with UVs, an active
+Image Texture holding a **Non-Color** bake image, and exactly one enabled Multires
+modifier **last in the stack**. The helper sets viewport level **0 before baking**,
+keeps it there through FBX export, saves/connects the normal map, and then restores
+selection, active object, mode, bake settings, engine, and subdivision levels.
+Use a single-user material and bake image. It does not overwrite an existing normal
+connection or accepted output files.
+
+```python
+import bpy, runpy
+helpers = runpy.run_path('/absolute/path/to/blender-export/scripts/multires_bake_export.py')
+result = helpers['bake_export_cage'](
+    bpy.data.objects['GEO-target'], '/tmp/target_normal.png', '/tmp/target_cage.fbx')
+print(result)
+```
+
+A saved normal map/material connection is the intended change. On failure,
+generated files remain failure evidence; the helper restores temporary state and
+removes its new normal connection. Use new paths for a retry. To include colliders,
+pass an `export_fbx` callback that calls `export_collision_fbx` **inside** this helper's
+level-0 context; see [references/unreal-export.md](references/unreal-export.md).
+Do not re-export after subdivision levels have been restored, or add ordinary meshes
+to the bake selection.
+
+The helper detects the installed 5.x/4.x bake-property layout rather than assuming
+a spelling. **Live validation is on Blender 5.1.1; Blender 4.x and Unreal imports
+remain unverified.** Normal maps preserve surface shading, not silhouette changes.
 
 ## Polycount targets per platform
 
@@ -239,6 +336,11 @@ Always verify after export. Use `Bash` tool: `ls -la /tmp/output.glb`.
 | GLB > 15 MB | Apply Decimate (Recipe 2); reduce textures to 1024×1024 |
 | Bone count exceeded | Limit weights to 4 per vertex; reduce bone count |
 | Animation didn't export | glTF: `export_animations=True`; FBX: `bake_anim=True` |
+| Unreal: missing/wrong custom collision | Check names, convex closed hulls, and same-file selection (Recipe 9); inspect the import in Unreal |
+| Multires bake fails with a misleading multi-resolution error | Keep Multires last and isolate the target selection (Recipe 10) |
+| Baked normals disagree with exported cage | Set viewport level 0 **before** baking, not just before export |
+| FBX unexpectedly contains millions of faces | Viewport `levels` controls evaluated Multires export, not `total_levels` |
+| Unreal: no smoothing-group information | Use `mesh_smooth_type='FACE'`; then verify inside Unreal |
 
 ## When to load `references/overview.md`
 

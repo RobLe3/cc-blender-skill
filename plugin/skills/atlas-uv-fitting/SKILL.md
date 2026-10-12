@@ -1,10 +1,15 @@
 ---
 name: atlas-uv-fitting
 description: Detect texture-atlas regions and map each source part to its own UV rectangle or projected UV surface. Use when a texture pack must fit a Blender model 1:1, when textures look off/stretched, when alpha decals or lightmaps are provided, or before exporting a textured GLB for a brand mascot/logo.
-when_to_use: Texture atlas region detection, per-part UV mapping, front-projected UVs, decal/lightmap handling, texture validation against source templates.
-allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_object_info
+allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_object_info mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs mcp__blender_official__execute_blender_code mcp__blender_official__get_objects_summary mcp__blender_official__get_object_detail_summary mcp__blender_official__render_viewport_to_path mcp__blender_official__search_api_docs
 ---
 
+
+## MCP backend
+
+Use when: Texture atlas region detection, per-part UV mapping, front-projected UVs, decal/lightmap handling, texture validation against source templates.
+
+Before the first Blender call, read [../text-to-blender/references/mcp-backends.md](../text-to-blender/references/mcp-backends.md). Prefer official MCP for shared capabilities; preserve the selected backend for the whole task. Tool names in recipes are client/legacy examples: map them through that reference and its agent-host guide.
 # Atlas UV Fitting
 
 This skill exists because assigning a texture material is not the same as fitting a texture.

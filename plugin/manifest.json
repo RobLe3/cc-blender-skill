@@ -1,14 +1,14 @@
 {
   "name": "cc-blender-skill",
-  "version": "1.3.0",
-  "description": "Comprehensive Blender skill plugin for Claude Code with harmonized multi-skill orchestration, reference-locked reconstruction, multiview validation, repair optimization, UV/texturing, look-dev, animation, and export workflows.",
+  "version": "1.4.0",
+  "description": "Comprehensive Blender portable agent skill pack for Blender MCP with harmonized multi-skill orchestration, reference-locked reconstruction, multiview validation, repair optimization, UV/texturing, look-dev, animation, and export workflows.",
   "author": "RobLe3 (with Claude)",
   "license": "MIT",
   "homepage": "https://github.com/RobLe3/cc-blender-skill",
   "requires": {
-    "claude-code": ">=1.0.0",
     "blender": ">=4.0",
-    "blender-mcp": "ahujasid/blender-mcp >=1.5.0"
+    "blender-mcp": "Blender Lab official MCP (Blender >=5.1) OR ahujasid/blender-mcp >=1.5.0 (Blender >=4.0)",
+    "agent-capabilities": "SKILL.md discovery, file reading, shell/Python execution, image inspection, and MCP tools"
   },
   "skills": [
     {
@@ -203,5 +203,9 @@
       "url": "https://mcpmarket.com/tools/skills/blender-toolkit",
       "rationale": "Specializes in Mixamo retargeting via custom WebSocket addon. Coexists fine with this plugin \u2014 different port, different focus."
     }
-  ]
+  ],
+  "clients": {
+    "codex": "Shared SKILL.md skills; .agents/skills installation; MCP configured by the host",
+    "claude-code": "Shared SKILL.md skills; .claude/skills installation; optional allowed-tools hints"
+  }
 }
