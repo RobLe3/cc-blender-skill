@@ -18,6 +18,8 @@ All notable changes to **cc-blender-skill** since first commit. Detailed rationa
 - One shared, agent-neutral skill pack for Codex and Claude Code, with Codex
   `.agents/skills` installation, `$skill` invocation, MCP TOML examples, and
   host-neutral file/shell/image operation guidance.
+- Public v1.4.0 test-status guidance, Claude Code feedback priorities, and expanded
+  issue fields for client, backend, invocation mode, installation scope, and versions.
 
 ### Corrected during integration
 

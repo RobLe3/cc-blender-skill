@@ -49,6 +49,30 @@ Both contributions surfaced useful gaps and supplied concrete fixes.
 Sorry it took me a while to respond. I've been head-down in a gazillion other
 projects. I hope these updates make the skill more useful for everyone using it.
 
+### v1.4.0 testing status and feedback wanted
+
+The release candidate has been exercised on Blender 5.1.1 through both MCP
+backends. All 30 skill folders pass Codex metadata validation; 6 host checks,
+12 Blender export checks, and all 35 core recipe checks pass. Native Codex runs
+also covered skill discovery, materials, rendering, animation, GLB export, and
+checked collision FBX export. See the
+[full evidence and exact limits](./docs/test-results/v1.4.0-integration.md).
+
+The following still needs community testing:
+
+- Native **Claude Code** discovery, automatic routing, and explicit skill invocation
+- The complete 225-query trigger set and ten backend-routing scenarios in both clients
+- Unreal Engine import behavior for collision FBX and baked cage normals
+- Blender 4.x and versions newer than the tested Blender 5.1.1 environment
+- Legacy provider downloads/generation and a wider range of real production scenes
+
+Claude Code users are especially invited to try v1.4.0 and report what actually
+happens. Open a [bug report](https://github.com/RobLe3/cc-blender-skill/issues/new?template=bug_report.yml)
+or submit a PR. Include the agent/client version, Blender version, selected MCP
+backend and versions, installation scope, exact prompt, whether invocation was
+automatic or explicit, expected versus actual behavior, and sanitized logs or
+renders. Please remove credentials, private paths, and proprietary scene data.
+
 ---
 
 ## What's new in v1.3.0

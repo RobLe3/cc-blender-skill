@@ -26,11 +26,32 @@ body:
       required: true
 
   - type: input
+    id: agent_client
+    attributes:
+      label: Agent/client and version
+      description: For example, Claude Code or Codex and its reported version.
+      placeholder: "Claude Code x.y.z"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: mcp_backend
+    attributes:
+      label: MCP backend
+      options:
+        - Official Blender Lab MCP
+        - ahujasid/blender-mcp
+        - Both configured
+        - Other or unknown
+    validations:
+      required: true
+
+  - type: input
     id: blender_mcp_version
     attributes:
-      label: ahujasid/blender-mcp version
-      description: Run `gh release view --repo ahujasid/blender-mcp` or check the addon panel.
-      placeholder: "1.5.5"
+      label: MCP add-on and server versions
+      description: Include both labels when they differ. State which backend each belongs to.
+      placeholder: "Official add-on 1.0.3 / server 1.0.2, or ahujasid 1.5.5"
 
   - type: input
     id: skill_version
@@ -50,6 +71,29 @@ body:
         - Visual (render produced but looks wrong)
         - Trigger (skill didn't activate when it should have, or activated when it shouldn't)
         - Documentation (claim in docs doesn't match reality)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: invocation
+    attributes:
+      label: How was the skill invoked?
+      options:
+        - Automatic discovery/routing
+        - Explicit skill invocation
+        - Skill did not load
+        - Unknown
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install_scope
+    attributes:
+      label: Installation scope
+      options:
+        - Project-local skills
+        - Personal/user skills
+        - Other or unknown
     validations:
       required: true
 
@@ -82,4 +126,4 @@ body:
     id: extra
     attributes:
       label: Additional context
-      description: Anything else that might help — Blender scene state, other skills loaded, network setup, etc.
+      description: Anything else that might help — Blender scene state, other skills loaded, network setup, sanitized logs, or renders. Remove credentials, private paths, and proprietary data.

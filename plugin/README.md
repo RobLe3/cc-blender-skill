@@ -216,9 +216,18 @@ Open issues at: https://github.com/RobLe3/cc-blender-skill/issues
 
 Include:
 - Which skill triggered (or didn't)
+- Agent/client and version, especially Codex or Claude Code
 - Your Blender version
 - Your selected MCP backend/server/add-on versions
+- Whether the skill was selected automatically or invoked explicitly
+- Whether the skills were installed at personal or project scope
 - The full prompt + agent response (or refusal), with the host/client named
+- Sanitized error output and a render when the failure is visual
+
+For v1.4.0, Claude Code discovery/routing, the complete trigger/backend scenario
+matrix, Unreal imports, and Blender versions outside 5.1.1 remain open validation
+areas. Reports and focused PRs covering those gaps are welcome. Do not attach
+credentials, private paths, paid-provider tokens, or proprietary scene files.
 
 ## v1.4.0 validation
 
