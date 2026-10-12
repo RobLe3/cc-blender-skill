@@ -95,10 +95,6 @@
     }
   },
   "runtime_regression_passed": true,
-  "merge_ready": false,
-  "blocking_gates": [
-    "Actual Codex and Claude Code skill-trigger and backend-routing evaluations are incomplete."
-  ],
   "baseline_failures_fixed_in_candidate": [
     "D3",
     "E2",
@@ -128,5 +124,10 @@
     "export_tests": 12,
     "host_tests": 6,
     "skill_metadata_validations": 30
-  }
+  },
+  "agent_behavior_matrix_complete": false,
+  "known_validation_gaps": [
+    "Actual Codex and Claude Code skill-trigger and backend-routing evaluations are incomplete."
+  ],
+  "release_status": "published_with_known_validation_gaps"
 }

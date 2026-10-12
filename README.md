@@ -2,7 +2,7 @@
 
 A portable agent skill pack that lets Codex, Claude Code, and compatible skill hosts use Blender like a senior 3D artist through natural language.
 
-**Version**: **1.4.0 (unreleased)** ([CHANGELOG](./CHANGELOG.md)) · adds official-first dual MCP support and checked Unreal collision / Multires cage-export workflows. The existing 30-skill stack, legacy asset integrations, and source-locked validation gates remain. See the [integration test report](./docs/test-results/v1.4.0-integration.md) for verified behavior and open release gates.
+**Version**: **1.4.0** ([CHANGELOG](./CHANGELOG.md)) · adds official-first dual MCP support and checked Unreal collision / Multires cage-export workflows. The existing 30-skill stack, legacy asset integrations, and source-locked validation gates remain. See the [integration test report](./docs/test-results/v1.4.0-integration.md) for verified behavior and known validation gaps.
 
 **Quick links**: [Install](#quick-install) · [What works (honestly)](#what-works-honestly) · [What doesn't](#what-doesnt-work-yet-honestly) · [Architecture](#architecture-in-one-paragraph) · [Contributing](.github/CONTRIBUTING.md) · [Releases](https://github.com/RobLe3/cc-blender-skill/releases)
 

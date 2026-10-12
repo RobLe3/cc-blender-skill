@@ -13,7 +13,8 @@ def compare(root):
     expected={t['id']:t for t in baseline['tests']}
     result={'baseline_failures':[t for t in baseline['tests'] if t['status']=='FAIL'],
             'candidates':{},'runtime_regression_passed':True,
-            'merge_ready':False,'blocking_gates':['Actual Codex and Claude Code skill-trigger and backend-routing evaluations are incomplete.']}
+            'agent_behavior_matrix_complete':False,
+            'known_validation_gaps':['Actual Codex and Claude Code skill-trigger and backend-routing evaluations are incomplete.']}
     for label in ['legacy-candidate','official-candidate']:
         current=json.loads((root/label/'core-tests.json').read_text())
         actual={t['id']:t for t in current['tests']}

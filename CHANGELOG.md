@@ -3,7 +3,7 @@
 All notable changes to **cc-blender-skill** since first commit. Detailed rationale per version is in [`VERSIONING.md`](./VERSIONING.md). Patch-by-patch root-cause notes are in [`docs/process/IMPLEMENTATION_LOG.md`](./docs/process/IMPLEMENTATION_LOG.md). Test results are in [`docs/test-results/`](./docs/test-results/).
 
 
-## [1.4.0] — Unreleased
+## [1.4.0] — 2026-10-12
 
 ### Added
 

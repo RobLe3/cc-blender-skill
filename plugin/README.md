@@ -2,7 +2,7 @@
 
 A portable skill pack that lets Codex, Claude Code, and compatible agent hosts use Blender like a senior 3D artist through natural language.
 
-**Version**: 1.4.0 (unreleased) (quality-refinement autoloop, closed-surface coverage, animation QA, source-locked reconstruction, UV/atlas fitting, validation, repair optimization, and look calibration — see [VERSIONING.md](../VERSIONING.md))
+**Version**: 1.4.0 (quality-refinement autoloop, closed-surface coverage, animation QA, source-locked reconstruction, UV/atlas fitting, validation, repair optimization, and look calibration — see [VERSIONING.md](../VERSIONING.md))
 
 ---
 
@@ -235,4 +235,4 @@ See [the integration report](../docs/test-results/v1.4.0-integration.md). Unreal
 behavior and Blender 4.x live behavior remain unverified. Runtime recipe checks are
 not skill-trigger evaluations. Both MCP routes pass the 35 core checks, and bounded
 native Codex workflows pass, but the full Codex/Claude Code routing matrix remains
-incomplete and blocks release readiness.
+incomplete and is a documented validation gap for follow-up contributors.

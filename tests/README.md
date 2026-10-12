@@ -68,11 +68,11 @@ of baseline queries is allowed. Test explicit choice, provider requirements,
 unreachable connections, ambiguous scenes, timeout recovery, and nested errors.
 
 Codex is available in the implementation environment; Claude Code is not. Native
-Codex checks may therefore provide partial evidence, but the two-client gate remains
+Codex checks therefore provide partial evidence, while the two-client matrix remains
 **incomplete** until both clients have captured traces. Structural checks and model
-self-reports do not simulate a pass. The JSON comparison deliberately reports
-`merge_ready: false` until the agent-behavior evidence is reviewed. Its zero exit
-code means runtime regression checks passed, not permission to merge.
+self-reports do not simulate a pass. The JSON comparison reports this as an
+agent-behavior gap separately from runtime regressions. Its zero exit code means the
+runtime comparison passed, not that the unexecuted client matrix was completed.
 
 Unreal imports and new Blender 4.x/5.2 live validation remain separate evidence;
 Unreal acceptance is required before engine-side validation claims, not for merge.

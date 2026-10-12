@@ -1,18 +1,18 @@
 # Versioning — Honest Release History
 
-**Current version**: **1.4.0** — unreleased additive dual-MCP and checked collision/Multires integration
+**Current version**: **1.4.0** — additive dual-MCP and checked collision/Multires integration
 **Date**: 2026-10-12
 
 ---
 
 ## Current release posture
 
-Version 1.4.0 is release preparation, not a published or merge-approved release.
+Version 1.4.0 is the published maintenance release for the two adapted contributions.
 Official MCP is preferred when available; ahujasid remains supported and handles
 legacy-only asset tasks. The same 30 skill folders now support Codex and Claude Code
 without generated host-specific forks. Three Blender 5.1 recipe defects were repaired;
 all other original recipe blocks, reference gates, and general export defaults are
-preserved. [Integration evidence and open gates](docs/test-results/v1.4.0-integration.md)
+preserved. [Integration evidence and known gaps](docs/test-results/v1.4.0-integration.md)
 define the validation boundary. Thanks to fatalerrorist (PR #1) and NicoCaltha (PR #2).
 
 
