@@ -1,0 +1,99 @@
+[
+  {
+    "id": "official_only",
+    "query": "Model and render a steel cube.",
+    "available_backends": [
+      "official"
+    ],
+    "expected_backend": "official"
+  },
+  {
+    "id": "legacy_only",
+    "query": "Model and render a steel cube.",
+    "available_backends": [
+      "ahujasid"
+    ],
+    "expected_backend": "ahujasid"
+  },
+  {
+    "id": "dual_shared",
+    "query": "Animate and export this cube.",
+    "available_backends": [
+      "official",
+      "ahujasid"
+    ],
+    "expected_backend": "official"
+  },
+  {
+    "id": "dual_asset",
+    "query": "Download a Poly Haven model using the available asset tool and render it.",
+    "available_backends": [
+      "official",
+      "ahujasid"
+    ],
+    "required_tool": "download_polyhaven_asset",
+    "expected_backend": "ahujasid"
+  },
+  {
+    "id": "explicit_legacy",
+    "query": "Use ahujasid to render this scene.",
+    "available_backends": [
+      "official",
+      "ahujasid"
+    ],
+    "expected_backend": "ahujasid"
+  },
+  {
+    "id": "explicit_official_asset",
+    "query": "Use official MCP to download this Poly Haven model.",
+    "available_backends": [
+      "official",
+      "ahujasid"
+    ],
+    "expected_backend": "official",
+    "expected_action": "explain_missing_asset_tool_before_mutation"
+  },
+  {
+    "id": "unreachable",
+    "query": "Render this scene.",
+    "available_backends": [
+      "official",
+      "ahujasid"
+    ],
+    "unreachable_backend": "official",
+    "expected_backend": "official",
+    "expected_action": "stop_without_switching"
+  },
+  {
+    "id": "timeout",
+    "query": "The render timed out; continue.",
+    "selected_backend": "official",
+    "available_backends": [
+      "official",
+      "ahujasid"
+    ],
+    "expected_backend": "official",
+    "expected_action": "inspect_existing_scene_before_retry"
+  },
+  {
+    "id": "nested_error",
+    "query": "Report whether export succeeded.",
+    "selected_backend": "official",
+    "tool_response": {
+      "status": "ok",
+      "result": {
+        "status": "error",
+        "message": "export failed"
+      }
+    },
+    "expected_action": "report_failure"
+  },
+  {
+    "id": "returned_render_path",
+    "query": "Inspect the final render.",
+    "selected_backend": "official",
+    "requested_path": "/tmp/check.png",
+    "returned_path": "/scratch/blender_mcp/check.png",
+    "expected_action": "read_returned_path"
+  }
+]

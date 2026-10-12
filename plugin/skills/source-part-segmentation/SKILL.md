@@ -1,10 +1,15 @@
 ---
 name: source-part-segmentation
 description: Segment overlapping visual parts from source images, wireframes, texture atlases, and decals before mesh reconstruction. Use when a mascot/logo/template contains touching or overlapping components and exact structural part masks are needed before contour-to-mesh, UV fitting, or landmark repair.
-when_to_use: Overlapping part extraction, component masks, marker/watershed segmentation, contour hierarchy analysis, atlas part isolation, manual seed fallback for source-locked Blender reconstruction.
 allowed-tools: Read Bash Glob Grep
 ---
 
+
+## MCP backend
+
+Use when: Overlapping part extraction, component masks, marker/watershed segmentation, contour hierarchy analysis, atlas part isolation, manual seed fallback for source-locked Blender reconstruction.
+
+Before the first Blender call, read [../text-to-blender/references/mcp-backends.md](../text-to-blender/references/mcp-backends.md). Prefer official MCP for shared capabilities; preserve the selected backend for the whole task. Tool names in recipes are client/legacy examples: map them through that reference and its agent-host guide.
 # Source Part Segmentation
 
 Use this before `contour-to-mesh` when a source image contains overlapping or touching designed parts.

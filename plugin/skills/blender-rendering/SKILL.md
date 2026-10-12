@@ -1,10 +1,15 @@
 ---
 name: blender-rendering
 description: Render Blender scenes with the right engine and settings — Cycles for photoreal, EEVEE for speed/stylized, sample counts, denoising (OptiX/OIDN), light path tuning, color management (AgX/Filmic), file output (PNG/EXR/MP4), animation rendering. Use whenever the user asks to "render this", "produce an image", "render a frame / animation", "make a final image", "save the render", or any output-generation request. Make sure to use this skill even if the user does not say "render" — also covers "make a picture", "save the result", "produce a final image", "export as image".
-when_to_use: Any image or animation render output request in Blender.
-allowed-tools: Read Bash mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info
+allowed-tools: Read Bash mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs mcp__blender_official__execute_blender_code mcp__blender_official__get_objects_summary mcp__blender_official__get_object_detail_summary mcp__blender_official__render_viewport_to_path mcp__blender_official__search_api_docs
 ---
 
+
+## MCP backend
+
+Use when: Any image or animation render output request in Blender.
+
+Before the first Blender call, read [../text-to-blender/references/mcp-backends.md](../text-to-blender/references/mcp-backends.md). Prefer official MCP for shared capabilities; preserve the selected backend for the whole task. Tool names in recipes are client/legacy examples: map them through that reference and its agent-host guide.
 # Blender Rendering
 
 Render efficiently. The defaults are wrong for production; the recipes below are tuned for the common cases.
@@ -94,20 +99,34 @@ try:
 except (TypeError, ValueError):
     scene.render.engine = 'BLENDER_EEVEE'
 
-# EEVEE settings (eevee namespace exists in 4.x and 5.x)
-if hasattr(scene, 'eevee'):
-    scene.eevee.taa_render_samples = 64
-    scene.eevee.taa_samples = 16
-scene.eevee.use_gtao = True            # screen-space AO
-scene.eevee.gtao_distance = 0.2
-scene.eevee.use_bloom = True            # glow
-scene.eevee.use_ssr = True              # screen-space reflections
-scene.eevee.use_ssr_refraction = True   # for glass
-scene.eevee.use_volumetric_lights = True
+# Preserve older EEVEE options only where the installed API exposes them.
+settings = dict(taa_render_samples=64, taa_samples=16, use_gtao=True,
+                gtao_distance=0.2, use_bloom=True, use_ssr=True,
+                use_ssr_refraction=True, use_volumetric_lights=True)
+eevee = getattr(scene, 'eevee', None)
+unavailable = []
+for name, value in settings.items():
+    if eevee is not None and hasattr(eevee, name):
+        setattr(eevee, name, value)
+    else:
+        unavailable.append(name)
+if (eevee is not None and not hasattr(eevee, 'use_gtao')
+        and all(hasattr(eevee, n) for n in ('use_fast_gi', 'fast_gi_method', 'fast_gi_distance'))
+        and 'AMBIENT_OCCLUSION_ONLY' in
+        {item.identifier for item in eevee.bl_rna.properties['fast_gi_method'].enum_items}):
+    eevee.use_fast_gi = True
+    eevee.fast_gi_method = 'AMBIENT_OCCLUSION_ONLY'
+    eevee.fast_gi_distance = 0.2
+    unavailable = [n for n in unavailable if n not in ('use_gtao', 'gtao_distance')]
 scene.render.resolution_x = 1920
 scene.render.resolution_y = 1080
-print('render:eevee_preset')
+print(f'render:eevee_preset unavailable_legacy_options:{unavailable}')
 ```
+
+Removed options are reported, not treated as enabled. In newer EEVEE, use supported
+ray-tracing settings for reflections/refraction and compositor Glare for requested
+glow; consult the installed API or `reference-look-calibration` before changing look.
+This preset does not silently create or overwrite a compositor setup.
 
 **EEVEE limitations to know**:
 - Reflections are screen-space (can't reflect what's off-screen) — workaround: place Reflection Plane / Cubemap probes
@@ -166,7 +185,7 @@ bpy.ops.render.render(write_still=True)
 print(f"render:saved {scene.render.filepath}")
 ```
 
-After this, verify with Bash: `ls -la /tmp/output_hero.png` — confirm file exists and report size.
+After this, verify with the shell tool: `ls -la /tmp/output_hero.png` — confirm file exists and report size.
 
 ### Recipe 6 — Render an animation as PNG sequence
 

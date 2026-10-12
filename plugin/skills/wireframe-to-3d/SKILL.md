@@ -1,10 +1,15 @@
 ---
 name: wireframe-to-3d
-description: Convert 2D orthographic wireframe PNG drawings to 3D Blender models exported as glTF/GLB. Use this skill whenever the user provides wireframe images (technical drawings, line drawings, orthographic views, side/front/back panels) and wants to generate a 3D model, mesh, or .glb file. Triggers on phrases like "convert this wireframe to 3D", "make a 3D model from these drawings", "build a model from this wireframe", "generate GLB from these views", or any image-to-3D-mesh request involving line drawings. Make sure to use this skill even if the user does not explicitly say "wireframe" — also covers "orthographic views", "technical drawings", "line drawings of objects", "front and side views". Requires the Blender MCP addon to be running (port 9876) and Python with opencv-python, numpy, scipy installed.
-when_to_use: User provides one or more PNG wireframe images and wants a 3D model. Also use when user asks to model an object from front/side/back drawings, or to convert technical line art to glTF/GLB.
-allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info mcp__blender__get_viewport_screenshot
+description: Convert 2D orthographic wireframe PNG drawings to 3D Blender models exported as glTF/GLB. Use this skill whenever the user provides wireframe images (technical drawings, line drawings, orthographic views, side/front/back panels) and wants to generate a 3D model, mesh, or .glb file. Triggers on phrases like "convert this wireframe to 3D", "make a 3D model from these drawings", "build a model from this wireframe", "generate GLB from these views", or any image-to-3D-mesh request involving line drawings. Make sure to use this skill even if the user does not explicitly say "wireframe" — also covers "orthographic views", "technical drawings", "line drawings of objects", "front and side views". Requires a configured Blender MCP backend (official or ahujasid) and Python with opencv-python, numpy, scipy installed.
+allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info mcp__blender__get_viewport_screenshot mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs mcp__blender_official__execute_blender_code mcp__blender_official__get_objects_summary mcp__blender_official__get_object_detail_summary mcp__blender_official__render_viewport_to_path mcp__blender_official__search_api_docs mcp__blender__get_screenshot_of_area_as_image mcp__blender_official__get_screenshot_of_area_as_image
 ---
 
+
+## MCP backend
+
+Use when: User provides one or more PNG wireframe images and wants a 3D model. Also use when user asks to model an object from front/side/back drawings, or to convert technical line art to glTF/GLB.
+
+Before the first Blender call, read [../text-to-blender/references/mcp-backends.md](../text-to-blender/references/mcp-backends.md). Prefer official MCP for shared capabilities; preserve the selected backend for the whole task. Tool names in recipes are client/legacy examples: map them through that reference and its agent-host guide.
 # Wireframe-to-3D Conversion
 
 Convert 2D orthographic wireframe images to parametric 3D Blender models, exported as glTF 2.0 binary (`.glb`).
@@ -14,17 +19,17 @@ Convert 2D orthographic wireframe images to parametric 3D Blender models, export
 The skill drives a four-stage pipeline:
 1. **Analyze** wireframe images locally with `scripts/wireframe_analyzer.py` (OpenCV → Bezier control points in JSON).
 2. **Generate** Blender Python code that recreates the contours as parametric Bezier curves.
-3. **Execute** code in Blender via `mcp__blender__execute_blender_code`, converting curves to meshes with PBR materials.
+3. **Execute** code through the selected Blender MCP backend, converting curves to meshes with PBR materials.
 4. **Export** as optimized GLB (≤ 15 MB), validating size and topology.
 
-You (Claude) are the orchestrator. The `scripts/` directory contains the only standalone code (`wireframe_analyzer.py`); everything else is patterns you emit and run via MCP.
+You (the agent) are the orchestrator. The `scripts/` directory contains the only standalone code (`wireframe_analyzer.py`); everything else is patterns you emit and run via MCP.
 
 ## Prerequisites — check first
 
 Before any wireframe work, verify the environment:
 
-1. **Blender MCP is reachable**. Call `mcp__blender__get_scene_info`. If it errors with "Could not connect to Blender", stop and tell the user:
-   > "Blender's MCP addon isn't running. Start Blender, enable the BlenderMCP addon (port 9876), then re-run."
+1. **Blender MCP is reachable**. Call the selected backend's read-only scene-inspection tool. If it cannot connect, stop and tell the user:
+   > "The selected Blender MCP backend is not reachable. Start Blender, enable its add-on, verify the configured host/port, then re-run."
 
 2. **Python deps for the analyzer**. Run:
    ```
@@ -94,7 +99,7 @@ The script outputs JSON with this shape:
 - Output has too many noisy points → raise epsilon to 3.0–4.0.
 - Pass via `--rdp-epsilon` (or edit the call in the script).
 
-Read the JSON with `Read`. Do not pass huge JSON blobs to Blender — extract what you need first.
+Read the JSON with the host's file-reading tool. Do not pass huge JSON blobs to Blender — extract what you need first.
 
 ## Stage 2 — Generate Blender code
 

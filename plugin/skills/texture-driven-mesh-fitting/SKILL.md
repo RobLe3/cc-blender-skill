@@ -1,10 +1,15 @@
 ---
 name: texture-driven-mesh-fitting
 description: Reshape source-locked mesh boundaries so the geometry fits texture-atlas or decal contours 1:1 before final UV/material work. Use when textures look off because the model behind them does not match the source texture region, or when the mesh must adapt to the texture instead of stretching the texture onto an approximate mesh.
-when_to_use: Texture-driven geometry fitting, mesh boundary fitting to atlas masks, UV-preserving contour correspondence, point/landmark deformation, source mask to mesh repair.
-allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_object_info
+allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_object_info mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs mcp__blender_official__execute_blender_code mcp__blender_official__get_objects_summary mcp__blender_official__get_object_detail_summary mcp__blender_official__render_viewport_to_path mcp__blender_official__search_api_docs
 ---
 
+
+## MCP backend
+
+Use when: Texture-driven geometry fitting, mesh boundary fitting to atlas masks, UV-preserving contour correspondence, point/landmark deformation, source mask to mesh repair.
+
+Before the first Blender call, read [../text-to-blender/references/mcp-backends.md](../text-to-blender/references/mcp-backends.md). Prefer official MCP for shared capabilities; preserve the selected backend for the whole task. Tool names in recipes are client/legacy examples: map them through that reference and its agent-host guide.
 # Texture-Driven Mesh Fitting
 
 This skill fixes the common failure: a texture is mapped correctly, but the mesh silhouette underneath is wrong.

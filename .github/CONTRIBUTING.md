@@ -7,11 +7,30 @@ Thanks for considering a contribution. This is a small project; the workflow bel
 Open a GitHub issue using the **Bug** template. Include:
 
 - Your Blender version (`bpy.app.version_string`) and OS
+- Your agent/client and version (for example, Claude Code or Codex)
+- The selected MCP backend plus add-on/server versions
+- Whether the skill was discovered automatically or invoked explicitly
+- Whether it was installed at personal or project scope
 - The exact prompt you sent + the skill that triggered (or didn't)
 - Whether the failure was numerical (Python error, file not created) or visual (render looks wrong)
 - For visual bugs: attach the rendered output
+- Sanitized logs or traces, with credentials, private paths, and proprietary data removed
 
 The validation pattern documented in [`docs/test-results/`](../docs/test-results/) shows how the project's tester→patcher loop works. Bug reports that follow that pattern get acted on faster.
+
+### v1.4.0 feedback priorities
+
+The repository has Blender 5.1.1 coverage through both supported MCP backends and
+bounded native Codex workflow evidence. The highest-value remaining reports are:
+
+- Claude Code skill discovery, implicit routing, and explicit invocation
+- Queries from the 225-case trigger set or ten backend scenarios that misroute
+- Unreal Engine imports of collision FBX or Multires cage-normal output
+- Blender 4.x or post-5.1 compatibility results
+- Legacy provider download/generation behavior
+
+Successful runs are useful too. State exactly what you exercised so the result is
+not mistaken for broader coverage.
 
 ## Feature requests
 
@@ -31,6 +50,8 @@ Welcome but not required. If you do open one:
 - Keep the change scoped to a single concern
 - Update [`CHANGELOG.md`](../CHANGELOG.md) with the version it lands in
 - If the change affects skill behaviour, add an `evals/evals.json` entry covering the new trigger / no-trigger boundary
+- For a Claude Code routing fix, include the failing prompt, expected skill/backend,
+  observed trace, and a regression eval when one can represent the boundary
 - If the change adds a new scene class, add the proof render to `plugin/skills/text-to-blender/assets/v<version>-validation/` — including failure-state renders if the path was non-trivial. Honest validation > cherry-picked best result.
 
 ## Honesty principle

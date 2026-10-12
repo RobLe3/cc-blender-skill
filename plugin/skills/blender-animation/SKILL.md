@@ -1,10 +1,15 @@
 ---
 name: blender-animation
 description: Animate objects, cameras, lights, and properties in Blender — keyframes, F-curves, easing (Bezier, Linear, Sine, Bounce, Elastic), shape keys (morph targets / blendshapes / visemes), drivers (Python expressions on properties), NLA actions for reuse and layering. Use whenever the user asks to "animate this", "make it move / rotate / scale over time", "add keyframes", "loop / oscillate", "shape key / morph / blendshape", "visemes for lip sync", or any time-based property change. Make sure to use this skill even if the user does not say "animate" — also covers "spin it slowly", "make it wave", "fade in / out", "pulse", "facial expression".
-when_to_use: Any time-based animation, keyframe insertion, F-curve manipulation, shape-key editing, or driver setup in Blender.
-allowed-tools: Read Bash mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info
+allowed-tools: Read Bash mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs mcp__blender_official__execute_blender_code mcp__blender_official__get_objects_summary mcp__blender_official__get_object_detail_summary mcp__blender_official__render_viewport_to_path mcp__blender_official__search_api_docs
 ---
 
+
+## MCP backend
+
+Use when: Any time-based animation, keyframe insertion, F-curve manipulation, shape-key editing, or driver setup in Blender.
+
+Before the first Blender call, read [../text-to-blender/references/mcp-backends.md](../text-to-blender/references/mcp-backends.md). Prefer official MCP for shared capabilities; preserve the selected backend for the whole task. Tool names in recipes are client/legacy examples: map them through that reference and its agent-host guide.
 # Blender Animation
 
 Animate properties over time. Most animation is just keyframes — the trick is choosing the right interpolation and easing for the motion's character.

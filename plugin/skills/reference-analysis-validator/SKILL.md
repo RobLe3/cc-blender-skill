@@ -1,10 +1,15 @@
 ---
 name: reference-analysis-validator
 description: Measure and validate supplied reference images, wireframes, texture atlases, and Blender renders before declaring a reconstruction 1:1. Use when an asset must match a template, when visual feedback says the output is off, when part counts must be exact, or before exporting a brand mascot/logo reconstruction. Pairs with reference-to-3d, contour-to-mesh, orthographic-registration, atlas-uv-fitting, and Blender MCP.
-when_to_use: Any 1:1 reference/model validation task involving masks, overlays, part counts, centroids, bounding boxes, SSIM/IoU, source manifests, or fail-before-export gates.
-allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info
+allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs mcp__blender_official__execute_blender_code mcp__blender_official__get_objects_summary mcp__blender_official__get_object_detail_summary mcp__blender_official__render_viewport_to_path mcp__blender_official__search_api_docs
 ---
 
+
+## MCP backend
+
+Use when: Any 1:1 reference/model validation task involving masks, overlays, part counts, centroids, bounding boxes, SSIM/IoU, source manifests, or fail-before-export gates.
+
+Before the first Blender call, read [../text-to-blender/references/mcp-backends.md](../text-to-blender/references/mcp-backends.md). Prefer official MCP for shared capabilities; preserve the selected backend for the whole task. Tool names in recipes are client/legacy examples: map them through that reference and its agent-host guide.
 # Reference Analysis Validator
 
 This skill converts “looks close” into measurable gates. For brand/logo/mascot work, **do not model or export until a source manifest and validation thresholds exist**.

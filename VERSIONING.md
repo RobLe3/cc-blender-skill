@@ -1,11 +1,20 @@
 # Versioning — Honest Release History
 
-**Current version**: **1.3.0** — quality-refinement autoloop, closed-surface coverage, animation QA, and reference-locked reconstruction
-**Date**: 2026-05-01
+**Current version**: **1.4.0** — additive dual-MCP and checked collision/Multires integration
+**Date**: 2026-10-12
 
 ---
 
 ## Current release posture
+
+Version 1.4.0 is the published maintenance release for the two adapted contributions.
+Official MCP is preferred when available; ahujasid remains supported and handles
+legacy-only asset tasks. The same 30 skill folders now support Codex and Claude Code
+without generated host-specific forks. Three Blender 5.1 recipe defects were repaired;
+all other original recipe blocks, reference gates, and general export defaults are
+preserved. [Integration evidence and known gaps](docs/test-results/v1.4.0-integration.md)
+define the validation boundary. Thanks to fatalerrorist (PR #1) and NicoCaltha (PR #2).
+
 
 The original 10-skill core reached v1.0.0 after live Blender validation and patch rounds. Version 1.3.0 keeps that stable core, preserves the v1.2.9 source-locked reconstruction layer, and adds a generic quality-refinement autoloop plus explicit closed-surface coverage and animation QA gates for subpar outputs.
 

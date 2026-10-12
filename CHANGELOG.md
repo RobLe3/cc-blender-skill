@@ -3,6 +3,42 @@
 All notable changes to **cc-blender-skill** since first commit. Detailed rationale per version is in [`VERSIONING.md`](./VERSIONING.md). Patch-by-patch root-cause notes are in [`docs/process/IMPLEMENTATION_LOG.md`](./docs/process/IMPLEMENTATION_LOG.md). Test results are in [`docs/test-results/`](./docs/test-results/).
 
 
+## [1.4.0] — 2026-10-12
+
+### Added
+
+- Official-first dual MCP support while retaining ahujasid tool names, existing
+  installations, provider asset integrations, and all 30 skills. Shared guidance
+  covers capability selection, server aliases, setup, response status, and renders.
+- Unreal collision naming/packaging, evaluated-geometry preflight, primitive
+  constraints, and selection-scoped static FBX export.
+- Multires normal-map baking to level 0 followed by cage export, with prerequisite
+  checks and temporary context/settings restoration.
+- Repeatable integration/regression checks and backend-routing evaluation scenarios.
+- One shared, agent-neutral skill pack for Codex and Claude Code, with Codex
+  `.agents/skills` installation, `$skill` invocation, MCP TOML examples, and
+  host-neutral file/shell/image operation guidance.
+- Public v1.4.0 test-status guidance, Claude Code feedback priorities, and expanded
+  issue fields for client, backend, invocation mode, installation scope, and versions.
+
+### Corrected during integration
+
+- Official MCP requires Blender 5.1+ and a separate MCP process/socket; it does not
+  replace the legacy backend's existing requirements.
+- Official render validation consumes the returned scratch filepath.
+- Multires level 0 is set before baking, not only before export. Collision checks
+  reject open/empty geometry rather than treating a face-plane test as sufficient.
+- Camera-orbit F-curve handling now supports layered Actions; the EEVEE preset guards
+  versioned settings; decimation uses the valid modifier API and restores context.
+
+### Credits and limits
+
+- [fatalerrorist, PR #1](https://github.com/RobLe3/cc-blender-skill/pull/1), adapted
+  additively from commit `e0d3776`; [NicoCaltha, PR #2](https://github.com/RobLe3/cc-blender-skill/pull/2),
+  integrated with fixes from commit `56f21ca`.
+- No Unreal import or new Blender 4.x validation claim. General FBX transform and
+  animation defaults are unchanged. See the integration report for remaining gates.
+
 ## [1.3.0] — 2026-05-01
 
 ### Added

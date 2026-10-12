@@ -1,10 +1,15 @@
 ---
 name: multiview-constraint-solver
 description: Determine whether front/side/back/top reference templates can be satisfied by one rigid 3D Blender model, choose a canonical source policy, and emit constraints before rebuilding. Use when multiview bboxes, silhouettes, part counts, or depth ratios contradict each other.
-when_to_use: Orthographic template conflict detection, canonical view policy, rigid-vs-cheat-view decision, front/side/top dimension ratios, source-of-truth negotiation before reconstruction.
 allowed-tools: Read Bash Glob Grep
 ---
 
+
+## MCP backend
+
+Use when: Orthographic template conflict detection, canonical view policy, rigid-vs-cheat-view decision, front/side/top dimension ratios, source-of-truth negotiation before reconstruction.
+
+Before the first Blender call, read [../text-to-blender/references/mcp-backends.md](../text-to-blender/references/mcp-backends.md). Prefer official MCP for shared capabilities; preserve the selected backend for the whole task. Tool names in recipes are client/legacy examples: map them through that reference and its agent-host guide.
 # Multiview Constraint Solver
 
 Use this before another rebuild when references disagree. A renderer cannot make one rigid mesh satisfy mutually incompatible orthographic dimensions unless you allow view-specific cheats.

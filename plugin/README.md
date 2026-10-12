@@ -1,8 +1,8 @@
 # cc-blender-skill — Plugin
 
-A Claude Code skill plugin that lets Claude use Blender like a senior 3D artist via natural language.
+A portable skill pack that lets Codex, Claude Code, and compatible agent hosts use Blender like a senior 3D artist through natural language.
 
-**Version**: 1.3.0 (quality-refinement autoloop, closed-surface coverage, animation QA, source-locked reconstruction, UV/atlas fitting, validation, repair optimization, and look calibration — see [VERSIONING.md](../VERSIONING.md))
+**Version**: 1.4.0 (quality-refinement autoloop, closed-surface coverage, animation QA, source-locked reconstruction, UV/atlas fitting, validation, repair optimization, and look calibration — see [VERSIONING.md](../VERSIONING.md))
 
 ---
 
@@ -49,50 +49,77 @@ A Claude Code skill plugin that lets Claude use Blender like a senior 3D artist 
 
 ### Prerequisites
 
-1. **Blender ≥ 4.0** with the [BlenderMCP addon](https://github.com/ahujasid/blender-mcp) installed and running on port 9876.
-2. **Claude Code** ≥ 1.0 with skills support.
+1. **A configured MCP backend:** official Blender Lab MCP with Blender ≥5.1, or the existing [ahujasid add-on/server](https://github.com/ahujasid/blender-mcp) with Blender ≥4.0. Both require an add-on socket and a separate client MCP process.
+2. **A compatible agent host** with SKILL.md discovery, file and shell tools, image inspection, and MCP support. Codex and Claude Code have documented setups below.
 3. **Python 3.9+** with `opencv-python`, `numpy`, `scipy`, `Pillow` (only needed for `wireframe-to-3d` — install with `pip install -r ../requirements.txt`).
 
-### Install all skills (personal scope)
+### Choose a backend
 
-Each skill goes into `~/.claude/skills/<skill-name>/`. Easiest is to symlink the entire `plugin/skills/` contents:
+Read [the backend setup/mapping reference](skills/text-to-blender/references/mcp-backends.md)
+before configuring the client. A single backend uses server name `blender`.
+For both, keep ahujasid as `blender` on port 9876 and add official MCP as
+`blender_official` on port 9877. Keep their Python environments separate because
+both upstream packages install an executable named `blender-mcp`.
+
+Official MCP is preferred for common operations. Legacy-only asset tools select
+ahujasid for the whole task; an explicit user backend choice takes precedence.
+These instructions do not authorize changing an existing client configuration.
+
+### Install in Codex
+
+Codex discovers personal skills in `~/.agents/skills/` and project skills in `.agents/skills/`. Symlink the pack without replacing an existing skill:
 
 ```bash
 cd /path/to/cc-blender-skill
+mkdir -p "$HOME/.agents/skills"
 for skill in plugin/skills/*/; do
     name=$(basename "$skill")
-    ln -sfn "$(pwd)/$skill" "$HOME/.claude/skills/$name"
+    test ! -e "$HOME/.agents/skills/$name" && test ! -L "$HOME/.agents/skills/$name" || {
+        echo "Refusing to replace $name" >&2; exit 1;
+    }
 done
-ls -la ~/.claude/skills/ | grep blender
+for skill in plugin/skills/*/; do
+    name=$(basename "$skill")
+    ln -s "$(pwd)/$skill" "$HOME/.agents/skills/$name"
+done
 ```
 
-Or copy (no live updates from the repo):
+For one project, run the same loop with the destination set to
+`/path/to/project/.agents/skills`. In Codex, inspect `/skills`, invoke the
+orchestrator as `$text-to-blender`, or describe the Blender task directly.
+
+### Install in Claude Code
+
+Claude Code uses `~/.claude/skills/` for personal scope and `.claude/skills/` for
+project scope:
 
 ```bash
-cp -r plugin/skills/* ~/.claude/skills/
+mkdir -p "$HOME/.claude/skills"
+for skill in plugin/skills/*/; do
+    name=$(basename "$skill")
+    test ! -e "$HOME/.claude/skills/$name" && test ! -L "$HOME/.claude/skills/$name" || {
+        echo "Refusing to replace $name" >&2; exit 1;
+    }
+done
+for skill in plugin/skills/*/; do
+    name=$(basename "$skill")
+    ln -s "$(pwd)/$skill" "$HOME/.claude/skills/$name"
+done
 ```
 
-### Install for a single project
+The optional `allowed-tools` frontmatter is a Claude-specific advisory. Other
+hosts must use their own permissions and tool names. See the full
+[agent-host guide](skills/text-to-blender/references/agent-hosts.md), including
+Codex TOML examples and project-scoped installation.
 
-```bash
-cd /path/to/your/project
-mkdir -p .claude/skills
-ln -s /path/to/cc-blender-skill/plugin/skills/text-to-blender .claude/skills/text-to-blender
-# Repeat for each skill you want available in this project
-```
+### Verify installation
 
-### Verify install
+List the host's available skills (`/skills` in Codex) and confirm all 30 appear.
+Then confirm Blender is running with the selected MCP add-on enabled and that the
+host exposes that server's tools.
 
-In Claude Code, type:
-
-```
-What skills are available?
-```
-
-You should see the 30 skills listed. If not:
-- Restart Claude Code (top-level skills directories are watched on startup; new directories require a restart)
-- Check `ls ~/.claude/skills/` to confirm the symlinks are present
-- Check Blender is running with the MCP addon enabled
+Do not treat successful discovery as an MCP connection test; exercise a harmless
+scene query before modifying a real file.
 
 ---
 
@@ -106,23 +133,25 @@ Just describe what you want in natural language:
 Make a 3D model of a teapot and render it with three-point lighting.
 ```
 
-Claude detects the intent, loads `text-to-blender`, which chain-loads `blender-modeling` + `blender-materials` + `blender-lighting` + `blender-rendering`, and executes the pipeline via the Blender MCP.
+The agent detects the intent, loads `text-to-blender`, then loads `blender-modeling` + `blender-materials` + `blender-lighting` + `blender-rendering` and executes the pipeline through the selected Blender MCP.
 
 ### Explicit invocation
 
-Type `/<skill-name>` directly:
+In Codex, use `$<skill-name>` directly:
 
 ```
-/wireframe-to-3d ./glasses_front.png
-/blender-lighting set up dramatic three-point for the active subject
-/blender-export glb /tmp/output.glb
+$wireframe-to-3d ./glasses_front.png
+$blender-lighting set up dramatic three-point for the active subject
+$blender-export glb /tmp/output.glb
 ```
+
+Claude Code uses its corresponding skill invocation syntax.
 
 ---
 
 ## How the skills compose
 
-The orchestrator `text-to-blender` reads the user's intent and decides which sub-skills to chain-load. Each sub-skill stays under 500 lines (the Anthropic recommended cap) and points to its own `references/overview.md` for depth on edge cases.
+The orchestrator `text-to-blender` reads the user's intent and decides which sub-skills to chain-load. Each sub-skill uses progressive disclosure and points to its own `references/overview.md` for depth on edge cases.
 
 ```
 User: "Hero shot of a sword on a stone pedestal, exported as glTF"
@@ -148,10 +177,10 @@ User: "Hero shot of a sword on a stone pedestal, exported as glTF"
 
 ## Architecture
 
-- **Pure-skill design**: no Python wrapper, no custom MCP. Claude is the orchestrator. Sub-skills are markdown decision trees + inline code recipes.
+- **Pure-skill design**: no Python wrapper and no custom MCP. The host agent orchestrates markdown decision trees and inline code recipes.
 - **Generated Python via `mcp__blender__execute_blender_code`**: each call is a fresh namespace. Objects identified by `bpy.data.objects['name']`, never by Python variables.
 - **Naming convention**: `GEO-`, `MAT-`, `LGT-`, `CAM-`, `ARM-`, `COL-` prefixes (Blender Studio standard).
-- **MCP transport**: `ahujasid/blender-mcp` socket on :9876 (synchronous, 180 s timeout per call).
+- **MCP transport**: selected backend's MCP process → add-on TCP socket. Keep backend selection fixed for the task; consult the shared mapping for signatures, response status, timeouts, and render paths.
 
 See `../docs/` for full architecture notes, MCP coverage assessment, and verification report.
 
@@ -168,9 +197,10 @@ This plugin coexists peacefully with:
 
 ## Status & honest version
 
-**1.3.0** — stable core plus generic quality-refinement autoloop, closed-surface coverage, animation QA, and reference-locked reconstruction workflows. The skill structure follows the skills spec, the architecture is verified against Blender MCP usage, and the new source-driven stack avoids hardcoded project assumptions by deriving counts, masks, hues, and validation gates from manifests/reports.
+**1.4.0** — additive dual-backend/collision/Multires support on top of the stable core plus generic quality-refinement autoloop, closed-surface coverage, animation QA, and reference-locked reconstruction workflows. The skill structure follows the skills spec, the architecture is verified against Blender MCP usage, and the new source-driven stack avoids hardcoded project assumptions by deriving counts, masks, hues, and validation gates from manifests/reports.
 
 What's NOT done yet:
+- Full 225-query and ten-scenario native routing matrices in both Codex and Claude Code
 - More external validation on diverse non-mascot source sheets
 - Trigger-eval expansion for the newly added skills
 - Recipe library expansion in long-tail areas (geometry nodes recipes, sculpting, complex sims)
@@ -186,6 +216,23 @@ Open issues at: https://github.com/RobLe3/cc-blender-skill/issues
 
 Include:
 - Which skill triggered (or didn't)
+- Agent/client and version, especially Codex or Claude Code
 - Your Blender version
-- Your `ahujasid/blender-mcp` version
-- The full prompt + Claude's response (or refusal)
+- Your selected MCP backend/server/add-on versions
+- Whether the skill was selected automatically or invoked explicitly
+- Whether the skills were installed at personal or project scope
+- The full prompt + agent response (or refusal), with the host/client named
+- Sanitized error output and a render when the failure is visual
+
+For v1.4.0, Claude Code discovery/routing, the complete trigger/backend scenario
+matrix, Unreal imports, and Blender versions outside 5.1.1 remain open validation
+areas. Reports and focused PRs covering those gaps are welcome. Do not attach
+credentials, private paths, paid-provider tokens, or proprietary scene files.
+
+## v1.4.0 validation
+
+See [the integration report](../docs/test-results/v1.4.0-integration.md). Unreal import
+behavior and Blender 4.x live behavior remain unverified. Runtime recipe checks are
+not skill-trigger evaluations. Both MCP routes pass the 35 core checks, and bounded
+native Codex workflows pass, but the full Codex/Claude Code routing matrix remains
+incomplete and is a documented validation gap for follow-up contributors.

@@ -1,10 +1,15 @@
 ---
 name: reference-look-calibration
 description: Calibrate Blender materials, lighting, camera crop, emission/glow, color management, and aura/HUD styling against supplied original/reference images using measurable color, brightness, saturation, bbox, and mask statistics. Use when a product must match the lighting/look of a source image or when audits say the product is too bright, desaturated, wrong hue, wrong glow, or wrong silhouette extent.
-when_to_use: Reference-based look-dev, lighting/material/color calibration, original-image visual matching, glow/aura/HUD matching, HSV/brightness/mask fit reports, final look pass after geometry and UV are locked.
-allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info
+allowed-tools: Read Bash Glob Grep mcp__blender__execute_blender_code mcp__blender__get_scene_info mcp__blender__get_object_info mcp__blender__get_objects_summary mcp__blender__get_object_detail_summary mcp__blender__render_viewport_to_path mcp__blender__search_api_docs mcp__blender_official__execute_blender_code mcp__blender_official__get_objects_summary mcp__blender_official__get_object_detail_summary mcp__blender_official__render_viewport_to_path mcp__blender_official__search_api_docs
 ---
 
+
+## MCP backend
+
+Use when: Reference-based look-dev, lighting/material/color calibration, original-image visual matching, glow/aura/HUD matching, HSV/brightness/mask fit reports, final look pass after geometry and UV are locked.
+
+Before the first Blender call, read [../text-to-blender/references/mcp-backends.md](../text-to-blender/references/mcp-backends.md). Prefer official MCP for shared capabilities; preserve the selected backend for the whole task. Tool names in recipes are client/legacy examples: map them through that reference and its agent-host guide.
 # Reference Look Calibration
 
 This skill handles the final visual match after geometry and UVs are locked. It must not compensate for wrong shape, wrong UVs, or wrong camera framing.
